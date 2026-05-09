@@ -324,3 +324,64 @@
     margin-bottom: 1.2rem;
   }
 }
+
+/* Login page specific overrides to match design */
+body.login-page {
+  background-color: #fff4d6; /* pale yellow like screenshot */
+}
+
+.login-box {
+  width: 380px;
+  margin: 6vh auto;
+}
+
+.login-box .card {
+  border-radius: 8px;
+  overflow: visible;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+.card-header.bg-success {
+  background: #167a3c; /* deeper green */
+  border-radius: 6px 6px 0 0;
+  text-align: center;
+  padding: 14px 18px;
+}
+
+.auth-modal-title {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  font-family: 'Krona One', sans-serif;
+}
+
+.login-card-body {
+  background: #d8dbe0; /* light gray inner */
+  border-radius: 0 0 6px 6px;
+  padding: 22px;
+}
+
+.login-card-body .login-box-msg {
+  text-align: center;
+  margin-bottom: 16px;
+  color: #5b5b5b;
+}
+
+.login-card-body .form-control {
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+.login-card-body .btn-secondary {
+  background: #565659; /* dark gray */
+  border: none;
+  color: #fff;
+}
+
+.login-card-body a {
+  color: #c58bd4; /* pinkish link */
+}
+
+/* small logo image */
+.logo-img { height:34px; width:auto; }
+

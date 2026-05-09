@@ -9,17 +9,18 @@
     <link rel="stylesheet" th:href="@{/assets/bootstrap-icons-1.13.1/bootstrap-icons.min.css}" />
     <link rel="stylesheet" th:href="@{/css/adminlte.css}" />
     <link rel="stylesheet" th:href="@{/css/colors.css}" />
+    <link rel="stylesheet" th:href="@{/css/auth-modal.css}" />
   </head>
   <body class="login-page bg-warning-subtle">
     <div class="login-box">
       <div class="card card-outline card-dark">
-        <div class="card-header bg-success">
-          <a href="/" class="link-dark text-center link-offset-2 link-opacity-100 link-opacity-50-hover">
-            <img th:src="@{/assets/img/logo.jpg}" alt="Happy Paws" class="logo-img" />
-            <h1 class="mb-0"><b>Happy paws</b></h1>
+        <div class="card-header bg-success d-flex align-items-center justify-content-center" style="position:relative;">
+          <a href="/" class="link-dark text-center" style="display:flex;align-items:center;gap:12px;">
+            <img th:src="@{/assets/img/shared/logo.jpg}" alt="Happy Paws" class="logo-img" style="height:34px;object-fit:cover;border-radius:4px;" />
+            <h1 class="mb-0 auth-modal-title" style="margin:0;color:#eab7f0;">Happy paws</h1>
           </a>
         </div>
-        <div class="card-body login-card-body bg-dark-subtle">
+        <div class="card-body login-card-body bg-dark-subtle auth-modal-body">
           <p class="login-box-msg">Ingrese sus credenciales de acceso</p>
           <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
           <form th:action="@{/login}" method="post">
