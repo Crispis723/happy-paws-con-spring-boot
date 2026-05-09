@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Formulario Cita</title>
+</head>
+<body>
+
+<h1>Formulario Cita</h1>
+
+<form th:action="@{/citas/guardar}" th:object="${cita}" method="post">
+
+    <input type="hidden" th:field="*{c.id}">
+
+    <label>Mascota:</label>
+    <input type="text" th:field="*{c.mascota}">
+    <br><br>
+
+    <label>Propietario:</label>
+    <input type="text" th:field="*{c.propietario}">
+    <br><br>
+
+    <label>Fecha:</label>
+    <input type="date" th:field="*{c.fecha}">
+    <br><br>
+
+    <label>Motivo:</label>
+    <input type="text" th:field="*{c.motivo}">
+    <br><br>
+
+    <button type="submit">Guardar</button>
+
+</form>
+
+<a href="/citas">Volver</a>
+
+</body>
+</html>

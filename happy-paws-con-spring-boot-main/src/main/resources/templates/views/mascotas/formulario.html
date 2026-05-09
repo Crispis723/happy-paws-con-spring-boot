@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Formulario Mascota</title>
+</head>
+<body>
+
+<h1>Formulario Mascota</h1>
+
+<form th:action="@{/mascotas/guardar}" th:object="${mascota}" method="post">
+
+    <input type="hidden" th:field="*{m.id}">
+
+    <label>Nombre:</label>
+    <input type="text" th:field="*{m.nombre}">
+    <br><br>
+
+    <label>Especie:</label>
+    <input type="text" th:field="*{m.especie}">
+    <br><br>
+
+    <label>Edad:</label>
+    <input type="number" th:field="*{m.edad}">
+    <br><br>
+
+    <button type="submit">Guardar</button>
+
+</form>
+
+<a href="/mascotas">Volver</a>
+
+</body>
+</html>
