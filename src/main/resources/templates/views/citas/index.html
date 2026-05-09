@@ -1,10 +1,6 @@
-@extends('plantilla.app')
-@push('estilos')
-
-@endpush
-
-@php use Illuminate\Support\Str; @endphp
-@section('contenido')
+<div th:insert="views/plantilla/header :: header"></div>
+<div th:insert="views/plantilla/menu :: menu"></div>
+<!-- Page content -->
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
@@ -70,8 +66,6 @@
         </div>
     </div>
 </div>
-@endsection
-@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function(){
     const mnuVenta = document.getElementById('mnuVenta');
@@ -80,4 +74,4 @@ document.addEventListener('DOMContentLoaded', function(){
     if(item) item.classList.add('active');
 });
 </script>
-@endpush
+<div th:insert="views/plantilla/footer :: footer"></div>
