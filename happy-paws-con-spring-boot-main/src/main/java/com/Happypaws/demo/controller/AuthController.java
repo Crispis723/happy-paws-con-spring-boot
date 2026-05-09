@@ -43,7 +43,7 @@ public class AuthController {
 
         if (authService.login(email, password)) {
             session.setAttribute("userEmail", email);
-            return "redirect:views/dashboard";
+            return "redirect:/dashboard";
         }
 
         model.addAttribute("error", "Credenciales inválidas");

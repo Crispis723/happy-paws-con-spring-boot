@@ -1,10 +1,30 @@
-@extends('plantilla.app')
-@push('estilos')
-
-@endpush
-@section('contenido')
-<div class="container-fluid">
-    <!--begin::Row-->
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tipos de Comprobante - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+</head>
+<body>
+    <div th:insert="partials/header :: header"></div>
+    <div class="container-fluid p-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Tipos de Comprobante</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">Módulo de configuración de tipos de comprobante</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:insert="partials/footer :: footer"></div>
+</body>
+</html>
     <div class="row">
         <div class="col-md-12">
             <div class="card mb-4">

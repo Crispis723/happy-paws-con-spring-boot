@@ -1,34 +1,136 @@
-@extends('plantilla.app')
-@push('estilos')
-
-@endpush
-@section('contenido')
-<div class="container-fluid">
-    <!--begin::Row-->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card mb-4">
-                <div class="card-header d-flex align-items-center">
-                    <h3 class="card-title flex-grow-1">Dashboard</h3>
-                </div>
-                <!-- /.card-header -->
-                <div class="card-body">
-
-                </div>
-                <!-- /.card-body -->
-                <div class="card-footer clearfix">
-                    
-                </div>
-            </div>
-            <!-- /.card -->
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Happy Paws - Dashboard</title>
+    <link rel="shortcut icon" th:href="@{/assets/favicon.ico}" type="image/x-icon">
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}" />
+    <link rel="stylesheet" th:href="@{/css/colors.css}" />
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}" />
+    <style>
+      body {
+        background: linear-gradient(180deg, #f7f8fb 0%, #eef2f7 100%);
+      }
+      .dashboard-wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 3rem 1rem;
+      }
+      .hero-card {
+        background: white;
+        border-radius: 18px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+      }
+      .module-card {
+        background: white;
+        border-radius: 18px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+        padding: 1.5rem;
+        height: 100%;
+        transition: transform .2s ease, box-shadow .2s ease;
+      }
+      .module-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+      }
+      .module-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        color: white;
+        font-size: 1.6rem;
+      }
+      .bg-primary-soft { background: #2b6cb0; }
+      .bg-success-soft { background: #1f8f4f; }
+      .bg-danger-soft { background: #b63c4c; }
+      .bg-warning-soft { background: #c98715; }
+      .bg-info-soft { background: #2d8ca7; }
+      .dashboard-actions a {
+        border-radius: 999px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-wrap">
+      <div class="hero-card d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+        <div>
+          <p class="text-uppercase text-muted mb-1">Happy Paws</p>
+          <h1 class="display-6 fw-bold mb-2">Bienvenido al panel principal</h1>
+          <p class="text-muted mb-0">Desde aquí puedes acceder a los módulos más usados del sistema.</p>
         </div>
-        <!-- /.col -->
+        <div class="dashboard-actions d-flex gap-2 flex-wrap">
+          <a th:href="@{/login}" class="btn btn-outline-secondary">Cerrar sesión</a>
+          <a th:href="@{/}" class="btn btn-primary">Ir al inicio</a>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+          <div class="module-card">
+            <div class="module-icon bg-primary-soft"><i class="bi bi-calendar-check"></i></div>
+            <h3 class="h5 fw-bold">Citas</h3>
+            <p class="text-muted">Agenda, revisa y administra citas.</p>
+            <a th:href="@{/citas}" class="btn btn-sm btn-primary">Abrir módulo</a>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="module-card">
+            <div class="module-icon bg-danger-soft"><i class="bi bi-heart-fill"></i></div>
+            <h3 class="h5 fw-bold">Mascotas</h3>
+            <p class="text-muted">Administra el registro de mascotas.</p>
+            <a th:href="@{/mascotas}" class="btn btn-sm btn-danger">Abrir módulo</a>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="module-card">
+            <div class="module-icon bg-success-soft"><i class="bi bi-people-fill"></i></div>
+            <h3 class="h5 fw-bold">Clientes</h3>
+            <p class="text-muted">Ver y gestionar clientes.</p>
+            <a th:href="@{/clientes}" class="btn btn-sm btn-success">Abrir módulo</a>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="module-card">
+            <div class="module-icon bg-warning-soft"><i class="bi bi-box-seam"></i></div>
+            <h3 class="h5 fw-bold">Productos</h3>
+            <p class="text-muted">Inventario y catálogo de productos.</p>
+            <a th:href="@{/productos}" class="btn btn-sm btn-warning text-white">Abrir módulo</a>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="module-card">
+            <div class="module-icon bg-info-soft"><i class="bi bi-cart-check"></i></div>
+            <h3 class="h5 fw-bold">Compras</h3>
+            <p class="text-muted">Seguimiento de compras y proveedores.</p>
+            <a th:href="@{/compras}" class="btn btn-sm btn-info text-white">Abrir módulo</a>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="module-card">
+            <div class="module-icon bg-primary-soft"><i class="bi bi-cash-coin"></i></div>
+            <h3 class="h5 fw-bold">Ventas</h3>
+            <p class="text-muted">Ventas y facturación del sistema.</p>
+            <a th:href="@{/ventas}" class="btn btn-sm btn-primary">Abrir módulo</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-card mt-4">
+        <h2 class="h5 fw-bold mb-2">Accesos rápidos</h2>
+        <p class="text-muted mb-3">Conexión directa con otros apartados del sistema.</p>
+        <div class="d-flex gap-2 flex-wrap">
+          <a th:href="@{/register}" class="btn btn-outline-primary">Registro</a>
+          <a th:href="@{/Users}" class="btn btn-outline-secondary">Usuarios</a>
+          <a th:href="@{/dashboard}" class="btn btn-outline-dark">Dashboard actual</a>
+        </div>
+      </div>
     </div>
-    <!--end::Row-->
-</div>
-@endsection
-@push('scripts')
-<script>
-document.getElementById('itemDashboard').classList.add('active');
-</script>
-@endpush
+  </body>
+</html>
