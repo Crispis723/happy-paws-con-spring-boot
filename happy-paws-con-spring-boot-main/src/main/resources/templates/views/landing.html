@@ -22,7 +22,7 @@
           <a href="#inicio">Inicio</a>
           <a href="#servicios">Servicios</a>
           <a href="#contacto">Contacto</a>
-          <a th:href="@{/login}" class="btn-secondary">Ingresar</a>
+          <a href="#" class="btn-secondary" onclick="openAuthModal('login'); return false;">Ingresar</a>
         </div>
         <button class="btn-menu hidden-md" id="menuBtn" type="button">
           <i class="bi bi-list"></i>
@@ -38,7 +38,10 @@
           <p>Administra citas, pacientes, tratamientos e historia médica de forma eficiente en tu clínica veterinaria.</p>
           <div class="btn-group">
             <a href="/citas" class="btn-primary">Pedir cita</a>
-            <a href="/login" class="btn-secondary">Comenzar</a>
+            <a href="#" class="btn-secondary" onclick="openAuthModal('login'); return false;">Comenzar</a>
+          </div>
+          <div class="btn-group" style="margin-top: 1rem;">
+            <a href="#" class="btn-secondary" onclick="openAuthModal('register'); return false;">Registrarse</a>
           </div>
         </div>
         <div>
@@ -96,7 +99,8 @@
             <h4>Enlaces Rápidos</h4>
             <p><a href="#inicio" style="color: white; text-decoration: none;">Inicio</a></p>
             <p><a href="#servicios" style="color: white; text-decoration: none;">Servicios</a></p>
-            <p><a th:href="@{/login}" style="color: white; text-decoration: none;">Ingresar</a></p>
+            <p><a href="#" onclick="openAuthModal('login'); return false;" style="color: white; text-decoration: none;">Ingresar</a></p>
+            <p><a href="#" onclick="openAuthModal('register'); return false;" style="color: white; text-decoration: none;">Registrarse</a></p>
           </div>
           <div class="footer-section">
             <h4>Contacto</h4>
@@ -134,8 +138,13 @@
       // Smooth Scroll
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
+          const targetSelector = this.getAttribute('href');
+          if (targetSelector === '#') {
+            return;
+          }
+
           e.preventDefault();
-          const target = document.querySelector(this.getAttribute('href'));
+          const target = document.querySelector(targetSelector);
           if (target) {
             navMenu.classList.remove('active');
             target.scrollIntoView({ behavior: 'smooth' });

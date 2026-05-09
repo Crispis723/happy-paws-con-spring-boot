@@ -30,8 +30,10 @@ public class AuthController {
     // ================= LOGIN =================
 
     @GetMapping("/login")
-    public String loginForm() {
-        return "views/autenticacion/login";
+    public String loginForm(Model model) {
+        model.addAttribute("authOpen", true);
+        model.addAttribute("authForm", "login");
+        return "views/landing";
     }
 
     @PostMapping("/login")
@@ -48,22 +50,30 @@ public class AuthController {
 
         model.addAttribute("error", "Credenciales inválidas");
         model.addAttribute("email", email);
+        model.addAttribute("authOpen", true);
+        model.addAttribute("authForm", "login");
 
-        return "views/autenticacion/login";
+        return "views/landing";
     }
 
     // ================= REGISTER =================
 
     @GetMapping("/register")
-    public String registerPage() {
-        return "views/autenticacion/register";
+    public String registerPage(Model model) {
+        model.addAttribute("authOpen", true);
+        model.addAttribute("authForm", "register");
+        return "views/landing";
     }
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute User user) {
+    public String registerUser(@ModelAttribute User user, Model model) {
 
         authService.saveUser(user);
 
-        return "redirect:/login";
+        model.addAttribute("success", "Cuenta creada correctamente. Inicia sesión para continuar.");
+        model.addAttribute("authOpen", true);
+        model.addAttribute("authForm", "login");
+
+        return "views/landing";
     }
 }
