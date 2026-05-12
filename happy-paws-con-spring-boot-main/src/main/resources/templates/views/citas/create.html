@@ -1,51 +1,63 @@
 @extends('plantilla.app')
 @section('contenido')
-<div class="container-fluid">
+<div class="container-fluid py-4">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Agendar Nueva Cita</h5>
+        <div class="col-12 col-xl-10">
+            <div class="p-4 p-md-5 mb-4 rounded-4 text-white shadow-sm" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);">
+                <div class="d-flex flex-column flex-lg-row align-items-lg-end justify-content-between gap-3">
+                    <div>
+                        <p class="text-uppercase small fw-semibold mb-1 opacity-75">Agenda médica</p>
+                        <h1 class="h3 mb-2">Agendar nueva cita</h1>
+                        <p class="mb-0 opacity-75">Organiza la consulta con un flujo claro: fecha, cliente, mascota y motivo.</p>
+                    </div>
+                    <div class="text-lg-end">
+                        <span class="badge bg-light text-dark px-3 py-2">Formato del proyecto</span>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form action="{{ route('citas.store') }}" method="POST" novalidate>
+            </div>
+
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <h5 class="mb-0 text-primary fw-bold">Datos de la cita</h5>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form action="{{ route('citas.store') }}" method="POST" novalidate class="row g-4">
                         @csrf
 
-                        {{-- Fecha y Hora --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Fecha y Hora <span class="text-danger">*</span></label>
-                            <input type="datetime-local" name="fecha_hora" class="form-control @error('fecha_hora') is-invalid @enderror" value="{{ old('fecha_hora') }}" min="{{ now()->format('Y-m-d\TH:i') }}" required autofocus aria-describedby="help-fecha-hora">
-                            <small id="help-fecha-hora" class="text-muted">Selecciona la fecha y hora de la cita. No puede ser en el pasado.</small>
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label fw-semibold">Fecha y hora <span class="text-danger">*</span></label>
+                            <input type="datetime-local" name="fecha_hora" class="form-control form-control-lg @error('fecha_hora') is-invalid @enderror" value="{{ old('fecha_hora') }}" min="{{ now()->format('Y-m-d\TH:i') }}" required autofocus aria-describedby="help-fecha-hora">
+                            <small id="help-fecha-hora" class="text-muted">Selecciona la fecha y hora. No puede ser en el pasado.</small>
                             @error('fecha_hora') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        {{-- Cliente (autenticado o invitado) --}}
                         @guest
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Nombre del Cliente <span class="text-danger">*</span></label>
-                            <input type="text" name="cliente_nombre" class="form-control @error('cliente_nombre') is-invalid @enderror" value="{{ old('cliente_nombre') }}" placeholder="Ej. Juan Pérez" required>
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label fw-semibold">Nombre del cliente <span class="text-danger">*</span></label>
+                            <input type="text" name="cliente_nombre" class="form-control form-control-lg @error('cliente_nombre') is-invalid @enderror" value="{{ old('cliente_nombre') }}" placeholder="Ej. Juan Pérez" required>
                             @error('cliente_nombre') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Teléfono <span class="text-danger">*</span></label>
-                            <input type="tel" name="cliente_telefono" class="form-control @error('cliente_telefono') is-invalid @enderror" value="{{ old('cliente_telefono') }}" placeholder="Ej. 999999999" pattern="^[0-9\s\-\+]{6,}$" required aria-describedby="help-telefono">
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label fw-semibold">Teléfono <span class="text-danger">*</span></label>
+                            <input type="tel" name="cliente_telefono" class="form-control form-control-lg @error('cliente_telefono') is-invalid @enderror" value="{{ old('cliente_telefono') }}" placeholder="Ej. 999999999" pattern="^[0-9\s\-\+]{6,}$" required aria-describedby="help-telefono">
                             <small id="help-telefono" class="text-muted">Solo números, espacios, guiones o +. Mínimo 6 caracteres.</small>
                             @error('cliente_telefono') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         @else
-                        <div class="alert alert-info mb-3" role="alert">
-                            <i class="bi bi-info-circle"></i> Cita registrada a nombre de: <strong>{{ auth()->user()->name }}</strong>
-                            @if(auth()->user()->telefono) ({{ auth()->user()->telefono }}) @endif
+                        <div class="col-12">
+                            <div class="alert alert-info border-0 shadow-sm mb-0" role="alert">
+                                <i class="bi bi-info-circle me-1"></i> Cita registrada a nombre de: <strong>{{ auth()->user()->name }}</strong>
+                                @if(auth()->user()->telefono) ({{ auth()->user()->telefono }}) @endif
+                            </div>
+                            <input type="hidden" name="cliente_nombre" value="{{ auth()->user()->name }}">
+                            <input type="hidden" name="cliente_telefono" value="{{ auth()->user()->telefono ?? '' }}">
                         </div>
-                        <input type="hidden" name="cliente_nombre" value="{{ auth()->user()->name }}">
-                        <input type="hidden" name="cliente_telefono" value="{{ auth()->user()->telefono ?? '' }}">
                         @endguest
 
-                        {{-- Veterinario --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Veterinario <span class="text-danger">*</span></label>
-                            <select name="veterinario_id" class="form-select @error('veterinario_id') is-invalid @enderror" required aria-describedby="help-vet">
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label fw-semibold">Veterinario <span class="text-danger">*</span></label>
+                            <select name="veterinario_id" class="form-select form-select-lg @error('veterinario_id') is-invalid @enderror" required aria-describedby="help-vet">
                                 <option value="">-- Seleccionar veterinario --</option>
                                 @forelse($veterinarios as $vet)
                                     <option value="{{ $vet->id }}" {{ old('veterinario_id') == $vet->id ? 'selected' : '' }}>
@@ -59,13 +71,12 @@
                             @error('veterinario_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        {{-- Mascota --}}
                         @php $hasMascotas = isset($mascotas) && $mascotas->isNotEmpty(); @endphp
 
                         @if($hasMascotas)
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Mascota Registrada</label>
-                            <select name="mascota_id" id="mascotaSelect" class="form-select" aria-describedby="help-mascota">
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label fw-semibold">Mascota registrada</label>
+                            <select name="mascota_id" id="mascotaSelect" class="form-select form-select-lg" aria-describedby="help-mascota">
                                 <option value="">-- Agregar mascota manualmente --</option>
                                 @foreach($mascotas as $m)
                                     <option value="{{ $m->id }}" {{ (old('mascota_id', $selected_mascota_id ?? '') == $m->id) ? 'selected' : '' }}>
@@ -77,46 +88,51 @@
                         </div>
                         @endif
 
-                        {{-- Datos Manual de Mascota --}}
-                        <div id="manualFields" class="border-top pt-3 mt-3">
-                            <h6 class="mb-3">Información de la Mascota</h6>
-                            
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Nombre <span class="text-danger">*</span></label>
-                                <input type="text" name="mascota_nombre" class="form-control @error('mascota_nombre') is-invalid @enderror" value="{{ old('mascota_nombre') }}" placeholder="Ej. Firulais" aria-describedby="help-mascota-nombre" required>
-                                <small id="help-mascota-nombre" class="text-muted">Nombre de la mascota.</small>
-                                @error('mascota_nombre') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
+                        <div id="manualFields" class="col-12">
+                            <div class="border rounded-4 p-4 bg-light-subtle">
+                                <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+                                    <h6 class="mb-0 fw-bold text-primary">Información de la mascota</h6>
+                                    <span class="badge bg-accent text-dark">Manual</span>
+                                </div>
 
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Especie <span class="text-danger">*</span></label>
-                                <input type="text" name="mascota_especie" class="form-control @error('mascota_especie') is-invalid @enderror" value="{{ old('mascota_especie') }}" placeholder="Ej. Perro, Gato" aria-describedby="help-mascota-especie" required>
-                                <small id="help-mascota-especie" class="text-muted">Especie: Perro, Gato, etc.</small>
-                                @error('mascota_especie') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <div class="row g-3">
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                                        <input type="text" name="mascota_nombre" class="form-control @error('mascota_nombre') is-invalid @enderror" value="{{ old('mascota_nombre') }}" placeholder="Ej. Firulais" aria-describedby="help-mascota-nombre" required>
+                                        <small id="help-mascota-nombre" class="text-muted">Nombre de la mascota.</small>
+                                        @error('mascota_nombre') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label fw-semibold">Especie <span class="text-danger">*</span></label>
+                                        <input type="text" name="mascota_especie" class="form-control @error('mascota_especie') is-invalid @enderror" value="{{ old('mascota_especie') }}" placeholder="Ej. Perro, Gato" aria-describedby="help-mascota-especie" required>
+                                        <small id="help-mascota-especie" class="text-muted">Especie: Perro, Gato, etc.</small>
+                                        @error('mascota_especie') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {{-- Motivo --}}
-                        <div class="mb-3 mt-3">
-                            <label class="form-label fw-bold">Motivo de la Consulta <span class="text-danger">*</span></label>
-                            <textarea name="motivo" class="form-control @error('motivo') is-invalid @enderror" rows="3" placeholder="Describe brevemente el motivo de la consulta" required>{{ old('motivo') }}</textarea>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Motivo de la consulta <span class="text-danger">*</span></label>
+                            <textarea name="motivo" class="form-control @error('motivo') is-invalid @enderror" rows="4" placeholder="Describe brevemente el motivo de la consulta" required>{{ old('motivo') }}</textarea>
                             @error('motivo') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        {{-- Precio Referencial --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Precio Referencial</label>
-                            <div class="alert alert-light border">
-                                <strong>{{ number_format(\App\Models\Setting::get('cita_precio', '0.00'), 2) }} PEN</strong>
+                        <div class="col-12">
+                            <div class="alert alert-light border d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-0">
+                                <div>
+                                    <span class="fw-semibold text-dark d-block">Precio referencial</span>
+                                    <small class="text-muted">Precio base de la cita. El importe final se define en la factura.</small>
+                                </div>
+                                <div class="fs-5 fw-bold text-primary">{{ number_format(\App\Models\Setting::get('cita_precio', '0.00'), 2) }} PEN</div>
                             </div>
-                            <small class="text-muted">Precio base de la cita. El importe final se define en la factura.</small>
                         </div>
 
-                        {{-- Botones --}}
-                        <div class="d-flex justify-content-between gap-2">
-                            <a href="{{ route('citas.index') }}" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle"></i> Agendar Cita
+                        <div class="col-12 pt-2 d-flex flex-column flex-sm-row justify-content-between gap-2">
+                            <a href="{{ route('citas.index') }}" class="btn btn-outline-secondary btn-lg px-4">Cancelar</a>
+                            <button type="submit" class="btn btn-primary btn-lg px-4">
+                                <i class="bi bi-check-circle me-1"></i> Agendar cita
                             </button>
                         </div>
                     </form>
