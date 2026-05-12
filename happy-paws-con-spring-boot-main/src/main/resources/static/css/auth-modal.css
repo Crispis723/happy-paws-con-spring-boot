@@ -4,11 +4,11 @@
    ============================================ */
 
 :root {
-  --primary-color: #B98BC9;
-  --secondary-color: #7A1AC9;
-  --accent-color: #D6A469;
-  --text-primary: #000000;
-  --text-secondary: #7FC1D1;
+  --primary-color: #8adfd7;
+  --secondary-color: #58b8c7;
+  --accent-color: #d7f1ea;
+  --text-primary: #1f2d2b;
+  --text-secondary: #6ea9af;
 }
 
 /* Modal Overlay */
@@ -42,9 +42,9 @@
 
 /* Modal Container */
 .auth-modal {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 24px;
+  box-shadow: 0 24px 70px rgba(71, 150, 164, 0.22);
   width: 90%;
   max-width: 460px;
   animation: slideUp 0.3s ease-in-out;
@@ -85,7 +85,7 @@
 .auth-modal-header {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
   padding: 2rem 1.5rem;
-  border-radius: 12px 12px 0 0;
+  border-radius: 24px 24px 0 0;
   text-align: center;
   color: white;
 }
@@ -139,12 +139,12 @@
 .form-group select {
   width: 100%;
   padding: 0.9rem;
-  border: 2px solid var(--text-secondary);
-  border-radius: 6px;
+  border: 2px solid #d7e6e7;
+  border-radius: 14px;
   font-size: 1rem;
   font-family: inherit;
   transition: all 0.2s;
-  background-color: #fafafa;
+  background-color: #fafefe;
   box-sizing: border-box;
 }
 
@@ -153,7 +153,7 @@
   outline: none;
   border-color: var(--primary-color);
   background-color: white;
-  box-shadow: 0 0 0 3px rgba(185, 139, 201, 0.1);
+  box-shadow: 0 0 0 4px rgba(138, 223, 215, 0.18);
 }
 
 .form-group input::placeholder {
@@ -203,7 +203,7 @@
 
 .auth-btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(185, 139, 201, 0.3);
+  box-shadow: 0 10px 24px rgba(71, 150, 164, 0.28);
 }
 
 .auth-btn-secondary {

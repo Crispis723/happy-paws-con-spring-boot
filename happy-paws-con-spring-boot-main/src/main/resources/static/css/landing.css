@@ -4,15 +4,15 @@
    ======================================== */
 
 :root {
-  --primary-color: #B98BC9;
-  --secondary-color: #7A1AC9;
+  --primary-color: #8adfd7;
+  --secondary-color: #58b8c7;
   --background-color: #FFFFFF;
-  --text-primary: #000000;
-  --text-secondary: #7FC1D1;
-  --accent-color: #D6A469;
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+  --text-primary: #1f2d2b;
+  --text-secondary: #6ea9af;
+  --accent-color: #d7f1ea;
+  --shadow-sm: 0 2px 4px rgba(71, 150, 164, 0.08);
+  --shadow-md: 0 4px 10px rgba(71, 150, 164, 0.12);
+  --shadow-lg: 0 16px 34px rgba(71, 150, 164, 0.14);
   --transition-smooth: 0.2s ease-in-out;
 }
 
@@ -33,7 +33,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Header */
 .navbar {
-  background-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   box-shadow: var(--shadow-md);
 }
 
@@ -100,7 +100,11 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Hero Section */
 .hero-section {
-  background-color: white;
+  position: relative;
+  background:
+    radial-gradient(circle at top left, rgba(138, 223, 215, 0.22), transparent 30%),
+    radial-gradient(circle at top right, rgba(88, 184, 199, 0.18), transparent 28%),
+    linear-gradient(180deg, #ffffff 0%, #f5fbfb 100%);
   padding: 4rem 1.5rem;
 }
 
@@ -140,8 +144,9 @@ h1, h2, h3, h4, h5, h6 {
 .service-card {
   text-align: center;
   padding: 1.5rem;
-  background-color: #F3F4F6;
-  border-radius: 0.5rem;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(138, 223, 215, 0.22);
+  border-radius: 1rem;
   box-shadow: var(--shadow-md);
   transition: box-shadow var(--transition-smooth);
 }
@@ -154,7 +159,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 4rem;
   height: 4rem;
   border-radius: 50%;
-  background-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   color: white;
   display: flex;
   align-items: center;
@@ -176,7 +181,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Footer */
 .footer {
-  background-color: var(--secondary-color);
+  background: linear-gradient(135deg, var(--secondary-color), #3f8f9d);
   color: white;
   padding: 2rem 1.5rem;
   text-align: center;
