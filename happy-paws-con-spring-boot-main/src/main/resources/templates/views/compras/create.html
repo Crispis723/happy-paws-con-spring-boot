@@ -1,0 +1,87 @@
+
+@extends('plantilla.app')
+@section('contenido')
+<div class="container-fluid py-4">
+	<div class="row justify-content-center">
+		<div class="col-12 col-xl-10">
+			<div class="p-4 p-md-5 mb-4 rounded-4 text-white shadow-sm" style="background: linear-gradient(135deg, #8adfd7 0%, #58b8c7 100%);">
+				<p class="text-uppercase small fw-semibold mb-1 opacity-75">Compras</p>
+				<h1 class="h3 mb-2">Registrar compra</h1>
+				<p class="mb-0 opacity-75">Captura una compra con un formato más limpio y alineado al resto del proyecto.</p>
+			</div>
+
+			<div class="card border-0 shadow-sm overflow-hidden rounded-4">
+				<div class="card-header bg-white border-bottom-0 py-3">
+					<h5 class="mb-0 text-primary fw-bold">
+						<i class="bi bi-cart-plus me-1"></i> Datos de la compra
+					</h5>
+				</div>
+
+				<div class="card-body p-4 p-md-5">
+					<form action="{{ route('compras.store') }}" method="POST" novalidate class="row g-4">
+						@csrf
+
+						<div class="col-md-6">
+							<label class="form-label fw-semibold">Fecha <span class="text-danger">*</span></label>
+							<input type="date" name="fecha" class="form-control form-control-lg @error('fecha') is-invalid @enderror" value="{{ old('fecha') }}" required>
+							@error('fecha') <div class="invalid-feedback">{{ $message }}</div> @enderror
+						</div>
+
+						<div class="col-md-6">
+							<label class="form-label fw-semibold">Proveedor <span class="text-danger">*</span></label>
+							<select name="proveedor_id" class="form-select form-select-lg @error('proveedor_id') is-invalid @enderror" required>
+								<option value="">-- Seleccionar proveedor --</option>
+								@foreach($proveedores as $proveedor)
+									<option value="{{ $proveedor->id }}" {{ old('proveedor_id') == $proveedor->id ? 'selected' : '' }}>
+										{{ $proveedor->razon_social }}
+									</option>
+								@endforeach
+							</select>
+							@error('proveedor_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+						</div>
+
+						<div class="col-md-6">
+							<label class="form-label fw-semibold">Tipo comprobante <span class="text-danger">*</span></label>
+							<select name="comprobante_tipo_codigo" class="form-select form-select-lg @error('comprobante_tipo_codigo') is-invalid @enderror" required>
+								<option value="">-- Seleccionar tipo --</option>
+								@foreach($comprobanteTipos as $tipo)
+									<option value="{{ $tipo->codigo }}" {{ old('comprobante_tipo_codigo') == $tipo->codigo ? 'selected' : '' }}>
+										{{ $tipo->descripcion }}
+									</option>
+								@endforeach
+							</select>
+							@error('comprobante_tipo_codigo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+						</div>
+
+						<div class="col-md-6">
+							<label class="form-label fw-semibold">Forma de pago <span class="text-danger">*</span></label>
+							<select name="forma_pago" class="form-select form-select-lg @error('forma_pago') is-invalid @enderror" required>
+								<option value="">-- Seleccionar forma --</option>
+								<option value="efectivo" {{ old('forma_pago') == 'efectivo' ? 'selected' : '' }}>Efectivo</option>
+								<option value="cheque" {{ old('forma_pago') == 'cheque' ? 'selected' : '' }}>Cheque</option>
+								<option value="transferencia" {{ old('forma_pago') == 'transferencia' ? 'selected' : '' }}>Transferencia</option>
+								<option value="tarjeta" {{ old('forma_pago') == 'tarjeta' ? 'selected' : '' }}>Tarjeta</option>
+							</select>
+							@error('forma_pago') <div class="invalid-feedback">{{ $message }}</div> @enderror
+						</div>
+
+						<div class="col-12">
+							<label class="form-label fw-semibold">Total <span class="text-danger">*</span></label>
+							<div class="input-group input-group-lg">
+								<span class="input-group-text">S/.</span>
+								<input type="number" name="total" class="form-control @error('total') is-invalid @enderror" value="{{ old('total') }}" step="0.01" min="0" required>
+							</div>
+							@error('total') <div class="invalid-feedback">{{ $message }}</div> @enderror
+						</div>
+
+						<div class="col-12 d-flex flex-column flex-sm-row justify-content-between gap-2 pt-2">
+							<a href="{{ route('compras.index') }}" class="btn btn-outline-secondary btn-lg px-4">Cancelar</a>
+							<button type="submit" class="btn btn-primary btn-lg px-4">Guardar compra</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+@endsection

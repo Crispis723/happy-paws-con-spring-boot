@@ -2,41 +2,57 @@
 <div class="modal fade" id="modalUpdate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
-        <div class="modal-content fs-7">
+        <div class="modal-content fs-7 border-0 shadow-lg rounded-4 overflow-hidden">
             <form id="formUpdate" method="post">
                 @csrf
                 <input type="hidden" id="method_field" name="_method">
-                <div class="modal-header">
-                    <h4 class="modal-title fs-5" id="modalTitle">Nuevo registro</h4>
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #8adfd7 0%, #58b8c7 100%);">
+                    <div>
+                        <p class="text-uppercase small fw-semibold mb-1 opacity-75">Ventas</p>
+                        <h4 class="modal-title fs-5 mb-0" id="modalTitle">Nueva venta</h4>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
+                <div class="modal-body p-4 p-md-5">
+                    <div class="row g-4">
                         <div class="col-lg-6">
-                          @include('ventas.partials.comprobante-form')
+                            <div class="card border-0 shadow-sm rounded-4 h-100">
+                                <div class="card-body p-3 p-md-4">
+                                  @include('ventas.partials.comprobante-form')
+                                </div>
+                            </div>
                         </div>
                         <div class="col-lg-6">
-                          @include('ventas.partials.cliente-form')
+                            <div class="card border-0 shadow-sm rounded-4 h-100">
+                                <div class="card-body p-3 p-md-4">
+                                  @include('ventas.partials.cliente-form')
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-lg-12 mt-3">
-                          <div class="border border-primary rounded p-3">
-                            <div class="input-group input-group-sm">
+                        <div class="col-12">
+                          <div class="border rounded-4 p-4" style="border-color: rgba(138, 223, 215, 0.35) !important; background: #f8fefe;">
+                            <label class="form-label fw-semibold mb-2">Agregar producto</label>
+                            <div class="input-group input-group-lg">
                               <input type="text" id="producto_nombre" class="form-control" placeholder="Buscar producto" autocomplete="off">
                               <input type="hidden" id="producto_id" name="producto_id">
-                              <button type="button" id="btnAgregarProducto" class="btn btn-success">Agregar</button>
+                              <button type="button" id="btnAgregarProducto" class="btn btn-primary">Agregar</button>
                             </div>
                           </div>
                         </div>
                     </div>
                     <div class="row mt-4">
                         <div class="col-lg-12">
-                          @include('ventas.partials.tabla-detalles')
+                          <div class="card border-0 shadow-sm rounded-4">
+                              <div class="card-body p-3 p-md-4">
+                                @include('ventas.partials.tabla-detalles')
+                              </div>
+                          </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" id="btnSubmit" class="btn btn-primary">Enviar</button>
+                <div class="modal-footer border-top-0 px-4 px-md-5 pb-4 pb-md-5">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" id="btnSubmit" class="btn btn-primary">Guardar venta</button>
                 </div>
             </form>
         </div>

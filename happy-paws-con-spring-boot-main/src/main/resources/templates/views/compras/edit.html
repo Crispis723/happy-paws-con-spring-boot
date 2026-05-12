@@ -1,32 +1,36 @@
 @extends('plantilla.app')
 @section('contenido')
-<div class="container-fluid">
+<div class="container-fluid py-4">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-cart-plus"></i> Editar Compra
+        <div class="col-12 col-xl-10">
+            <div class="p-4 p-md-5 mb-4 rounded-4 text-white shadow-sm" style="background: linear-gradient(135deg, #8adfd7 0%, #58b8c7 100%);">
+                <p class="text-uppercase small fw-semibold mb-1 opacity-75">Compras</p>
+                <h1 class="h3 mb-2">Editar compra</h1>
+                <p class="mb-0 opacity-75">Ajusta la compra con una interfaz moderna y más legible.</p>
+            </div>
+
+            <div class="card border-0 shadow-sm overflow-hidden rounded-4">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <h5 class="mb-0 text-primary fw-bold">
+                        <i class="bi bi-cart-plus me-1"></i> Datos de la compra
                     </h5>
                 </div>
 
-                <div class="card-body">
-                    <form action="{{ route('compras.update', $compra->id) }}" method="POST" novalidate>
+                <div class="card-body p-4 p-md-5">
+                    <form action="{{ route('compras.update', $compra->id) }}" method="POST" novalidate class="row g-4">
                         @csrf
                         @method('PUT')
 
-                        {{-- FECHA --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Fecha <span class="text-danger">*</span></label>
-                            <input type="date" name="fecha" class="form-control @error('fecha') is-invalid @enderror" 
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Fecha <span class="text-danger">*</span></label>
+                            <input type="date" name="fecha" class="form-control form-control-lg @error('fecha') is-invalid @enderror"
                                    value="{{ old('fecha', optional($compra->fecha)->format('Y-m-d')) }}" required>
                             @error('fecha') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        {{-- PROVEEDOR --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Proveedor <span class="text-danger">*</span></label>
-                            <select name="proveedor_id" class="form-select @error('proveedor_id') is-invalid @enderror" required>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Proveedor <span class="text-danger">*</span></label>
+                            <select name="proveedor_id" class="form-select form-select-lg @error('proveedor_id') is-invalid @enderror" required>
                                 <option value="">-- Seleccionar proveedor --</option>
                                 @foreach($proveedores as $proveedor)
                                     <option value="{{ $proveedor->id }}" {{ old('proveedor_id', $compra->proveedor_id) == $proveedor->id ? 'selected' : '' }}>
@@ -37,10 +41,9 @@
                             @error('proveedor_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        {{-- TIPO COMPROBANTE --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Tipo Comprobante <span class="text-danger">*</span></label>
-                            <select name="comprobante_tipo_codigo" class="form-select @error('comprobante_tipo_codigo') is-invalid @enderror" required>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Tipo comprobante <span class="text-danger">*</span></label>
+                            <select name="comprobante_tipo_codigo" class="form-select form-select-lg @error('comprobante_tipo_codigo') is-invalid @enderror" required>
                                 <option value="">-- Seleccionar tipo --</option>
                                 @foreach($comprobanteTipos as $tipo)
                                     <option value="{{ $tipo->codigo }}" {{ old('comprobante_tipo_codigo', $compra->comprobante_tipo_codigo) == $tipo->codigo ? 'selected' : '' }}>
@@ -51,10 +54,9 @@
                             @error('comprobante_tipo_codigo') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        {{-- FORMA DE PAGO --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Forma de Pago <span class="text-danger">*</span></label>
-                            <select name="forma_pago" class="form-select @error('forma_pago') is-invalid @enderror" required>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Forma de pago <span class="text-danger">*</span></label>
+                            <select name="forma_pago" class="form-select form-select-lg @error('forma_pago') is-invalid @enderror" required>
                                 <option value="">-- Seleccionar forma --</option>
                                 <option value="efectivo" {{ old('forma_pago', $compra->forma_pago) == 'efectivo' ? 'selected' : '' }}>Efectivo</option>
                                 <option value="cheque" {{ old('forma_pago', $compra->forma_pago) == 'cheque' ? 'selected' : '' }}>Cheque</option>
@@ -64,21 +66,19 @@
                             @error('forma_pago') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        {{-- TOTAL --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Total <span class="text-danger">*</span></label>
-                            <div class="input-group">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Total <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-lg">
                                 <span class="input-group-text">S/.</span>
-                                <input type="number" name="total" class="form-control @error('total') is-invalid @enderror" 
+                                <input type="number" name="total" class="form-control @error('total') is-invalid @enderror"
                                        value="{{ old('total', $compra->total) }}" step="0.01" min="0" required>
                             </div>
                             @error('total') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        {{-- BOTONES --}}
-                        <div class="d-flex justify-content-between gap-2 mt-4">
-                            <a href="{{ route('compras.index') }}" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">Actualizar Compra</button>
+                        <div class="col-12 d-flex flex-column flex-sm-row justify-content-between gap-2 pt-2">
+                            <a href="{{ route('compras.index') }}" class="btn btn-outline-secondary btn-lg px-4">Cancelar</a>
+                            <button type="submit" class="btn btn-primary btn-lg px-4">Actualizar compra</button>
                         </div>
                     </form>
                 </div>
