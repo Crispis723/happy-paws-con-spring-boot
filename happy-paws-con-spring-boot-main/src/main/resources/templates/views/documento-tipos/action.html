@@ -5,22 +5,22 @@
       <form id="formUpdate" method="post">
         @csrf
         <input type="hidden" id="method_field" name="_method">
-        <div class="modal-header">
-          <h4 class="modal-title fs-5" id="modalTitle">Nuevo registro</h4>
+        <div class="modal-header bg-primary text-white">
+          <h4 class="modal-title fs-5" id="modalTitle">Nuevo documento tipo</h4>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
-          <div class="row">
+        <div class="modal-body p-4">
+          <div class="row g-3">
             <div class="col-lg-6">
               <div class="form-group mb-3">
-                <label for="codigo" class="form-label">Código <span class="text-danger">*</span></label>
+                <label for="codigo" class="form-label fw-semibold">Código <span class="text-danger">*</span></label>
                 <input type="text" id="codigo" name="codigo" class="form-control" required>
                 <div class="invalid-feedback"></div>
               </div>
             </div>
             <div class="col-lg-6">
               <div class="form-group mb-3">
-                <label for="descripcion" class="form-label">Descripción <span class="text-danger">*</span></label>
+                <label for="descripcion" class="form-label fw-semibold">Descripción <span class="text-danger">*</span></label>
                 <input type="text" id="descripcion" name="descripcion" class="form-control" required>
                 <div class="invalid-feedback"></div>
               </div>
