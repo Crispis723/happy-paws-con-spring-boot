@@ -2,12 +2,9 @@ package com.Happypaws.demo.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,28 +12,28 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "pets")
+@Table(name = "proveedores")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Pet {
+public class Proveedor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String nombre;
+    @Column(name = "documento_tipo_codigo", nullable = false)
+    private String documentoTipoCodigo;
 
-    @Column(nullable = false)
-    private String especie;
+    @Column(name = "numero_documento", nullable = false, unique = true)
+    private String numeroDocumento;
 
-    private String raza;
+    @Column(name = "razon_social", nullable = false)
+    private String razonSocial;
 
-    private Integer edad;
+    private String direccion;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cliente_id")
-    private Cliente cliente;
+    private String telefono;
+
+    private String email;
 }
-
