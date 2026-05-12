@@ -6,22 +6,86 @@
     <title>Ventas - Happy Paws</title>
     <link rel="stylesheet" th:href="@{/css/adminlte.css}">
     <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+    <style>
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(138, 223, 215, 0.18), transparent 28%),
+                radial-gradient(circle at top right, rgba(88, 184, 199, 0.12), transparent 26%),
+                linear-gradient(180deg, #f8fdfd 0%, #eef8f7 100%);
+        }
+        .page-shell {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 2rem 1rem 3rem;
+        }
+        .hero-panel {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #8adfd7 0%, #58b8c7 100%);
+            color: white;
+            border-radius: 28px;
+            padding: 2rem;
+            box-shadow: 0 22px 50px rgba(71, 150, 164, 0.12);
+            margin-bottom: 1.5rem;
+        }
+        .hero-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .35rem .8rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.18);
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+        .surface-card {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(138, 223, 215, 0.22);
+            border-radius: 24px;
+            box-shadow: 0 16px 36px rgba(71, 150, 164, 0.08);
+            overflow: hidden;
+        }
+        .surface-card .card-header {
+            background: white;
+            border-bottom: 1px solid rgba(0,0,0,.06);
+            padding: 1rem 1.25rem;
+        }
+        .table thead th {
+            background: linear-gradient(135deg, #8adfd7, #58b8c7);
+            color: white;
+            border: 0;
+        }
+        .table tbody tr:hover {
+            background: #f5fbfb;
+        }
+    </style>
 </head>
 <body>
     <div th:insert="partials/header :: header"></div>
-    <div class="container-fluid p-4">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header d-flex align-items-center">
-                        <h3 class="card-title flex-grow-1"><i class="bi bi-cash-coin"></i> Ventas</h3>
-                        <button type="button" class="btn btn-primary btn-sm" id="btnCreate">
-                            <i class="bi bi-plus-circle"></i> Nueva Venta
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover table-sm">
+    <div class="page-shell">
+        <div class="hero-panel d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+            <div>
+                <span class="hero-kicker mb-2">Ventas</span>
+                <h1 class="display-6 fw-bold mb-2">Panel de ventas</h1>
+                <p class="mb-0 opacity-75">Consulta, imprime y administra ventas con una presentación más moderna.</p>
+            </div>
+            <button type="button" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4" id="btnCreate">
+                <i class="bi bi-plus-circle me-1"></i> Nueva venta
+            </button>
+        </div>
+
+        <div class="surface-card">
+            <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <h3 class="h5 mb-0 fw-bold text-primary"><i class="bi bi-cash-coin me-1"></i> Listado de ventas</h3>
+                <span class="text-muted small">Ticket, edición y eliminación rápida</span>
+            </div>
+            <div class="card-body p-0 p-md-3">
+                <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
                                 <thead>
                                     <tr>
                                         <th>Número</th>
