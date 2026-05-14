@@ -1,0 +1,388 @@
+@extends('plantilla.app')
+@section('contenido')
+<style>
+    .form-section {
+        border-left: 4px solid #007bff;
+        padding-left: 1rem;
+        margin-bottom: 2rem;
+    }
+    .form-section h5 {
+        color: #007bff;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    .tabla-detalles {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-cart-plus"></i> Registrar Nueva Compra
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <form action="{{ route('compras.store') }}" method="POST" novalidate id="formCompra">
+                        @csrf
+
+                        <!-- DATOS GENERALES -->
+                        <div class="form-section">
+                            <h5><i class="bi bi-file-earmark"></i> Datos de Comprobante</h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">Fecha <span class="text-danger">*</span></label>
+                                    <input type="date" name="fecha" class="form-control @error('fecha') is-invalid @enderror" 
+                                           value="{{ old('fecha', today()) }}" required>
+                                    @error('fecha') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">Tipo Comprobante <span class="text-danger">*</span></label>
+                                    <select name="comprobante_tipo_id" class="form-select @error('comprobante_tipo_id') is-invalid @enderror" required>
+                                        <option value="">-- Seleccionar --</option>
+                                        @foreach($comprobanteTipos as $tipo)
+                                            <option value="{{ $tipo->id }}" {{ old('comprobante_tipo_id') == $tipo->id ? 'selected' : '' }}>
+                                                {{ $tipo->codigo }} - {{ $tipo->descripcion }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('comprobante_tipo_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">Número Comprobante <span class="text-danger">*</span></label>
+                                    <input type="text" name="numero_comprobante" class="form-control @error('numero_comprobante') is-invalid @enderror" 
+                                           value="{{ old('numero_comprobante') }}" placeholder="Ej. 001-123456" required>
+                                    @error('numero_comprobante') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DATOS DEL PROVEEDOR -->
+                        <div class="form-section">
+                            <h5><i class="bi bi-building"></i> Datos del Proveedor</h5>
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="tab-buscar" data-bs-toggle="tab" 
+                                            data-bs-target="#buscar-proveedor" type="button" role="tab">
+                                        <i class="bi bi-search"></i> Buscar Proveedor
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="tab-registrar" data-bs-toggle="tab" 
+                                            data-bs-target="#registrar-proveedor" type="button" role="tab">
+                                        <i class="bi bi-plus-circle"></i> Registrar Nuevo
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content mt-3">
+                                <div class="tab-pane fade show active" id="buscar-proveedor" role="tabpanel">
+                                    <div class="row">
+                                        <div class="col-md-8 mb-3">
+                                            <label class="form-label fw-bold">Proveedor <span class="text-danger">*</span></label>
+                                            <input type="text" id="proveedor_nombre" class="form-control @error('proveedor_id') is-invalid @enderror" 
+                                                   placeholder="Buscar por razón social o RUC..." autocomplete="off" required>
+                                            <small class="text-muted">Empieza a escribir para buscar...</small>
+                                            <input type="hidden" name="proveedor_id" id="proveedor_id" value="{{ old('proveedor_id') }}">
+                                            @error('proveedor_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label fw-bold">&nbsp;</label>
+                                            <button type="button" class="btn btn-outline-primary w-100" id="btnLimpiarProveedor">
+                                                <i class="bi bi-arrow-clockwise"></i> Limpiar
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div id="proveedorInfo" class="alert alert-info d-none">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>RUC:</strong> <span id="prov-ruc">-</span></p>
+                                                <p class="mb-1"><strong>Dirección:</strong> <span id="prov-direccion">-</span></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>Teléfono:</strong> <span id="prov-telefono">-</span></p>
+                                                <p class="mb-1"><strong>Email:</strong> <span id="prov-email">-</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="registrar-proveedor" role="tabpanel">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Tipo Documento <span class="text-danger">*</span></label>
+                                            <select name="documento_tipo_id" class="form-select" id="documento_tipo_registro">
+                                                <option value="">-- Seleccionar --</option>
+                                                @foreach($documentoTipos as $tipo)
+                                                    <option value="{{ $tipo->id }}">{{ $tipo->codigo }} - {{ $tipo->descripcion }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Número Documento <span class="text-danger">*</span></label>
+                                            <input type="text" name="numero_documento_nuevo" class="form-control" 
+                                                   id="numero_documento_nuevo" placeholder="Ej. 12345678">
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Razón Social <span class="text-danger">*</span></label>
+                                            <input type="text" name="razon_social_nuevo" class="form-control" 
+                                                   id="razon_social_nuevo" placeholder="Nombre del proveedor">
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Teléfono</label>
+                                            <input type="tel" name="telefono_nuevo" class="form-control" 
+                                                   id="telefono_nuevo" placeholder="Ej. 987654321">
+                                        </div>
+
+                                        <div class="col-md-12 mb-3">
+                                            <label class="form-label fw-bold">Dirección</label>
+                                            <textarea name="direccion_nuevo" class="form-control" 
+                                                      id="direccion_nuevo" rows="2" placeholder="Dirección del proveedor"></textarea>
+                                        </div>
+
+                                        <div class="col-md-12 mb-3">
+                                            <label class="form-label fw-bold">Email</label>
+                                            <input type="email" name="email_nuevo" class="form-control" 
+                                                   id="email_nuevo" placeholder="correo@proveedor.com">
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <button type="button" class="btn btn-success" id="btnRegistrarProveedor">
+                                                <i class="bi bi-check-circle"></i> Guardar Proveedor
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DETALLES DE PRODUCTOS -->
+                        <div class="form-section">
+                            <h5><i class="bi bi-box"></i> Detalles de Compra</h5>
+                            <div class="row mb-3">
+                                <div class="col-md-8">
+                                    <label class="form-label fw-bold">Producto <span class="text-danger">*</span></label>
+                                    <input type="text" id="producto_nombre" class="form-control" 
+                                           placeholder="Buscar producto por código o nombre..." autocomplete="off">
+                                    <input type="hidden" id="producto_id">
+                                    <small class="text-muted">Empieza a escribir para buscar productos...</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">&nbsp;</label>
+                                    <button type="button" class="btn btn-success w-100" id="btnAgregarProducto" disabled>
+                                        <i class="bi bi-plus-circle"></i> Agregar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive tabla-detalles">
+                                <table class="table table-sm" id="tablaDetalles">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Producto</th>
+                                            <th>Cantidad</th>
+                                            <th>Precio Unit.</th>
+                                            <th>Subtotal</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="detallesBody">
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            @if ($errors->has('detalles'))
+                                <div class="alert alert-danger mt-2">
+                                    <i class="bi bi-exclamation-circle"></i> {{ $errors->first('detalles') }}
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- RESUMEN FINANCIERO -->
+                        <div class="form-section">
+                            <h5><i class="bi bi-calculator"></i> Resumen Financiero</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Subtotal</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">S/.</span>
+                                                <input type="number" class="form-control" id="subtotal" 
+                                                       readonly step="0.01" value="0.00">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">IGV (18%)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">S/.</span>
+                                                <input type="number" class="form-control" id="igv" 
+                                                       readonly step="0.01" value="0.00">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="card bg-primary text-white">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h6 class="mb-0">Total a Pagar</h6>
+                                                <h3 class="mb-0" id="total">S/. 0.00</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Observaciones</label>
+                                    <textarea name="observaciones" class="form-control" rows="2" 
+                                              placeholder="Notas adicionales de la compra">{{ old('observaciones') }}</textarea>
+                                </div>
+
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label fw-bold">Condición de Pago</label>
+                                    <select name="condicion_pago" class="form-select">
+                                        <option value="al_contado" {{ old('condicion_pago') == 'al_contado' ? 'selected' : '' }}>Al Contado</option>
+                                        <option value="credito" {{ old('condicion_pago') == 'credito' ? 'selected' : '' }}>Crédito</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label fw-bold">Estado</label>
+                                    <select name="estado" class="form-select">
+                                        <option value="pendiente">Pendiente</option>
+                                        <option value="completado">Completado</option>
+                                        <option value="cancelado">Cancelado</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BOTONES DE ACCIÓN -->
+                        <div class="d-flex justify-content-between gap-2 mt-4 pt-3 border-top">
+                            <a href="{{ route('compras.index') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Guardar Compra
+                            </button>
+                        </div>
+
+                        <!-- Campo oculto para detalles -->
+                        <input type="hidden" name="detalles_json" id="detalles_json">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    // Activar elemento de menú
+    const mnuCompras = document.getElementById('mnuCompras');
+    if(mnuCompras) mnuCompras.classList.add('menu-open');
+    const itemCompras = document.getElementById('itemCompras');
+    if(itemCompras) itemCompras.classList.add('active');
+
+    // Variables globales
+    let detalles = [];
+    const formCompra = document.getElementById('formCompra');
+
+    // Búsqueda de productos
+    const inputProducto = document.getElementById('producto_nombre');
+    const btnAgregarProducto = document.getElementById('btnAgregarProducto');
+    
+    if(inputProducto) {
+        inputProducto.addEventListener('input', async function(e) {
+            const value = e.target.value;
+            if(value.length >= 2) {
+                try {
+                    const response = await fetch(`{{ route('productos.buscar') }}?q=${encodeURIComponent(value)}`);
+                    const data = await response.json();
+                    // Aquí irían las opciones de autocompletado
+                } catch(error) {
+                    console.error('Error:', error);
+                }
+            }
+        });
+
+        btnAgregarProducto.addEventListener('click', function() {
+            const productoId = document.getElementById('producto_id').value;
+            if(productoId) {
+                agregarProducto(productoId);
+                inputProducto.value = '';
+                document.getElementById('producto_id').value = '';
+                btnAgregarProducto.disabled = true;
+            }
+        });
+    }
+
+    function agregarProducto(productoId) {
+        // Agregar producto a la tabla
+        const row = `
+            <tr>
+                <td><code>PRD-001</code></td>
+                <td>Producto Ejemplo</td>
+                <td><input type="number" class="form-control form-control-sm" value="1" min="1"></td>
+                <td><span>S/. 100.00</span></td>
+                <td><strong>S/. 100.00</strong></td>
+                <td><button type="button" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button></td>
+            </tr>
+        `;
+        document.getElementById('detallesBody').insertAdjacentHTML('beforeend', row);
+        calcularTotales();
+    }
+
+    function calcularTotales() {
+        let subtotal = 0;
+        // Aquí iría la lógica para calcular
+        const igv = subtotal * 0.18;
+        const total = subtotal + igv;
+
+        document.getElementById('subtotal').value = subtotal.toFixed(2);
+        document.getElementById('igv').value = igv.toFixed(2);
+        document.getElementById('total').textContent = `S/. ${total.toFixed(2)}`;
+    }
+
+    // Manejo del formulario
+    formCompra.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validar que existan detalles
+        if(document.getElementById('detallesBody').children.length === 0) {
+            alert('Debe agregar al menos un producto a la compra');
+            return;
+        }
+
+        // Validar proveedor
+        if(!document.getElementById('proveedor_id').value) {
+            alert('Debe seleccionar un proveedor');
+            return;
+        }
+
+        // Enviar formulario
+        this.submit();
+    });
+});
+</script>
+@endpush

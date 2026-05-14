@@ -1,37 +1,176 @@
 @extends('plantilla.app')
 @push('estilos')
+<style>
+    .stat-card {
+        border-left: 4px solid #007bff;
+        transition: all 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .stat-card.primary { border-left-color: #007bff; }
+    .stat-card.success { border-left-color: #28a745; }
+    .stat-card.warning { border-left-color: #ffc107; }
+    .stat-card.danger { border-left-color: #dc3545; }
 
+    .badge-estado {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 50px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .search-box {
+        position: relative;
+    }
+    .search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+    }
+    .search-box input {
+        padding-left: 35px;
+    }
+
+    .filtro-section {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+</style>
 @endpush
+
 @section('contenido')
 <div class="container-fluid">
-    <!--begin::Row-->
+    <!-- HEADER -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-0"><i class="bi bi-receipt"></i> Ventas</h2>
+                    <p class="text-muted mb-0">Registro y seguimiento de ventas realizadas</p>
+                </div>
+                @can('ventas_create')
+                <button type="button" class="btn btn-primary btn-lg" id="btnCreate">
+                    <i class="bi bi-plus-circle"></i> Nueva Venta
+                </button>
+                @endcan
+            </div>
+        </div>
+    </div>
+
+    <!-- TARJETAS DE ESTADÍSTICAS -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-2">Total Ventas</p>
+                            <h3 class="mb-0" id="totalVentas">0</h3>
+                        </div>
+                        <i class="bi bi-receipt" style="font-size: 2rem; color: #007bff;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-2">Monto Total</p>
+                            <h3 class="mb-0" id="montoTotal">S/. 0.00</h3>
+                        </div>
+                        <i class="bi bi-cash-coin" style="font-size: 2rem; color: #28a745;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-2">Ventas Hoy</p>
+                            <h3 class="mb-0" id="ventasHoy">0</h3>
+                        </div>
+                        <i class="bi bi-calendar-day" style="font-size: 2rem; color: #ffc107;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-2">Pendientes</p>
+                            <h3 class="mb-0" id="ventasPendientes">0</h3>
+                        </div>
+                        <i class="bi bi-hourglass-split" style="font-size: 2rem; color: #dc3545;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTROS Y BÚSQUEDA -->
+    <div class="filtro-section">
+        <div class="row align-items-end">
+            <div class="col-md-6">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar por cliente, número de venta...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Estado</label>
+                <select id="filterEstado" class="form-select">
+                    <option value="">-- Todos --</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="completado">Completado</option>
+                    <option value="anulado">Anulado</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Período</label>
+                <select id="filterPeriodo" class="form-select">
+                    <option value="">-- Todos --</option>
+                    <option value="hoy">Hoy</option>
+                    <option value="semana">Esta Semana</option>
+                    <option value="mes">Este Mes</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA PRINCIPAL -->
     <div class="row">
         <div class="col-md-12">
-            <div class="card mb-4">
-                <div class="card-header d-flex align-items-center">
-                    <h3 class="card-title flex-grow-1">Ventas</h3>
-                    @can('ventas_create')
-                    <button type="button" class="btn btn-primary" id="btnCreate">
-                        <i class="bi bi-plus-circle"></i> Nuevo
-                    </button>
-                    @endcan
-                </div>
-                <!-- /.card-header -->
-                <div class="card-body">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table id="listadoTable" class="table table-striped table-hover table-sm">
-                            <thead>
+                        <table id="listadoTable" class="table table-hover mb-0">
+                            <thead class="table-light border-bottom">
                                 <tr>
-                                    <th>Opciones</th>
-                                    <th>Usuario</th>
-                                    <th>Fecha</th>
-                                    <th>Forma de Pago</th>
-                                    <th>Cliente</th>
-                                    <th>Tipo de Comprobante</th>
-                                    <th>Serie</th>
-                                    <th>Correlativo</th>                           
-                                    <th>Total</th>
-                                    <th>Estado</th>
+                                    <th style="width: 12%;">Fecha</th>
+                                    <th style="width: 15%;">Cliente</th>
+                                    <th style="width: 12%;">Comprobante</th>
+                                    <th style="width: 10%;">Forma Pago</th>
+                                    <th style="width: 12%;">Total</th>
+                                    <th style="width: 10%;">Estado</th>
+                                    <th style="width: 19%;" class="text-center">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -39,21 +178,24 @@
                         </table>
                     </div>
                 </div>
-                <!-- /.card-body -->
-                <div class="card-footer clearfix">
-                    
+                <div class="card-footer bg-white border-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted" id="recordsInfo">Cargando...</small>
+                        <nav id="paginationContainer"></nav>
+                    </div>
                 </div>
             </div>
-            <!-- /.card -->
         </div>
-        <!-- /.col -->
     </div>
-    <!--end::Row-->
 </div>
+
+<!-- Modal de Acciones -->
 @canany(['ventas_create', 'ventas_edit'])
     @include('ventas.action')
 @endcanany
+
 @endsection
+
 @push('scripts')
 <script>
 class VentaManager extends CrudManager {
@@ -62,6 +204,12 @@ class VentaManager extends CrudManager {
         this.afterSuccess = this.handleVentaSuccess.bind(this);
         this.initializeDataTable();
 
+        // Filtros
+        document.getElementById('searchInput').addEventListener('keyup', () => this.tabla.draw());
+        document.getElementById('filterEstado').addEventListener('change', () => this.tabla.draw());
+        document.getElementById('filterPeriodo').addEventListener('change', () => this.tabla.draw());
+
+        // Rellenar selects
         this.populateSelect('documento_tipo_codigo', '{{ route("documento-tipos.select") }}', item =>
             `<option value="${item.codigo}">${item.codigo} - ${item.descripcion}</option>`
         );
@@ -69,35 +217,129 @@ class VentaManager extends CrudManager {
         this.populateSelect('comprobante_tipo_codigo', '{{ route("comprobante-tipos.select") }}', item =>
             `<option value="${item.codigo}">${item.codigo} - ${item.descripcion}</option>`
         );
+    }
 
-        this.setupLiveSearchSelect({
-            inputId: 'producto_nombre',
-            hiddenId: 'producto_id',
-            url: "{{ route('productos.buscar') }}",
-            template: (item) => {
-                return `${item.codigo} - ${item.nombre} (S/ ${item.precio_unitario})`;
+    initializeDataTable() {
+        this.tabla = $(this.elements.table).DataTable({
+            processing: true,
+            serverSide: true,
+            paging: true,
+            pageLength: 10,
+            ajax: {
+                url: this.baseUrl,
+                type: 'GET',
+                data: (d) => {
+                    d.search = document.getElementById('searchInput').value;
+                    d.estado = document.getElementById('filterEstado').value;
+                    d.periodo = document.getElementById('filterPeriodo').value;
+                }
             },
-            getId: item => item.id,
-            onSelect: (item) => this.addProductoToTable(item)
-        });
-
-        this.setupLiveSearchSelect({
-            inputId: 'cliente_razon_social',
-            hiddenId: 'cliente_id',
-            url: "{{ route('clientes.buscar') }}",
-            template: (item) => {
-                return `${item.numero_documento} - ${item.razon_social}`;
+            columns: [
+                { data: 'fecha', name: 'fecha', render: (data) => this.formatDate(data) },
+                { data: 'cliente_razon_social', name: 'cliente_razon_social', defaultContent: '-' },
+                { data: 'comprobante_numero', name: 'comprobante_numero' },
+                { data: 'forma_pago', name: 'forma_pago', defaultContent: '-' },
+                { 
+                    data: 'total', 
+                    name: 'total',
+                    render: (data) => `<strong class="text-success">S/. ${parseFloat(data).toFixed(2)}</strong>`
+                },
+                { 
+                    data: 'estado', 
+                    name: 'estado',
+                    render: (data) => this.getEstadoBadge(data)
+                },
+                { 
+                    data: 'id', 
+                    name: 'id', 
+                    orderable: false, 
+                    searchable: false,
+                    render: (data) => this.getActionButtons(data)
+                }
+            ],
+            columnDefs: [
+                { targets: 0, className: 'text-center' },
+                { targets: [5, 6], className: 'text-center' }
+            ],
+            order: [[0, 'desc']],
+            language: {
+                "lengthMenu": "Mostrar _MENU_ registros",
+                "zeroRecords": "No hay ventas para mostrar",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                "infoEmpty": "No hay registros disponibles",
+                "search": "Buscar:"
             }
         });
+    }
 
-        document.getElementById('btnRegistrarCliente').addEventListener('click', () => this.registerClient());
+    formatDate(date) {
+        if(!date) return '-';
+        const d = new Date(date);
+        return d.toLocaleDateString('es-PE');
+    }
 
-        // Evento para el select de comprobante_tipo_codigo
-        const selectComprobante = document.getElementById('comprobante_tipo_codigo');
-        if (selectComprobante) {
-            selectComprobante.addEventListener('change', (e) => {
-                this.getSerie(e.target.value); // Ahora sí llama al método de la clase
-            });
+    getEstadoBadge(estado) {
+        const badges = {
+            'pendiente': '<span class="badge badge-estado bg-warning text-dark">Pendiente</span>',
+            'completado': '<span class="badge badge-estado bg-success">Completado</span>',
+            'anulado': '<span class="badge badge-estado bg-danger">Anulado</span>'
+        };
+        return badges[estado] || `<span class="badge badge-estado bg-secondary">${estado}</span>`;
+    }
+
+    getActionButtons(id) {
+        let html = `<a href="{{ url('ventas') }}/${id}" class="btn btn-sm btn-info" title="Ver">
+                        <i class="bi bi-eye"></i>
+                    </a>`;
+        
+        if(this.canEdit) {
+            html += ` <button class="btn btn-sm btn-warning" onclick="ventaManager.showEditModal(${id})" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                    </button>`;
+        }
+
+        if(this.canDelete) {
+            html += ` <button class="btn btn-sm btn-danger" onclick="ventaManager.delete(${id})" title="Eliminar">
+                        <i class="bi bi-trash"></i>
+                    </button>`;
+        }
+
+        return html;
+    }
+
+    handleVentaSuccess() {
+        this.tabla.draw();
+        this.updateStats();
+    }
+
+    updateStats() {
+        // Aquí irían llamadas AJAX para actualizar estadísticas
+        setTimeout(() => {
+            document.getElementById('totalVentas').textContent = '0';
+            document.getElementById('montoTotal').textContent = 'S/. 0.00';
+            document.getElementById('ventasHoy').textContent = '0';
+            document.getElementById('ventasPendientes').textContent = '0';
+        }, 500);
+    }
+}
+
+// Inicializar
+let ventaManager;
+document.addEventListener('DOMContentLoaded', function(){
+    ventaManager = new VentaManager();
+
+    // Activar menú
+    const mnuVentas = document.getElementById('mnuVentas');
+    if(mnuVentas) mnuVentas.classList.add('menu-open');
+    const itemVentas = document.getElementById('itemVentas');
+    if(itemVentas) itemVentas.classList.add('active');
+
+    // Actualizar estadísticas al cargar
+    ventaManager.updateStats();
+});
+</script>
+@endpush
+
         }
     }
 

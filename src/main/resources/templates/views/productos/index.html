@@ -1,98 +1,203 @@
 @extends('plantilla.app')
 @section('contenido')
+<style>
+    .stat-card {
+        border-left: 4px solid #007bff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .stat-card.danger { border-left-color: #dc3545; }
+    .stat-card.warning { border-left-color: #ffc107; }
+    .stat-card.success { border-left-color: #28a745; }
+    .table-responsive {
+        border-radius: 0.25rem;
+    }
+    .search-box {
+        position: relative;
+    }
+    .search-box input {
+        padding-left: 35px;
+    }
+    .search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+    }
+</style>
+
 <div class="container-fluid">
+    <!-- HEADER -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-0"><i class="bi bi-box"></i> Productos</h2>
+                    <p class="text-muted mb-0">Administración de inventario</p>
+                </div>
+                @can('productos_create')
+                <a href="{{ route('productos.create') }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle"></i> Nuevo Producto
+                </a>
+                @endcan
+            </div>
+        </div>
+    </div>
+
+    <!-- TARJETAS DE ESTADÍSTICAS -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-2">Total Productos</p>
+                            <h3 class="mb-0">{{ $productos->total() }}</h3>
+                        </div>
+                        <i class="bi bi-box-seam" style="font-size: 2rem; color: #007bff;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-2">Stock Bajo</p>
+                            <h3 class="mb-0">{{ $productos->where('stock', '<=', 5)->count() }}</h3>
+                        </div>
+                        <i class="bi bi-exclamation-circle" style="font-size: 2rem; color: #ffc107;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-2">Valor Total</p>
+                            <h3 class="mb-0">S/. {{ number_format($productos->sum(function($p) { return $p->stock * $p->precio_unitario; }), 2) }}</h3>
+                        </div>
+                        <i class="bi bi-cash-coin" style="font-size: 2rem; color: #28a745;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-2">Sin Stock</p>
+                            <h3 class="mb-0">{{ $productos->where('stock', '=', 0)->count() }}</h3>
+                        </div>
+                        <i class="bi bi-exclamation-triangle" style="font-size: 2rem; color: #dc3545;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MENSAJES DE SESIÓN -->
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> <strong>¡Éxito!</strong> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-circle-fill"></i> <strong>Error:</strong> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    <!-- TABLA PRINCIPAL -->
     <div class="row">
         <div class="col-md-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h3 class="mb-0">
-                        <i class="bi bi-box"></i> Productos
-                    </h3>
-                    @can('productos_create')
-                    <a href="{{ route('productos.create') }}" class="btn btn-light btn-sm">
-                        <i class="bi bi-plus-circle"></i> Nuevo Producto
-                    </a>
-                    @endcan
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="search-box">
+                                <i class="bi bi-search"></i>
+                                <input type="text" id="searchInput" class="form-control" placeholder="Buscar por código, nombre...">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
-                        <i class="bi bi-check-circle-fill"></i> {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
-                        <i class="bi bi-exclamation-circle-fill"></i> {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-
-                <div class="card-body">
-                    @if($productos->count() > 0)
+                @if($productos->count() > 0)
+                    <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="table-dark">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light border-bottom">
                                     <tr>
-                                        <th>Código</th>
-                                        <th>Nombre</th>
-                                        <th>Unidad</th>
-                                        <th>Stock</th>
-                                        <th>Precio</th>
-                                        <th>Acciones</th>
+                                        <th style="width: 10%;">Código</th>
+                                        <th style="width: 25%;">Nombre</th>
+                                        <th style="width: 12%;">Unidad</th>
+                                        <th style="width: 10%;">Stock</th>
+                                        <th style="width: 12%;">Precio</th>
+                                        <th style="width: 10%;">Valor Total</th>
+                                        <th style="width: 21%;" class="text-center">Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="productosTable">
                                     @foreach($productos as $producto)
-                                        <tr>
-                                            {{-- CÓDIGO --}}
+                                        <tr class="producto-row" data-search="{{ $producto->codigo }} {{ $producto->nombre }}">
                                             <td>
-                                                <code>{{ $producto->codigo }}</code>
+                                                <code class="bg-light px-2 py-1">{{ $producto->codigo }}</code>
                                             </td>
 
-                                            {{-- NOMBRE --}}
                                             <td>
-                                                <strong>{{ $producto->nombre }}</strong>
+                                                <strong class="d-block">{{ $producto->nombre }}</strong>
                                                 @if($producto->descripcion)
-                                                    <br>
-                                                    <small class="text-muted">{{ Str::limit($producto->descripcion, 50) }}</small>
+                                                    <small class="text-muted">{{ Str::limit($producto->descripcion, 40) }}</small>
                                                 @endif
                                             </td>
 
-                                            {{-- UNIDAD --}}
                                             <td>
                                                 @if($producto->unidad)
-                                                    <span class="badge bg-info">{{ $producto->unidad->descripcion }}</span>
+                                                    <span class="badge bg-info text-dark">{{ $producto->unidad->descripcion }}</span>
                                                 @else
                                                     <span class="text-muted">-</span>
                                                 @endif
                                             </td>
 
-                                            {{-- STOCK --}}
                                             <td>
-                                                @if($producto->stock <= 5)
+                                                @if($producto->stock == 0)
+                                                    <span class="badge bg-danger">Agotado</span>
+                                                @elseif($producto->stock <= 5)
                                                     <span class="badge bg-danger">{{ $producto->stock }}</span>
                                                 @elseif($producto->stock <= 20)
-                                                    <span class="badge bg-warning">{{ $producto->stock }}</span>
+                                                    <span class="badge bg-warning text-dark">{{ $producto->stock }}</span>
                                                 @else
                                                     <span class="badge bg-success">{{ $producto->stock }}</span>
                                                 @endif
                                             </td>
 
-                                            {{-- PRECIO --}}
                                             <td>
                                                 <strong class="text-primary">S/. {{ number_format($producto->precio_unitario, 2) }}</strong>
                                             </td>
 
-                                            {{-- ACCIONES --}}
                                             <td>
+                                                <span class="text-success">S/. {{ number_format($producto->stock * $producto->precio_unitario, 2) }}</span>
+                                            </td>
+
+                                            <td class="text-center">
                                                 <div class="btn-group btn-group-sm" role="group">
-                                                    <a href="{{ route('productos.show', $producto->id) }}" class="btn btn-info" title="Ver">
+                                                    <a href="{{ route('productos.show', $producto->id) }}" class="btn btn-sm btn-outline-info" title="Ver">
                                                         <i class="bi bi-eye"></i>
                                                     </a>
                                                     @can('productos_edit')
-                                                        <a href="{{ route('productos.edit', $producto->id) }}" class="btn btn-warning" title="Editar">
+                                                        <a href="{{ route('productos.edit', $producto->id) }}" class="btn btn-sm btn-outline-warning" title="Editar">
                                                             <i class="bi bi-pencil"></i>
                                                         </a>
                                                     @endcan
@@ -100,7 +205,7 @@
                                                         <form action="{{ route('productos.destroy', $producto->id) }}" method="POST" style="display: inline;">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar este producto?');" title="Eliminar">
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este producto?');" title="Eliminar">
                                                                 <i class="bi bi-trash"></i>
                                                             </button>
                                                         </form>
@@ -112,29 +217,30 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
 
-                        {{-- PAGINACIÓN --}}
-                        <div class="d-flex justify-content-center mt-4">
+                    <div class="card-footer bg-white border-top">
+                        <div class="d-flex justify-content-center">
                             {{ $productos->links() }}
                         </div>
-                    @else
-                        {{-- MENSAJE VACÍO --}}
-                        <div class="alert alert-info text-center py-5" role="alert">
-                            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
-                            <h5 class="mt-3">No hay productos registrados</h5>
-                            <p class="text-muted">Comienza creando tu primer producto</p>
-                            @can('productos_create')
-                                <a href="{{ route('productos.create') }}" class="btn btn-primary mt-2">
-                                    <i class="bi bi-plus-circle"></i> Crear Producto
-                                </a>
-                            @endcan
-                        </div>
-                    @endif
-                </div>
+                    </div>
+                @else
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                        <h5 class="mt-3 text-muted">No hay productos registrados</h5>
+                        <p class="text-muted">Comienza creando tu primer producto</p>
+                        @can('productos_create')
+                            <a href="{{ route('productos.create') }}" class="btn btn-primary mt-3">
+                                <i class="bi bi-plus-circle"></i> Crear Primer Producto
+                            </a>
+                        @endcan
+                    </div>
+                @endif
             </div>
         </div>
     </div>
 </div>
+
 @endsection
 
 @push('scripts')
@@ -145,6 +251,20 @@ document.addEventListener('DOMContentLoaded', function(){
     if(mnuProductos) mnuProductos.classList.add('menu-open');
     const itemProductos = document.getElementById('itemProductos');
     if(itemProductos) itemProductos.classList.add('active');
+
+    // Búsqueda en tiempo real
+    const searchInput = document.getElementById('searchInput');
+    if(searchInput) {
+        searchInput.addEventListener('keyup', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('.producto-row');
+            
+            rows.forEach(row => {
+                const searchData = row.getAttribute('data-search').toLowerCase();
+                row.style.display = searchData.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    }
 });
 </script>
 @endpush

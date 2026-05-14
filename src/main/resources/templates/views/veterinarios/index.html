@@ -1,0 +1,300 @@
+@extends('plantilla.app')
+@section('contenido')
+<style>
+    .vet-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .vet-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .vet-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+    }
+
+    .vet-badge {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: #28a745;
+        color: white;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: bold;
+    }
+
+    .especialidad-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-item {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .stat-item h3 {
+        font-size: 2rem;
+        color: #667eea;
+        margin: 0;
+    }
+
+    .stat-item p {
+        color: #6c757d;
+        margin: 0.5rem 0 0 0;
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- HEADER -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-0"><i class="bi bi-stethoscope"></i> Veterinarios</h2>
+                    <p class="text-muted mb-0">Directorio de profesionales veterinarios</p>
+                </div>
+                @can('manage-users')
+                <a href="{{ route('veterinarios.create') }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle"></i> Nuevo Veterinario
+                </a>
+                @endcan
+            </div>
+        </div>
+    </div>
+
+    <!-- ESTADÍSTICAS -->
+    <div class="stat-grid">
+        <div class="stat-item">
+            <h3>{{ $totalVeterinarios }}</h3>
+            <p>Veterinarios Activos</p>
+        </div>
+        <div class="stat-item">
+            <h3 id="citasHoy">0</h3>
+            <p>Citas Hoy</p>
+        </div>
+        <div class="stat-item">
+            <h3 id="citasSemana">0</h3>
+            <p>Citas Esta Semana</p>
+        </div>
+        <div class="stat-item">
+            <h3 id="pacientes">0</h3>
+            <p>Pacientes Atendidos</p>
+        </div>
+    </div>
+
+    <!-- MENSAJES -->
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    <!-- BÚSQUEDA Y FILTROS -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px;">
+                <div class="row align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">Buscar Veterinario</label>
+                        <div style="position: relative;">
+                            <i class="bi bi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999;"></i>
+                            <input type="text" id="searchInput" class="form-control" 
+                                   placeholder="Por nombre, especialidad..." 
+                                   style="padding-left: 35px;">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Especialidad</label>
+                        <select id="filterEspecialidad" class="form-select">
+                            <option value="">-- Todas --</option>
+                            <option value="Cirugía">Cirugía</option>
+                            <option value="Medicina General">Medicina General</option>
+                            <option value="Odontología">Odontología</option>
+                            <option value="Oftalmología">Oftalmología</option>
+                            <option value="Cardiología">Cardiología</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Estado</label>
+                        <select id="filterEstado" class="form-select">
+                            <option value="">-- Todos --</option>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GRID DE VETERINARIOS -->
+    @if($veterinarios->count() > 0)
+        <div class="row" id="veterinariosGrid">
+            @foreach($veterinarios as $vet)
+                <div class="col-xl-3 col-lg-4 col-md-6 mb-4 vet-item" 
+                     data-search="{{ $vet->nombre }} {{ $vet->especialidad }}"
+                     data-especialidad="{{ $vet->especialidad }}">
+                    <div class="card vet-card h-100">
+                        <div class="card-body position-relative">
+                            <!-- Avatar -->
+                            <div class="mb-3 position-relative d-inline-block" style="width: 100%;">
+                                <div class="vet-avatar mx-auto">
+                                    {{ substr($vet->nombre, 0, 1) }}
+                                </div>
+                                <div class="vet-badge">
+                                    <i class="bi bi-check-lg"></i>
+                                </div>
+                            </div>
+
+                            <!-- Nombre -->
+                            <h5 class="card-title text-center fw-bold mb-2">{{ $vet->nombre }}</h5>
+
+                            <!-- Especialidad -->
+                            <div class="text-center mb-3">
+                                <span class="especialidad-badge">{{ $vet->especialidad }}</span>
+                            </div>
+
+                            <!-- Información -->
+                            <div class="mb-3" style="font-size: 0.9rem;">
+                                <p class="mb-2">
+                                    <i class="bi bi-telephone text-primary"></i>
+                                    <a href="tel:{{ $vet->telefono }}">{{ $vet->telefono }}</a>
+                                </p>
+                                <p class="mb-2">
+                                    <i class="bi bi-envelope text-primary"></i>
+                                    <a href="mailto:{{ $vet->email }}">{{ substr($vet->email, 0, 25) }}...</a>
+                                </p>
+                                <p class="mb-0">
+                                    <i class="bi bi-credit-card text-primary"></i>
+                                    <small>Cédula: {{ $vet->cedula }}</small>
+                                </p>
+                            </div>
+
+                            <!-- Horario -->
+                            @if($vet->horarioDisponible)
+                                <div style="background: #f0f6ff; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock"></i> {{ $vet->horarioDisponible }}
+                                    </small>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="card-footer bg-white border-top">
+                            <div class="d-grid gap-2">
+                                <a href="{{ route('veterinarios.show', $vet->id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye"></i> Ver Perfil
+                                </a>
+                                @can('manage-users')
+                                    <a href="{{ route('veterinarios.edit', $vet->id) }}" class="btn btn-outline-warning btn-sm">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </a>
+                                    <form action="{{ route('veterinarios.destroy', $vet->id) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100" 
+                                                onclick="return confirm('¿Desactivar este veterinario?')">
+                                            <i class="bi bi-trash"></i> Desactivar
+                                        </button>
+                                    </form>
+                                @endcan
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @else
+        <div style="text-align: center; padding: 3rem 1rem;">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+            <h5 class="mt-3 text-muted">No hay veterinarios registrados</h5>
+            <p class="text-muted">Comienza agregando un nuevo veterinario al sistema</p>
+            @can('manage-users')
+                <a href="{{ route('veterinarios.create') }}" class="btn btn-primary mt-3">
+                    <i class="bi bi-plus-circle"></i> Crear Primer Veterinario
+                </a>
+            @endcan
+        </div>
+    @endif
+</div>
+
+@endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    // Activar menú
+    const mnuVeterinarios = document.getElementById('mnuVeterinarios');
+    if(mnuVeterinarios) mnuVeterinarios.classList.add('menu-open');
+    const itemVeterinarios = document.getElementById('itemVeterinarios');
+    if(itemVeterinarios) itemVeterinarios.classList.add('active');
+
+    // Búsqueda en tiempo real
+    const searchInput = document.getElementById('searchInput');
+    const filterEspecialidad = document.getElementById('filterEspecialidad');
+    const items = document.querySelectorAll('.vet-item');
+
+    function filtrar() {
+        const searchTerm = (searchInput?.value || '').toLowerCase();
+        const especialidad = filterEspecialidad?.value || '';
+
+        items.forEach(item => {
+            const searchData = item.getAttribute('data-search').toLowerCase();
+            const itemEspecialidad = item.getAttribute('data-especialidad');
+
+            const matchesSearch = searchData.includes(searchTerm) || searchTerm === '';
+            const matchesEspecialidad = especialidad === '' || itemEspecialidad === especialidad;
+
+            item.style.display = (matchesSearch && matchesEspecialidad) ? '' : 'none';
+        });
+    }
+
+    searchInput?.addEventListener('keyup', filtrar);
+    filterEspecialidad?.addEventListener('change', filtrar);
+});
+</script>
+@endpush

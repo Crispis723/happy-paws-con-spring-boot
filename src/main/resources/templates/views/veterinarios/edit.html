@@ -1,0 +1,155 @@
+@extends('plantilla.app')
+@section('contenido')
+<style>
+    .form-section {
+        border-left: 4px solid #667eea;
+        padding-left: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .form-section h5 {
+        color: #667eea;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pencil"></i> Editar Veterinario: {{ $veterinario->nombre }}
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <form action="{{ route('veterinarios.update', $veterinario->id) }}" 
+                          method="POST" novalidate id="formVeterinario">
+                        @csrf
+                        @method('PUT')
+
+                        <!-- DATOS PERSONALES -->
+                        <div class="form-section">
+                            <h5><i class="bi bi-person"></i> Datos Personales</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Nombre Completo <span class="text-danger">*</span></label>
+                                    <input type="text" name="nombre" class="form-control @error('nombre') is-invalid @enderror" 
+                                           value="{{ old('nombre', $veterinario->nombre) }}" 
+                                           placeholder="Ej. Dr. Juan Pérez" required>
+                                    @error('nombre') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Cédula/DNI <span class="text-danger">*</span></label>
+                                    <input type="text" name="cedula" class="form-control @error('cedula') is-invalid @enderror" 
+                                           value="{{ old('cedula', $veterinario->cedula) }}" 
+                                           placeholder="Ej. 1234567890" required>
+                                    @error('cedula') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Email <span class="text-danger">*</span></label>
+                                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
+                                           value="{{ old('email', $veterinario->email) }}" 
+                                           placeholder="veterinario@ejemplo.com" required>
+                                    @error('email') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Teléfono <span class="text-danger">*</span></label>
+                                    <input type="tel" name="telefono" class="form-control @error('telefono') is-invalid @enderror" 
+                                           value="{{ old('telefono', $veterinario->telefono) }}" 
+                                           placeholder="Ej. 987654321" required>
+                                    @error('telefono') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DATOS PROFESIONALES -->
+                        <div class="form-section">
+                            <h5><i class="bi bi-briefcase"></i> Datos Profesionales</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Especialidad <span class="text-danger">*</span></label>
+                                    <select name="especialidad" class="form-select @error('especialidad') is-invalid @enderror" required>
+                                        <option value="">-- Seleccionar especialidad --</option>
+                                        <option value="Medicina General" {{ $veterinario->especialidad === 'Medicina General' ? 'selected' : '' }}>Medicina General</option>
+                                        <option value="Cirugía" {{ $veterinario->especialidad === 'Cirugía' ? 'selected' : '' }}>Cirugía</option>
+                                        <option value="Odontología" {{ $veterinario->especialidad === 'Odontología' ? 'selected' : '' }}>Odontología</option>
+                                        <option value="Oftalmología" {{ $veterinario->especialidad === 'Oftalmología' ? 'selected' : '' }}>Oftalmología</option>
+                                        <option value="Cardiología" {{ $veterinario->especialidad === 'Cardiología' ? 'selected' : '' }}>Cardiología</option>
+                                        <option value="Dermatología" {{ $veterinario->especialidad === 'Dermatología' ? 'selected' : '' }}>Dermatología</option>
+                                        <option value="Traumatología" {{ $veterinario->especialidad === 'Traumatología' ? 'selected' : '' }}>Traumatología</option>
+                                    </select>
+                                    @error('especialidad') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Licencia Profesional <span class="text-danger">*</span></label>
+                                    <input type="text" name="licencia" class="form-control @error('licencia') is-invalid @enderror" 
+                                           value="{{ old('licencia', $veterinario->licencia) }}" 
+                                           placeholder="Ej. LIC-2024-00001" required>
+                                    @error('licencia') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                </div>
+
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label fw-bold">Biografía</label>
+                                    <textarea name="biografia" class="form-control @error('biografia') is-invalid @enderror" 
+                                              rows="3" placeholder="Información adicional sobre el veterinario...">{{ old('biografia', $veterinario->biografia) }}</textarea>
+                                    @error('biografia') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                </div>
+
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label fw-bold">Horario Disponible</label>
+                                    <input type="text" name="horarioDisponible" class="form-control" 
+                                           value="{{ old('horarioDisponible', $veterinario->horarioDisponible) }}" 
+                                           placeholder="Ej. Lunes a Viernes: 08:00 - 18:00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DATOS ADICIONALES -->
+                        <div class="form-section">
+                            <h5><i class="bi bi-image"></i> Datos Adicionales</h5>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label fw-bold">URL de Foto de Perfil</label>
+                                    <input type="url" name="fotoUrl" class="form-control @error('fotoUrl') is-invalid @enderror" 
+                                           value="{{ old('fotoUrl', $veterinario->fotoUrl) }}" 
+                                           placeholder="https://ejemplo.com/foto.jpg">
+                                    @error('fotoUrl') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BOTONES -->
+                        <div class="d-flex justify-content-between gap-2 mt-4 pt-3 border-top">
+                            <a href="{{ route('veterinarios.show', $veterinario->id) }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-check-circle"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const mnuVeterinarios = document.getElementById('mnuVeterinarios');
+    if(mnuVeterinarios) mnuVeterinarios.classList.add('menu-open');
+    const itemVeterinarios = document.getElementById('itemVeterinarios');
+    if(itemVeterinarios) itemVeterinarios.classList.add('active');
+});
+</script>
+@endpush

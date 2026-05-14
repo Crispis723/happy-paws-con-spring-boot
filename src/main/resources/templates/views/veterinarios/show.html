@@ -1,0 +1,293 @@
+@extends('plantilla.app')
+@section('contenido')
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        border: 4px solid white;
+    }
+
+    .info-section {
+        border-left: 4px solid #667eea;
+        padding-left: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-section h5 {
+        color: #667eea;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .info-row {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        margin-bottom: 1rem;
+        gap: 1rem;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .info-value {
+        color: #212529;
+    }
+
+    .citas-table {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- HEADER CON INFORMACIÓN PRINCIPAL -->
+    <div class="profile-header">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <div class="profile-avatar">
+                    {{ substr($veterinario->nombre, 0, 1) }}
+                </div>
+            </div>
+            <div class="col">
+                <h1 class="mb-1">{{ $veterinario->nombre }}</h1>
+                <p class="mb-0 opacity-75">
+                    <i class="bi bi-briefcase"></i> {{ $veterinario->especialidad }}
+                </p>
+            </div>
+            @can('manage-users')
+            <div class="col-auto">
+                <a href="{{ route('veterinarios.edit', $veterinario->id) }}" class="btn btn-light">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+                <form action="{{ route('veterinarios.destroy', $veterinario->id) }}" method="POST" style="display: inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Está seguro?')">
+                        <i class="bi bi-trash"></i> Desactivar
+                    </button>
+                </form>
+            </div>
+            @endcan
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="row">
+        <div class="col-lg-6">
+            <!-- INFORMACIÓN PERSONAL -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-person"></i> Información Personal</h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <div class="info-label">Nombre:</div>
+                        <div class="info-value">{{ $veterinario->nombre }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Cédula/DNI:</div>
+                        <div class="info-value">{{ $veterinario->cedula }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Email:</div>
+                        <div class="info-value">
+                            <a href="mailto:{{ $veterinario->email }}">{{ $veterinario->email }}</a>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Teléfono:</div>
+                        <div class="info-value">
+                            <a href="tel:{{ $veterinario->telefono }}">{{ $veterinario->telefono }}</a>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Registro:</div>
+                        <div class="info-value">{{ optional($veterinario->fechaRegistro)->format('d/m/Y H:i') ?? '-' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INFORMACIÓN PROFESIONAL -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-briefcase"></i> Información Profesional</h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <div class="info-label">Especialidad:</div>
+                        <div class="info-value">
+                            <span class="badge bg-primary">{{ $veterinario->especialidad }}</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Licencia:</div>
+                        <div class="info-value">{{ $veterinario->licencia }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Horario:</div>
+                        <div class="info-value">{{ $veterinario->horarioDisponible ?? 'No especificado' }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Estado:</div>
+                        <div class="info-value">
+                            @if($veterinario->esActivo)
+                                <span class="badge bg-success">Activo</span>
+                            @else
+                                <span class="badge bg-danger">Inactivo</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <!-- BIOGRAFÍA -->
+            @if($veterinario->biografia)
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="bi bi-file-text"></i> Biografía</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted" style="line-height: 1.6;">{{ $veterinario->biografia }}</p>
+                    </div>
+                </div>
+            @endif
+
+            <!-- ESTADÍSTICAS -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Estadísticas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 text-center border-end">
+                            <h3 class="text-primary mb-1" id="totalCitas">0</h3>
+                            <small class="text-muted">Citas Registradas</small>
+                        </div>
+                        <div class="col-6 text-center">
+                            <h3 class="text-success mb-1" id="citasCompletadas">0</h3>
+                            <small class="text-muted">Citas Completadas</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACCIONES RÁPIDAS -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Acciones Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ route('citas.index', ['veterinario' => $veterinario->id]) }}" class="btn btn-outline-primary">
+                            <i class="bi bi-calendar-check"></i> Ver Citas
+                        </a>
+                        <a href="mailto:{{ $veterinario->email }}" class="btn btn-outline-info">
+                            <i class="bi bi-envelope"></i> Enviar Email
+                        </a>
+                        <a href="tel:{{ $veterinario->telefono }}" class="btn btn-outline-success">
+                            <i class="bi bi-telephone"></i> Llamar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CITAS RECIENTES -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-calendar"></i> Citas Recientes</h5>
+                </div>
+                <div class="card-body citas-table">
+                    <div class="alert alert-info" id="citasLoader">
+                        <i class="bi bi-info-circle"></i> Cargando citas...
+                    </div>
+                    <table class="table table-hover" id="citasTable" style="display: none;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Mascota</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="citasBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const mnuVeterinarios = document.getElementById('mnuVeterinarios');
+    if(mnuVeterinarios) mnuVeterinarios.classList.add('menu-open');
+    const itemVeterinarios = document.getElementById('itemVeterinarios');
+    if(itemVeterinarios) itemVeterinarios.classList.add('active');
+
+    // Cargar citas del veterinario
+    const veterinarioId = {{ $veterinario->id }};
+    fetch(`/api/citas/veterinario/${veterinarioId}`)
+        .then(r => r.json())
+        .then(citas => {
+            if(citas.length === 0) {
+                document.getElementById('citasLoader').innerHTML = '<i class="bi bi-inbox"></i> No hay citas registradas';
+                return;
+            }
+            
+            const tbody = document.getElementById('citasBody');
+            tbody.innerHTML = '';
+            citas.forEach(cita => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${new Date(cita.fecha).toLocaleDateString('es-PE')}</td>
+                        <td>${cita.cliente_nombre || '-'}</td>
+                        <td>${cita.mascota_nombre || '-'}</td>
+                        <td><span class="badge bg-info">${cita.estado}</span></td>
+                        <td>
+                            <a href="/citas/${cita.id}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('citasLoader').style.display = 'none';
+            document.getElementById('citasTable').style.display = 'table';
+            document.getElementById('totalCitas').textContent = citas.length;
+            document.getElementById('citasCompletadas').textContent = citas.filter(c => c.estado === 'completada').length;
+        })
+        .catch(e => {
+            console.error('Error:', e);
+            document.getElementById('citasLoader').innerHTML = '<div class="alert alert-danger">Error al cargar citas</div>';
+        });
+});
+</script>
+@endpush
