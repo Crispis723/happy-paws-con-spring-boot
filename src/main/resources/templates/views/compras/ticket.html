@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante de compra</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; margin: 0; padding: 0; background: #fff; color: #111; }
+        .ticket { width: 280px; margin: 0 auto; padding: 16px 14px; }
+        .center { text-align: center; }
+        .bold { font-weight: 700; }
+        .line { border-top: 1px dashed #000; margin: 8px 0; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 2px 0; vertical-align: top; }
+        .totales td { padding: 3px 0; }
+    </style>
+</head>
+<body>
+    <div class="ticket">
+        <div class="center">
+            <h3 class="bold" th:text="${empresa.razon_social}">Happy Paws</h3>
+            <p th:text="${empresa.direccion}">Dirección</p>
+            <p th:text="'RUC: ' + ${empresa.ruc}">RUC</p>
+            <p class="bold">COMPROBANTE DE COMPRA</p>
+            <p class="bold" th:text="${compra.serie} + '-' + ${#strings.leftPad(compra.correlativo, 8, '0')}">000-00000001</p>
+        </div>
+
+        <div class="line"></div>
+
+        <p><strong>Proveedor:</strong> <span th:text="${compra.proveedor != null ? compra.proveedor.razon_social : '-'}">-</span></p>
+        <p><strong>Documento:</strong> <span th:text="${compra.proveedor != null and compra.proveedor.documentoTipo != null ? compra.proveedor.documentoTipo.descripcion : '-'}">-</span> <span th:text="${compra.proveedor != null ? compra.proveedor.numero_documento : '-'}">-</span></p>
+        <p><strong>Dirección:</strong> <span th:text="${compra.proveedor != null ? compra.proveedor.direccion : '-'}">-</span></p>
+        <p><strong>Fecha:</strong> <span th:text="${compra.fecha}">-</span></p>
+
+        <div class="line"></div>
+
+        <table>
+            <tr class="bold">
+                <td style="width: 60%;">Concepto</td>
+                <td style="width: 40%; text-align: right;">Valor</td>
+            </tr>
+            <tr><td colspan="2" style="border-top: 1px solid #000; padding: 1px 0;"></td></tr>
+            <tr>
+                <td>Forma de pago</td>
+                <td style="text-align: right; text-transform: capitalize;" th:text="${compra.forma_pago}">-</td>
+            </tr>
+            <tr>
+                <td>Estado</td>
+                <td style="text-align: right; text-transform: capitalize;" th:text="${compra.estado}">-</td>
+            </tr>
+            <tr>
+                <td>Total</td>
+                <td style="text-align: right;" th:text="'S/ ' + ${#numbers.formatDecimal(compra.total, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</td>
+            </tr>
+        </table>
+
+        <div class="line"></div>
+        <p class="center">Gracias por su compra</p>
+    </div>
+</body>
+</html>

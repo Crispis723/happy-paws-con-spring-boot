@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Ventas - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+    <style>
+        body { min-height: 100vh; background: linear-gradient(180deg, #f8fdfd 0%, #eef8f7 100%); }
+        .page-shell { max-width: 1320px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+        .hero-panel { background: linear-gradient(135deg, #8adfd7 0%, #58b8c7 100%); color: white; border-radius: 28px; padding: 2rem; box-shadow: 0 22px 50px rgba(71, 150, 164, 0.12); margin-bottom: 1.5rem; }
+        .surface-card { background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); border: 1px solid rgba(138, 223, 215, 0.22); border-radius: 24px; box-shadow: 0 16px 36px rgba(71, 150, 164, 0.08); overflow: hidden; }
+        .table thead th { background: linear-gradient(135deg, #8adfd7, #58b8c7); color: white; border: 0; }
+    </style>
+</head>
+<body>
+    <div th:insert="partials/header :: header"></div>
+    <div class="page-shell">
+        <div class="hero-panel">
+            <h1 class="display-6 fw-bold mb-2"><i class="bi bi-graph-up-arrow me-2"></i>Reporte de Ventas</h1>
+            <p class="mb-0 opacity-75">Filtra por fechas y usuario para revisar las ventas del periodo.</p>
+        </div>
+
+        <div class="surface-card p-4">
+            <form method="get" th:action="@{/reportes/ventas}" class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <label for="fecha_inicio" class="form-label">Fecha Inicio</label>
+                    <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" th:value="${param.fecha_inicio}">
+                </div>
+                <div class="col-md-3">
+                    <label for="fecha_fin" class="form-label">Fecha Fin</label>
+                    <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" th:value="${param.fecha_fin}">
+                </div>
+                <div class="col-md-3">
+                    <label for="user_id" class="form-label">Usuario</label>
+                    <select id="user_id" name="user_id" class="form-select">
+                        <option value="">Todos</option>
+                        <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.name}" th:selected="${param.user_id != null and param.user_id[0] == #strings.toString(u.id)}">Usuario</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel-fill me-1"></i> Filtrar</button>
+                    <button type="button" class="btn btn-success w-100" disabled><i class="bi bi-file-earmark-excel-fill me-1"></i> Exportar</button>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Opciones</th>
+                            <th>Fecha</th>
+                            <th>Comprobante</th>
+                            <th>Cliente</th>
+                            <th>Vendedor</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(ventas)}"><td colspan="6" class="text-center py-4">No hay ventas registradas.</td></tr>
+                        <th:block th:each="v : ${ventas}">
+                            <tr>
+                                <td>
+                                    <a th:href="@{/ventas/imprimir/{id}(id=${v.id})}" target="_blank" class="btn btn-sm btn-secondary" title="Ver Comprobante"><i class="bi bi-printer"></i></a>
+                                    <button class="btn btn-sm btn-info ms-2" type="button" data-bs-toggle="collapse" th:attr="data-bs-target='#detalles-' + ${v.id}"><i class="bi bi-eye"></i></button>
+                                </td>
+                                <td th:text="${#temporals.format(v.createdAt, 'dd/MM/yyyy HH:mm')}">--</td>
+                                <td th:text="${v.comprobanteTipo.descripcion + ' - ' + v.serie + ' - ' + #strings.leftPad(v.correlativo, 8, '0')}">--</td>
+                                <td th:text="${v.cliente != null ? v.cliente.razonSocial : 'N/A'}">--</td>
+                                <td th:text="${v.user != null ? v.user.name : 'N/A'}">--</td>
+                                <td th:text="${'S/ ' + #numbers.formatDecimal(v.total, 1, 'COMMA', 2, 'POINT')}">--</td>
+                            </tr>
+                            <tr class="collapse" th:id="'detalles-' + ${v.id}">
+                                <td colspan="6">
+                                    <div class="p-2">
+                                        <h6>Detalles de productos</h6>
+                                        <table class="table table-sm table-bordered mb-0">
+                                            <thead class="table-light"><tr><th>Producto</th><th>Cantidad</th><th>Precio Unitario</th><th>Subtotal</th></tr></thead>
+                                            <tbody>
+                                                <tr th:each="detalle : ${v.detalles}">
+                                                    <td th:text="${detalle.producto != null ? detalle.producto.nombre : 'N/A'}">--</td>
+                                                    <td th:text="${detalle.cantidad}">--</td>
+                                                    <td th:text="${'S/ ' + #numbers.formatDecimal(detalle.precioUnitario, 1, 'COMMA', 2, 'POINT')}">--</td>
+                                                    <td th:text="${'S/ ' + #numbers.formatDecimal(detalle.cantidad * detalle.precioUnitario, 1, 'COMMA', 2, 'POINT')}">--</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        </th:block>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div th:insert="partials/footer :: footer"></div>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+</body>
+</html>

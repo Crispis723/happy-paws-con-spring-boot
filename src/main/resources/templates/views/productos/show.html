@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del producto - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+    <style>
+        body { min-height: 100vh; background: linear-gradient(180deg, #f8fdfd 0%, #eef8f7 100%); }
+        .page-shell { max-width: 1180px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+        .hero-panel { background: linear-gradient(135deg, #8adfd7 0%, #58b8c7 100%); color: white; border-radius: 28px; padding: 2rem; box-shadow: 0 22px 50px rgba(71, 150, 164, 0.12); margin-bottom: 1.5rem; }
+        .surface-card { background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); border: 1px solid rgba(138, 223, 215, 0.22); border-radius: 24px; box-shadow: 0 16px 36px rgba(71, 150, 164, 0.08); overflow: hidden; }
+    </style>
+</head>
+<body>
+    <div th:insert="partials/header :: header"></div>
+    <div class="page-shell">
+        <div class="hero-panel d-flex justify-content-between align-items-center gap-3 flex-wrap">
+            <div>
+                <p class="text-uppercase small fw-semibold mb-1 opacity-75">Inventario</p>
+                <h1 class="display-6 fw-bold mb-0">Detalle del producto</h1>
+            </div>
+            <span class="badge bg-light text-dark px-3 py-2" th:text="${'ID: ' + producto.id}">ID</span>
+        </div>
+
+        <div class="surface-card p-4 p-md-5">
+            <div class="row">
+                <div class="col-md-4 text-center mb-4">
+                    <div th:if="${producto.imagen != null}">
+                        <img th:src="@{'/uploads/productos/' + ${producto.imagen}}" th:alt="${producto.nombre}" class="img-fluid rounded" style="max-width: 100%; max-height: 300px;">
+                    </div>
+                    <div th:if="${producto.imagen == null}" class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 300px;">
+                        <div class="text-center"><i class="bi bi-image" style="font-size: 3rem; color: #ccc;"></i><p class="text-muted mt-2 mb-0">Sin imagen</p></div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="mb-4">
+                        <h6 class="text-muted text-uppercase">Código</h6>
+                        <h5 class="mb-0"><code th:text="${producto.codigo}">--</code></h5>
+                    </div>
+                    <div class="mb-4">
+                        <h6 class="text-muted text-uppercase">Nombre</h6>
+                        <h4 class="mb-0" th:text="${producto.nombre}">--</h4>
+                    </div>
+                    <div class="mb-4" th:if="${producto.descripcion != null and !#strings.isEmpty(producto.descripcion)}">
+                        <h6 class="text-muted text-uppercase">Descripción</h6>
+                        <p class="mb-0" th:text="${producto.descripcion}">--</p>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted text-uppercase">Unidad</h6>
+                            <span th:if="${producto.unidad != null}" class="badge bg-info fs-6" th:text="${producto.unidad.codigo + ' - ' + producto.unidad.descripcion}">Unidad</span>
+                            <span th:if="${producto.unidad == null}" class="text-muted">-</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted text-uppercase">Afectación</h6>
+                            <span th:if="${producto.afectacionTipo != null}" class="badge bg-warning text-dark fs-6" th:text="${producto.afectacionTipo.codigo + ' - ' + producto.afectacionTipo.descripcion}">Afectación</span>
+                            <span th:if="${producto.afectacionTipo == null}" class="text-muted">-</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3 p-3 bg-light rounded">
+                            <h6 class="text-muted text-uppercase">Precio Unitario</h6>
+                            <h4 class="mb-0 text-success" th:text="${'S/. ' + #numbers.formatDecimal(producto.precio_unitario, 1, 'COMMA', 2, 'POINT')}">--</h4>
+                        </div>
+                        <div class="col-md-6 mb-3 p-3 bg-light rounded">
+                            <h6 class="text-muted text-uppercase">Stock Disponible</h6>
+                            <h4 class="mb-0" th:text="${producto.stock + ' unidades'}">--</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between gap-2 mt-5 pt-4 border-top">
+                <a th:href="@{/productos}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Volver al Listado</a>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/productos/edit/{id}(id=${producto.id})}" class="btn btn-primary"><i class="bi bi-pencil"></i> Editar</a>
+                    <a th:href="@{/productos/delete/{id}(id=${producto.id})}" class="btn btn-danger" onclick="return confirm('¿Eliminar este producto? Esta acción no se puede deshacer.');"><i class="bi bi-trash"></i> Eliminar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:insert="partials/footer :: footer"></div>
+</body>
+</html>

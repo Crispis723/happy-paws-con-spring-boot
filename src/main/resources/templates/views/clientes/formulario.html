@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+    <style>
+        body { min-height: 100vh; background: linear-gradient(180deg, #f8fdfd 0%, #eef8f7 100%); }
+        .shell { max-width: 920px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+        .card-panel { background: rgba(255,255,255,.94); border-radius: 24px; box-shadow: 0 16px 36px rgba(71, 150, 164, 0.08); overflow: hidden; }
+        .hero { border-radius: 24px; padding: 2rem; margin-bottom: 1.5rem; color: #fff; background: linear-gradient(135deg, #8adfd7 0%, #58b8c7 100%); }
+        .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; padding: 1.5rem; }
+        .field { grid-column: span 12; }
+        .half { grid-column: span 12; }
+        label { display:block; margin-bottom: 8px; font-weight: 700; }
+        input, select { width:100%; padding: 14px 16px; border-radius: 14px; border: 2px solid #e6e0ef; }
+        .actions { display:flex; justify-content:space-between; gap: 12px; padding: 0 1.5rem 1.5rem; flex-wrap: wrap; }
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding: 14px 18px; border-radius: 14px; font-weight: 700; text-decoration:none; border:0; }
+        .btn-primary { background: linear-gradient(135deg, #8adfd7, #58b8c7); color: #fff; }
+        .btn-secondary { background: #fff; color: #58b8c7; border: 1px solid #d9eceb; }
+        @media (min-width: 768px) { .half { grid-column: span 6; } }
+    </style>
+</head>
+<body>
+<main class="shell">
+    <section class="hero">
+        <h1 class="mb-2">Formulario de cliente</h1>
+        <p class="mb-0">Crea o edita un cliente para poder asociarlo a mascotas.</p>
+    </section>
+
+    <section class="card-panel">
+        <form th:action="@{/clientes/guardar}" th:object="${cliente}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <div class="grid">
+                <div class="field half">
+                    <label>Documento tipo</label>
+                    <input type="text" th:field="*{documentoTipoCodigo}" placeholder="Ej. CC">
+                </div>
+                <div class="field half">
+                    <label>Número documento</label>
+                    <input type="text" th:field="*{numeroDocumento}" placeholder="Ej. 10000001">
+                </div>
+                <div class="field half">
+                    <label>Razón social</label>
+                    <input type="text" th:field="*{razonSocial}" placeholder="Ej. Cliente de Prueba">
+                </div>
+                <div class="field half">
+                    <label>Email</label>
+                    <input type="email" th:field="*{email}" placeholder="Ej. cliente@correo.com">
+                </div>
+                <div class="field half">
+                    <label>Teléfono</label>
+                    <input type="text" th:field="*{telefono}" placeholder="Ej. 3000000000">
+                </div>
+                <div class="field half">
+                    <label>Dirección</label>
+                    <input type="text" th:field="*{direccion}" placeholder="Ej. Calle 1 # 2-3">
+                </div>
+            </div>
+            <div class="actions">
+                <a th:href="@{/clientes}" class="btn btn-secondary">Volver</a>
+                <button type="submit" class="btn btn-primary">Guardar cliente</button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

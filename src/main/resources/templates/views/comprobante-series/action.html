@@ -1,0 +1,38 @@
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="actionModal">
+    <div class="modal fade" id="modalUpdate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <form id="formUpdate" method="post">
+                    <input type="hidden" th:name="${_csrf != null ? _csrf.parameterName : '_csrf'}" th:value="${_csrf != null ? _csrf.token : ''}">
+                    <input type="hidden" id="method_field" name="_method">
+                    <div class="modal-header bg-primary text-white">
+                        <h4 class="modal-title fs-5" id="modalTitle">Nueva serie de comprobante</h4>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="comprobante_tipo_codigo" class="form-label fw-semibold">Comprobante <span class="text-danger">*</span></label>
+                                <select name="comprobante_tipo_codigo" id="comprobante_tipo_codigo" class="form-select" required>
+                                    <option value="">Seleccionar...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="serie" class="form-label fw-semibold">Serie actual <span class="text-danger">*</span></label>
+                                <input type="text" id="serie" name="serie" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="correlativo" class="form-label fw-semibold">Correlativo actual <span class="text-danger">*</span></label>
+                                <input type="number" id="correlativo" name="correlativo" class="form-control" min="1" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" id="btnSubmit" class="btn btn-primary">Enviar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
