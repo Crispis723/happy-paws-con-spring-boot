@@ -2,8 +2,10 @@ package com.Happypaws.demo.controller;
 
 import com.Happypaws.demo.model.Cliente;
 import com.Happypaws.demo.service.ClienteService;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,8 +36,15 @@ public class ClienteController {
     }
 
     @PostMapping("/guardar")
-    public String guardar(@ModelAttribute("cliente") Cliente cliente, RedirectAttributes redirectAttributes) {
-        clienteService.guardar(cliente);
+    public String guardar(@Valid @ModelAttribute("cliente") Cliente cliente, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return "views/clientes/formulario";
+        }
+        if (cliente.getId() == null) {
+            clienteService.guardar(cliente);
+        } else {
+            clienteService.actualizar(cliente);
+        }
         redirectAttributes.addFlashAttribute("success", "Cliente guardado correctamente");
         return "redirect:/clientes";
     }

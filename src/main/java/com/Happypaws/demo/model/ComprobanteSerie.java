@@ -6,6 +6,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,12 +26,18 @@ public class ComprobanteSerie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
+    @Size(max = 20)
     @Column(name = "comprobante_tipo_codigo", nullable = false)
     private String comprobanteTipoCodigo;
 
+    @NotBlank
+    @Size(max = 10)
     @Column(nullable = false)
     private String serie;
 
+    @NotNull
+    @Min(0)
     @Column(nullable = false)
     private Integer correlativo;
 }

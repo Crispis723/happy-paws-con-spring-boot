@@ -43,7 +43,7 @@
                                 <td th:text="${compra.numero}">--</td>
                                 <td th:text="${compra.proveedorNombre}">--</td>
                                 <td th:text="${compra.fecha}">--</td>
-                                <td th:text="${'$' + #numbers.formatInteger(compra.total, 0)}">--</td>
+                                <td th:text="${'S/. ' + #numbers.formatDecimal(compra.total, 1, 'COMMA', 2, 'POINT')}">--</td>
                                 <td><span class="badge bg-primary" th:text="${compra.estado}">Pendiente</span></td>
                                 <td class="text-center">
                                     <a th:href="@{/compras/{id}(id=${compra.id})}" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>

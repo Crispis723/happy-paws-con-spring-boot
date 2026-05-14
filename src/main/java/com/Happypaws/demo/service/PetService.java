@@ -25,16 +25,16 @@ public class PetService {
 	}
 
 	public Pet guardar(Pet pet) {
-        if (!validarPet(pet)) {
-            throw new IllegalArgumentException("Datos del pet no válidos");
-        }
+		if (!validarPet(pet)) {
+			throw new IllegalArgumentException("Datos de mascota no válidos");
+		}
 		return repository.save(pet);
 	}
 
 	public Pet actualizar(Pet pet) {
 		if (!validarPet(pet)) {
-            throw new IllegalArgumentException("Datos del pet no válidos");
-        }
+			throw new IllegalArgumentException("Datos de mascota no válidos");
+		}
 		return repository.save(pet);
 	}
 
@@ -52,9 +52,9 @@ public class PetService {
 
 	 public boolean validarPet(Pet pet) {
 		  return pet != null
-					 && pet.getNombre() != null && !pet.getNombre().isEmpty()
-					 && pet.getEspecie() != null && !pet.getEspecie().isEmpty()
-					 && pet.getEdad() != null && pet.getEdad() > 0
+					 && pet.getNombre() != null && !pet.getNombre().isBlank()
+					 && pet.getEspecie() != null && !pet.getEspecie().isBlank()
+					 && pet.getEdad() != null && pet.getEdad() >= 0
 				&& pet.getCliente() != null
 				&& pet.getCliente().getId() != null;
 	 }

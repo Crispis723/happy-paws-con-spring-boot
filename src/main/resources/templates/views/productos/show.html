@@ -62,7 +62,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3 p-3 bg-light rounded">
                             <h6 class="text-muted text-uppercase">Precio Unitario</h6>
-                            <h4 class="mb-0 text-success" th:text="${'S/. ' + #numbers.formatDecimal(producto.precio_unitario, 1, 'COMMA', 2, 'POINT')}">--</h4>
+                            <h4 class="mb-0 text-success" th:text="${'S/. ' + #numbers.formatDecimal(producto.precioUnitario, 1, 'COMMA', 2, 'POINT')}">--</h4>
                         </div>
                         <div class="col-md-6 mb-3 p-3 bg-light rounded">
                             <h6 class="text-muted text-uppercase">Stock Disponible</h6>

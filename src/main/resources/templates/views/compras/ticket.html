@@ -18,17 +18,17 @@
 <body>
     <div class="ticket">
         <div class="center">
-            <h3 class="bold" th:text="${empresa.razon_social}">Happy Paws</h3>
+            <h3 class="bold" th:text="${empresa.razonSocial}">Happy Paws</h3>
             <p th:text="${empresa.direccion}">Dirección</p>
             <p th:text="'RUC: ' + ${empresa.ruc}">RUC</p>
             <p class="bold">COMPROBANTE DE COMPRA</p>
-            <p class="bold" th:text="${compra.serie} + '-' + ${#strings.leftPad(compra.correlativo, 8, '0')}">000-00000001</p>
+            <p class="bold" th:text="${compra.numero}">C00001</p>
         </div>
 
         <div class="line"></div>
 
-        <p><strong>Proveedor:</strong> <span th:text="${compra.proveedor != null ? compra.proveedor.razon_social : '-'}">-</span></p>
-        <p><strong>Documento:</strong> <span th:text="${compra.proveedor != null and compra.proveedor.documentoTipo != null ? compra.proveedor.documentoTipo.descripcion : '-'}">-</span> <span th:text="${compra.proveedor != null ? compra.proveedor.numero_documento : '-'}">-</span></p>
+        <p><strong>Proveedor:</strong> <span th:text="${compra.proveedor != null ? compra.proveedor.razonSocial : '-'}">-</span></p>
+        <p><strong>Documento:</strong> <span th:text="${compra.proveedor != null ? compra.proveedor.documentoTipoCodigo : '-'}">-</span> <span th:text="${compra.proveedor != null ? compra.proveedor.numeroDocumento : '-'}">-</span></p>
         <p><strong>Dirección:</strong> <span th:text="${compra.proveedor != null ? compra.proveedor.direccion : '-'}">-</span></p>
         <p><strong>Fecha:</strong> <span th:text="${compra.fecha}">-</span></p>
 
@@ -42,7 +42,7 @@
             <tr><td colspan="2" style="border-top: 1px solid #000; padding: 1px 0;"></td></tr>
             <tr>
                 <td>Forma de pago</td>
-                <td style="text-align: right; text-transform: capitalize;" th:text="${compra.forma_pago}">-</td>
+                <td style="text-align: right; text-transform: capitalize;" th:text="${compra.formaPago}">-</td>
             </tr>
             <tr>
                 <td>Estado</td>

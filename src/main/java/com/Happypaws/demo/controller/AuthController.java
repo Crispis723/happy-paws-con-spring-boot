@@ -1,14 +1,15 @@
 package com.Happypaws.demo.controller;
 
-import com.Happypaws.demo.model.User;
 import com.Happypaws.demo.service.AuthService;
-import jakarta.servlet.http.HttpSession;
+import com.Happypaws.demo.dto.RegisterRequest;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
 
@@ -30,29 +31,17 @@ public class AuthController {
     // ================= LOGIN =================
 
     @GetMapping("/login")
-    public String loginForm(Model model) {
+    public String loginForm(@RequestParam(required = false) String error,
+                            @RequestParam(required = false) String logout,
+                            Model model) {
         model.addAttribute("authOpen", true);
         model.addAttribute("authForm", "login");
-        return "views/landing";
-    }
-
-    @PostMapping("/login")
-    public String login(
-            @RequestParam String email,
-            @RequestParam String password,
-            HttpSession session,
-            Model model) {
-
-        if (authService.login(email, password)) {
-            session.setAttribute("userEmail", email);
-            return "redirect:/dashboard";
+        if (error != null) {
+            model.addAttribute("error", "Credenciales inválidas");
         }
-
-        model.addAttribute("error", "Credenciales inválidas");
-        model.addAttribute("email", email);
-        model.addAttribute("authOpen", true);
-        model.addAttribute("authForm", "login");
-
+        if (logout != null) {
+            model.addAttribute("success", "Sesión cerrada correctamente");
+        }
         return "views/landing";
     }
 
@@ -66,14 +55,17 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute User user, Model model) {
+    public String registerUser(@Valid @ModelAttribute("registerRequest") RegisterRequest registerRequest, org.springframework.validation.BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
 
-        authService.saveUser(user);
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("authOpen", true);
+            model.addAttribute("authForm", "register");
+            return "views/landing";
+        }
 
-        model.addAttribute("success", "Cuenta creada correctamente. Inicia sesión para continuar.");
-        model.addAttribute("authOpen", true);
-        model.addAttribute("authForm", "login");
+        authService.registrar(registerRequest);
 
-        return "views/landing";
+        redirectAttributes.addFlashAttribute("success", "Cuenta creada correctamente. Inicia sesión para continuar.");
+        return "redirect:/login";
     }
 }

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuario - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+</head>
+<body>
+    <div th:insert="partials/header :: header"></div>
+    <div class="container-fluid p-4">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title mb-0">Formulario de usuario</h3></div>
+            <div class="card-body">
+                <form th:action="@{/usuarios/guardar}" th:object="${user}" method="post" class="row g-3">
+                    <input type="hidden" th:field="*{id}">
+                    <div class="col-md-6"><label class="form-label">Nombre</label><input class="form-control" th:field="*{name}"></div>
+                    <div class="col-md-6"><label class="form-label">Email</label><input class="form-control" th:field="*{email}"></div>
+                    <div class="col-md-6"><label class="form-label">Password</label><input type="password" class="form-control" th:field="*{password}"></div>
+                    <div class="col-md-6"><label class="form-label">Estado</label><select class="form-select" th:field="*{enabled}"><option th:value="true">Activo</option><option th:value="false">Inactivo</option></select></div>
+                    <div class="col-12"><label class="form-label">Roles</label><select class="form-select" multiple th:field="*{roleIds}"><option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}"></option></select></div>
+                    <div class="col-12 d-flex justify-content-between gap-2">
+                        <a th:href="@{/usuarios}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div th:insert="partials/footer :: footer"></div>
+</body>
+</html>

@@ -216,11 +216,13 @@
                 <div class="field half">
                     <label>Nombre</label>
                     <input type="text" th:field="*{nombre}" placeholder="Ej. Luna">
+                    <div class="invalid" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
                 </div>
 
                 <div class="field half">
                     <label>Especie</label>
                     <input type="text" th:field="*{especie}" placeholder="Ej. Perro">
+                    <div class="invalid" th:if="${#fields.hasErrors('especie')}" th:errors="*{especie}"></div>
                 </div>
 
                 <div class="field half">
@@ -239,6 +241,7 @@
                         <option value="">Selecciona un cliente</option>
                         <option th:each="cliente : ${clientes}" th:value="${cliente.id}" th:text="${cliente.razonSocial}"></option>
                     </select>
+                    <div class="invalid" th:if="${#fields.hasErrors('cliente')}" th:errors="*{cliente}"></div>
                 </div>
             </div>
 

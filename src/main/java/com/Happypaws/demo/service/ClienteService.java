@@ -28,6 +28,10 @@ public class ClienteService {
 		return repository.save(cliente);
 	}
 
+	public Cliente actualizar(Cliente cliente) {
+		return repository.save(cliente);
+	}
+
 	public void eliminar(Long id) {
 		repository.deleteById(id);
 	}

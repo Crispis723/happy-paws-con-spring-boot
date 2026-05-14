@@ -2,10 +2,12 @@ package com.Happypaws.demo.controller;
 
 import com.Happypaws.demo.model.Cliente;
 import com.Happypaws.demo.model.Pet;
-import com.Happypaws.demo.repository.ClienteRepository;
+import com.Happypaws.demo.service.ClienteService;
 import com.Happypaws.demo.service.PetService;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,11 +18,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class PetController {
 
     private final PetService petService;
-    private final ClienteRepository clienteRepository;
+    private final ClienteService clienteService;
 
-    public PetController(PetService petService, ClienteRepository clienteRepository) {
+    public PetController(PetService petService, ClienteService clienteService) {
         this.petService = petService;
-        this.clienteRepository = clienteRepository;
+        this.clienteService = clienteService;
     }
 
     @GetMapping("/mascotas")
@@ -34,19 +36,27 @@ public class PetController {
         Pet mascota = new Pet();
         mascota.setCliente(new Cliente());
         model.addAttribute("mascota", mascota);
-        model.addAttribute("clientes", clienteRepository.findAll());
+        model.addAttribute("clientes", clienteService.listar());
         return "views/mascotas/formulario";
     }
 
     @PostMapping("/mascotas/guardar")
-    public String guardar(@ModelAttribute("mascota") Pet mascota, RedirectAttributes redirectAttributes, Model model) {
+    public String guardar(@Valid @ModelAttribute("mascota") Pet mascota, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("clientes", clienteService.listar());
+            return "views/mascotas/formulario";
+        }
         if (mascota.getCliente() != null && mascota.getCliente().getId() != null) {
-            Cliente cliente = clienteRepository.findById(mascota.getCliente().getId())
+            Cliente cliente = clienteService.buscarPorId(mascota.getCliente().getId())
                     .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado"));
             mascota.setCliente(cliente);
         }
 
-        petService.guardar(mascota);
+        if (mascota.getId() == null) {
+            petService.guardar(mascota);
+        } else {
+            petService.actualizar(mascota);
+        }
         redirectAttributes.addFlashAttribute("success", "Mascota guardada correctamente");
         return "redirect:/mascotas";
     }
@@ -59,7 +69,7 @@ public class PetController {
             mascota.setCliente(new Cliente());
         }
         model.addAttribute("mascota", mascota);
-        model.addAttribute("clientes", clienteRepository.findAll());
+        model.addAttribute("clientes", clienteService.listar());
         return "views/mascotas/formulario";
     }
 

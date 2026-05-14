@@ -24,7 +24,6 @@
     <section class="card-panel p-4 p-md-5">
         <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
         <form th:action="@{/perfil}" method="post">
-            <input type="hidden" name="_method" value="put">
             <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}">
             <div class="row g-3">
                 <div class="col-md-6">

@@ -27,40 +27,51 @@
                 <h5 class="mb-0 text-primary fw-bold"><i class="bi bi-cart-plus me-1"></i> Datos de la compra</h5>
             </div>
             <div class="card-body p-4 p-md-5">
-                <form th:action="@{/compras}" method="post" novalidate class="row g-4">
-                    <input type="hidden" name="id" th:value="${compra.id}">
+                <form th:action="@{/compras/guardar}" th:object="${compra}" method="post" novalidate class="row g-4">
+                    <input type="hidden" th:field="*{id}">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Número</label>
+                        <input type="text" class="form-control form-control-lg" th:field="*{numero}" readonly>
+                    </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Fecha <span class="text-danger">*</span></label>
-                        <input type="date" name="fecha" class="form-control form-control-lg" th:value="${compra.fecha}">
+                        <input type="date" class="form-control form-control-lg" th:field="*{fecha}">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Proveedor <span class="text-danger">*</span></label>
-                        <select name="proveedor_id" class="form-select form-select-lg">
+                        <select class="form-select form-select-lg" th:field="*{proveedor.id}">
                             <option value="">-- Seleccionar proveedor --</option>
-                            <option th:each="proveedor : ${proveedores}" th:value="${proveedor.id}" th:text="${proveedor.razonSocial != null ? proveedor.razonSocial : proveedor.razon_social}" th:selected="${compra.proveedor_id == proveedor.id}">Proveedor</option>
+                            <option th:each="proveedor : ${proveedores}" th:value="${proveedor.id}" th:text="${proveedor.razonSocial}">Proveedor</option>
                         </select>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Tipo comprobante <span class="text-danger">*</span></label>
-                        <select name="comprobante_tipo_codigo" class="form-select form-select-lg">
+                        <select class="form-select form-select-lg" th:field="*{comprobanteTipoCodigo}">
                             <option value="">-- Seleccionar tipo --</option>
-                            <option th:each="tipo : ${comprobanteTipos}" th:value="${tipo.codigo}" th:text="${tipo.descripcion}" th:selected="${compra.comprobante_tipo_codigo == tipo.codigo}">Tipo</option>
+                            <option th:each="tipo : ${comprobanteTipos}" th:value="${tipo.codigo}" th:text="${tipo.descripcion}">Tipo</option>
                         </select>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Forma de pago <span class="text-danger">*</span></label>
-                        <select name="forma_pago" class="form-select form-select-lg">
-                            <option value="efectivo" th:selected="${compra.forma_pago == 'efectivo'}">Efectivo</option>
-                            <option value="cheque" th:selected="${compra.forma_pago == 'cheque'}">Cheque</option>
-                            <option value="transferencia" th:selected="${compra.forma_pago == 'transferencia'}">Transferencia</option>
-                            <option value="tarjeta" th:selected="${compra.forma_pago == 'tarjeta'}">Tarjeta</option>
+                        <select class="form-select form-select-lg" th:field="*{formaPago}">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="tarjeta">Tarjeta</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="cheque">Cheque</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Estado</label>
+                        <select class="form-select form-select-lg" th:field="*{estado}">
+                            <option value="registrada">Registrada</option>
+                            <option value="anulada">Anulada</option>
                         </select>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-semibold">Total <span class="text-danger">*</span></label>
                         <div class="input-group input-group-lg">
                             <span class="input-group-text">S/.</span>
-                            <input type="number" name="total" class="form-control" step="0.01" min="0" th:value="${compra.total}">
+                            <input type="number" class="form-control" step="0.01" min="0" th:field="*{total}">
                         </div>
                     </div>
                     <div class="col-12 d-flex flex-column flex-sm-row justify-content-between gap-2 pt-2">

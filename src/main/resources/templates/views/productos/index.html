@@ -41,7 +41,8 @@
                             <tr>
                                 <th>Código</th>
                                 <th>Nombre</th>
-                                <th>Categoría</th>
+                                <th>Unidad</th>
+                                <th>Afectación</th>
                                 <th>Precio</th>
                                 <th>Stock</th>
                                 <th>Acciones</th>
@@ -54,8 +55,9 @@
                             <tr th:each="producto : ${productos}">
                                 <td th:text="${producto.codigo}">--</td>
                                 <td th:text="${producto.nombre}">--</td>
-                                <td th:text="${producto.categoria}">--</td>
-                                <td th:text="${'$' + #numbers.formatInteger(producto.precio, 0)}">--</td>
+                                <td th:text="${producto.unidad != null ? producto.unidad.descripcion : '-'}">--</td>
+                                <td th:text="${producto.afectacionTipo != null ? producto.afectacionTipo.descripcion : '-'}">--</td>
+                                <td th:text="${producto.precioUnitario}">--</td>
                                 <td><span class="badge" th:classappend="${producto.stock > 0 ? 'bg-success' : 'bg-danger'}" th:text="${producto.stock}">0</span></td>
                                 <td class="text-center">
                                     <a th:href="@{/productos/{id}(id=${producto.id})}" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>

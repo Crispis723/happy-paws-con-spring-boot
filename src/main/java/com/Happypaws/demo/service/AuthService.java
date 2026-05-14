@@ -1,30 +1,43 @@
 package com.Happypaws.demo.service;
+
+import com.Happypaws.demo.dto.RegisterRequest;
+import com.Happypaws.demo.model.Role;
 import com.Happypaws.demo.model.User;
+import com.Happypaws.demo.repository.RoleRepository;
 import com.Happypaws.demo.repository.UserRepository;
+import java.util.LinkedHashSet;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
 
     private final UserRepository repository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthService(UserRepository repository) {
+    public AuthService(UserRepository repository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public boolean login(String email, String password) {
-
-        User user = repository.findByEmail(email)
-                .orElse(null);
-
-        if(user == null){
-            return false;
+    public User registrar(RegisterRequest request) {
+        if (repository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Ya existe un usuario con ese email");
         }
 
-        return user.getPassword().equals(password);
-    }
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEnabled(true);
 
-    public void saveUser(User user) {
-        repository.save(user);
+        String roleName = request.getRole() != null && !request.getRole().isBlank() ? request.getRole() : "CLIENTE";
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new IllegalStateException("No existe el rol " + roleName));
+        user.setRoles(new LinkedHashSet<>(java.util.List.of(role)));
+
+        return repository.save(user);
     }
 }

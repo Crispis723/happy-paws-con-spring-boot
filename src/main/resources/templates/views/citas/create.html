@@ -6,91 +6,40 @@
     <title>Agendar cita - Happy Paws</title>
     <link rel="stylesheet" th:href="@{/css/adminlte.css}">
     <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
-    <style>
-        body { min-height: 100vh; background: linear-gradient(180deg, #f8fdfd 0%, #eef8f7 100%); }
-        .page-shell { max-width: 1180px; margin: 0 auto; padding: 2rem 1rem 3rem; }
-        .hero-panel { background: linear-gradient(135deg, #8adfd7 0%, #58b8c7 100%); color: white; border-radius: 28px; padding: 2rem; box-shadow: 0 22px 50px rgba(71, 150, 164, 0.12); margin-bottom: 1.5rem; }
-        .surface-card { background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); border: 1px solid rgba(138, 223, 215, 0.22); border-radius: 24px; box-shadow: 0 16px 36px rgba(71, 150, 164, 0.08); overflow: hidden; }
-        .surface-card .card-header { background: white; border-bottom: 1px solid rgba(0,0,0,.06); padding: 1rem 1.25rem; }
-    </style>
 </head>
 <body>
     <div th:insert="partials/header :: header"></div>
-    <div class="page-shell">
-        <div class="hero-panel">
-            <p class="text-uppercase small fw-semibold mb-1 opacity-75">Agenda médica</p>
-            <h1 class="display-6 fw-bold mb-2">Agendar nueva cita</h1>
-            <p class="mb-0 opacity-75">Organiza la consulta con un flujo claro: fecha, cliente, mascota y motivo.</p>
-        </div>
-
-        <div class="surface-card">
-            <div class="card-header">
-                <h5 class="mb-0 text-primary fw-bold">Datos de la cita</h5>
-            </div>
-            <div class="card-body p-4 p-md-5">
-                <form th:action="@{/citas/create}" method="post" novalidate class="row g-4">
-                    <div class="col-12 col-lg-6">
-                        <label class="form-label fw-semibold">Fecha y hora <span class="text-danger">*</span></label>
-                        <input type="datetime-local" name="fecha_hora" class="form-control form-control-lg" th:value="${fecha_hora}">
-                        <small class="text-muted">Selecciona la fecha y hora. No puede ser en el pasado.</small>
-                    </div>
-                    <div class="col-12 col-lg-6">
-                        <label class="form-label fw-semibold">Nombre del cliente <span class="text-danger">*</span></label>
-                        <input type="text" name="cliente_nombre" class="form-control form-control-lg" th:value="${cliente_nombre}" placeholder="Ej. Juan Pérez">
-                    </div>
-                    <div class="col-12 col-lg-6">
-                        <label class="form-label fw-semibold">Teléfono <span class="text-danger">*</span></label>
-                        <input type="tel" name="cliente_telefono" class="form-control form-control-lg" th:value="${cliente_telefono}" placeholder="Ej. 999999999">
-                        <small class="text-muted">Solo números, espacios, guiones o +. Mínimo 6 caracteres.</small>
-                    </div>
-                    <div class="col-12 col-lg-6">
-                        <label class="form-label fw-semibold">Veterinario <span class="text-danger">*</span></label>
-                        <select name="veterinario_id" class="form-select form-select-lg">
-                            <option value="">-- Seleccionar veterinario --</option>
-                            <option th:each="vet : ${veterinarios}" th:value="${vet.id}" th:text="${vet.name}" th:selected="${veterinario_id != null and veterinario_id == vet.id}">Veterinario</option>
+    <div class="container-fluid p-4">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title mb-0">Formulario de cita</h3></div>
+            <div class="card-body">
+                <form th:action="@{/citas/guardar}" th:object="${cita}" method="post" class="row g-4">
+                    <input type="hidden" th:field="*{id}">
+                    <div class="col-md-6">
+                        <label class="form-label">Cliente</label>
+                        <select class="form-select" th:field="*{clienteId}">
+                            <option value="">-- Seleccionar --</option>
+                            <option th:each="cliente : ${clientes}" th:value="${cliente.id}" th:text="${cliente.razonSocial}"></option>
                         </select>
                     </div>
-                    <div class="col-12 col-lg-6" th:if="${mascotas != null and !#lists.isEmpty(mascotas)}">
-                        <label class="form-label fw-semibold">Mascota registrada</label>
-                        <select name="mascota_id" id="mascotaSelect" class="form-select form-select-lg">
-                            <option value="">-- Agregar mascota manualmente --</option>
-                            <option th:each="m : ${mascotas}" th:value="${m.id}" th:text="${m.nombre + ' (' + m.especie + ')'}" th:selected="${selected_mascota_id != null and selected_mascota_id == m.id}">Mascota</option>
+                    <div class="col-md-6">
+                        <label class="form-label">Mascota</label>
+                        <select class="form-select" th:field="*{petId}">
+                            <option value="">-- Seleccionar --</option>
+                            <option th:each="mascota : ${mascotas}" th:value="${mascota.id}" th:text="${mascota.nombre + ' - ' + mascota.especie}"></option>
                         </select>
                     </div>
-                    <div id="manualFields" class="col-12">
-                        <div class="border rounded-4 p-4 bg-light-subtle">
-                            <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
-                                <h6 class="mb-0 fw-bold text-primary">Información de la mascota</h6>
-                                <span class="badge bg-accent text-dark">Manual</span>
-                            </div>
-                            <div class="row g-3">
-                                <div class="col-12 col-lg-6">
-                                    <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
-                                    <input type="text" name="mascota_nombre" class="form-control" th:value="${mascota_nombre}" placeholder="Ej. Firulais">
-                                </div>
-                                <div class="col-12 col-lg-6">
-                                    <label class="form-label fw-semibold">Especie <span class="text-danger">*</span></label>
-                                    <input type="text" name="mascota_especie" class="form-control" th:value="${mascota_especie}" placeholder="Ej. Perro, Gato">
-                                </div>
-                            </div>
-                        </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" class="form-control" th:field="*{fecha}">
                     </div>
                     <div class="col-12">
-                        <label class="form-label fw-semibold">Motivo de la consulta <span class="text-danger">*</span></label>
-                        <textarea name="motivo" class="form-control" rows="4" placeholder="Describe brevemente el motivo de la consulta" th:text="${motivo}"></textarea>
+                        <label class="form-label">Motivo</label>
+                        <textarea class="form-control" rows="4" th:field="*{motivo}"></textarea>
                     </div>
-                    <div class="col-12">
-                        <div class="alert alert-light border d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-0">
-                            <div>
-                                <span class="fw-semibold text-dark d-block">Precio referencial</span>
-                                <small class="text-muted">Precio base de la cita. El importe final se define en la factura.</small>
-                            </div>
-                            <div class="fs-5 fw-bold text-primary" th:text="${cita_precio != null ? #numbers.formatDecimal(cita_precio, 1, 'COMMA', 2, 'POINT') + ' PEN' : '0.00 PEN'}">0.00 PEN</div>
-                        </div>
-                    </div>
-                    <div class="col-12 pt-2 d-flex flex-column flex-sm-row justify-content-between gap-2">
-                        <a th:href="@{/citas}" class="btn btn-outline-secondary btn-lg px-4">Cancelar</a>
-                        <button type="submit" class="btn btn-primary btn-lg px-4"><i class="bi bi-check-circle me-1"></i> Agendar cita</button>
+                    <div class="col-12 d-flex justify-content-between gap-2">
+                        <a th:href="@{/citas}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Guardar cita</button>
                     </div>
                 </form>
             </div>
