@@ -1,0 +1,11 @@
+run = "mvn spring-boot:run"
+entrypoint = "src/main/java/com/Happypaws/demo/DemoApplication.java"
+
+[env]
+JAVA_VERSION = "21"
+
+[nix]
+channel = "stable-23.11"
+
+[[nix.packages]]
+package = "jdk21"
