@@ -20,7 +20,13 @@
                         <p>Citas</p>
                     </a>
                 </li>
-                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','RECEPCIONISTA')">
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','RECEPCIONISTA','VETERINARIO','CLIENTE')">
+                    <a th:href="@{/ventas}" class="nav-link" id="itemVentas">
+                        <i class="nav-icon bi bi-cart-check" style="color: var(--primary-color);"></i>
+                        <p>Ventas / Carrito</p>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','RECEPCIONISTA','VETERINARIO')">
                     <a th:href="@{/productos}" class="nav-link" id="itemProductos">
                         <i class="nav-icon bi bi-basket2-fill"></i>
                         <p>Productos</p>

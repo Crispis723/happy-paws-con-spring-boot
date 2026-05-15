@@ -31,6 +31,12 @@ public class UserService {
         return repository.findAll();
     }
 
+    public List<User> listarVeterinarios() {
+        return repository.findAll().stream()
+                .filter(user -> user.getRoles() != null && user.getRoles().stream().anyMatch(role -> "VETERINARIO".equals(role.getName())))
+                .toList();
+    }
+
     public Optional<User> buscarPorId(Long id) {
         return repository.findById(id);
     }

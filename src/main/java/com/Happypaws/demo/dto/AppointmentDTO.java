@@ -20,6 +20,9 @@ public class AppointmentDTO {
     private Long clienteId;
 
     @NotNull
+    private Long veterinarioId;
+
+    @NotNull
     private LocalDate fecha;
 
     @NotBlank

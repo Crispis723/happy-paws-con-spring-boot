@@ -10,6 +10,32 @@
     <link rel="stylesheet" th:href="@{/css/landing.css}" />
     <link rel="stylesheet" th:href="@{/css/auth-modal.css}" />
     <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}" />
+    <style>
+      .hero-panel-mini {
+        display: grid;
+        grid-template-columns: 1.15fr .85fr;
+        gap: 1.5rem;
+        align-items: center;
+      }
+      .hero-visual {
+        background: rgba(255,255,255,.86);
+        border: 1px solid rgba(138, 223, 215, .24);
+        border-radius: 28px;
+        padding: 1rem;
+        box-shadow: var(--hp-shadow-strong);
+      }
+      .hero-visual img {
+        width: 100%;
+        height: 420px;
+        object-fit: cover;
+        border-radius: 22px;
+      }
+      .hero-actions a { min-width: 160px; }
+      @media (max-width: 992px) {
+        .hero-panel-mini { grid-template-columns: 1fr; }
+        .hero-visual img { height: 300px; }
+      }
+    </style>
   </head>
   <body>
     <!-- Header -->
@@ -33,20 +59,19 @@
 
     <!-- Hero Section -->
     <section class="hero-section" id="inicio">
-      <div class="container flex-wrapper">
+      <div class="container hero-panel-mini">
         <div class="hero-content">
-          <h1>Sistema de Gestión Veterinario</h1>
-          <p>Administra citas, pacientes, tratamientos e historia médica de forma eficiente en tu clínica veterinaria.</p>
-          <div class="btn-group">
-            <a href="/citas" class="btn-primary">Pedir cita</a>
-            <a href="#" class="btn-secondary" onclick="openAuthModal('login'); return false;">Comenzar</a>
-          </div>
-          <div class="btn-group" style="margin-top: 1rem;">
+          <div class="section-kicker mb-3">Happy Paws</div>
+          <h1>Panel veterinario para clientes y colaboradores.</h1>
+          <p>Gestiona citas, mascotas, compras y ventas en una experiencia clara, rápida y más premium desde el primer día.</p>
+          <div class="btn-group hero-actions">
+            <a href="/login" class="btn-primary">Ingresar</a>
+            <a href="#servicios" class="btn-secondary">Explorar</a>
             <a href="#" class="btn-secondary" onclick="openAuthModal('register'); return false;">Registrarse</a>
           </div>
         </div>
-        <div>
-          <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=500&q=80" alt="Clínica Veterinaria" class="hero-image">
+        <div class="hero-visual">
+          <img src="https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=1200&q=80" alt="Clínica Veterinaria" class="hero-image">
         </div>
       </div>
     </section>

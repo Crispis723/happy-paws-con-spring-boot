@@ -20,6 +20,14 @@ public class AppointmentService {
         return repository.findAll();
     }
 
+    public List<Appointment> listarPorClienteId(Long clienteId) {
+        return repository.findByClienteId(clienteId);
+    }
+
+    public List<Appointment> listarPorMascotaId(Long mascotaId) {
+        return repository.findByMascotaIdOrderByFechaDesc(mascotaId);
+    }
+
     public Optional<Appointment> buscarPorId(Long id) {
         return repository.findById(id);
     }

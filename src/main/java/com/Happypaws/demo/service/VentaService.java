@@ -20,6 +20,10 @@ public class VentaService {
         return repository.findAll();
     }
 
+    public List<Venta> listarPorClienteId(Long clienteId) {
+        return repository.findByClienteId(clienteId);
+    }
+
     public Optional<Venta> buscarPorId(Long id) {
         return repository.findById(id);
     }

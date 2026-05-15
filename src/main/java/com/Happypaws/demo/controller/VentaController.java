@@ -3,11 +3,13 @@ package com.Happypaws.demo.controller;
 import com.Happypaws.demo.model.Cliente;
 import com.Happypaws.demo.model.Venta;
 import com.Happypaws.demo.service.ClienteService;
+import com.Happypaws.demo.service.ProductoService;
 import com.Happypaws.demo.service.VentaService;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.concurrent.atomic.AtomicLong;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,37 +26,60 @@ public class VentaController {
 
     private final VentaService ventaService;
     private final ClienteService clienteService;
+    private final ProductoService productoService;
     private final AtomicLong numeroSeed = new AtomicLong(1);
 
-    public VentaController(VentaService ventaService, ClienteService clienteService) {
+    public VentaController(VentaService ventaService, ClienteService clienteService, ProductoService productoService) {
         this.ventaService = ventaService;
         this.clienteService = clienteService;
+        this.productoService = productoService;
     }
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("ventas", ventaService.listar());
+    public String listar(Model model, Authentication auth) {
+        boolean isClientUser = auth != null && auth.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_CLIENTE".equals(authority.getAuthority()));
+
+        if (isClientUser) {
+            Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
+            model.addAttribute("ventas", ventaService.listarPorClienteId(cliente.getId()));
+            model.addAttribute("isClientUser", true);
+            model.addAttribute("clienteNombre", cliente.getRazonSocial());
+        } else {
+            model.addAttribute("ventas", ventaService.listar());
+            model.addAttribute("isClientUser", false);
+        }
+        model.addAttribute("productos", productoService.listar());
         return "views/ventas/index";
     }
 
     @GetMapping("/create")
-    public String create(Model model) {
+    public String create(Model model, Authentication auth) {
         Venta venta = new Venta();
         venta.setFecha(LocalDate.now());
         venta.setFormaPago("efectivo");
         venta.setEstado("registrada");
         venta.setTotal(BigDecimal.ZERO);
         venta.setNumero(generarNumero());
-        venta.setCliente(new Cliente());
         model.addAttribute("venta", venta);
-        model.addAttribute("clientes", clienteService.listar());
+        aplicarContextoCliente(model, venta, auth);
+        model.addAttribute("productos", productoService.listar());
         return "views/ventas/action";
     }
 
     @PostMapping("/guardar")
-    public String guardar(@Valid @ModelAttribute("venta") Venta venta, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+    public String guardar(@Valid @ModelAttribute("venta") Venta venta, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, Authentication auth) {
+        boolean isClientUser = auth != null && auth.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_CLIENTE".equals(authority.getAuthority()));
+
+        if (isClientUser) {
+            Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
+            venta.setCliente(cliente);
+        }
+
         if (bindingResult.hasErrors()) {
-            model.addAttribute("clientes", clienteService.listar());
+            aplicarContextoCliente(model, venta, auth);
+            model.addAttribute("productos", productoService.listar());
             return venta.getId() == null ? "views/ventas/action" : "views/ventas/action";
         }
 
@@ -77,31 +102,66 @@ public class VentaController {
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable Long id, Model model) {
+    public String edit(@PathVariable Long id, Model model, Authentication auth) {
         Venta venta = ventaService.buscarPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Venta no encontrada"));
+        validarPropietario(venta, auth);
         if (venta.getCliente() == null) {
             venta.setCliente(new Cliente());
         }
         model.addAttribute("venta", venta);
-        model.addAttribute("clientes", clienteService.listar());
+        aplicarContextoCliente(model, venta, auth);
+        model.addAttribute("productos", productoService.listar());
         return "views/ventas/action";
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes, Authentication auth) {
+        Venta venta = ventaService.buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Venta no encontrada"));
+        validarPropietario(venta, auth);
         ventaService.eliminar(id);
         redirectAttributes.addFlashAttribute("success", "Venta eliminada correctamente");
         return "redirect:/ventas";
     }
 
     @GetMapping("/{id}")
-    public String show(@PathVariable Long id, Model model) {
+    public String show(@PathVariable Long id, Model model, Authentication auth) {
         Venta venta = ventaService.buscarPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Venta no encontrada"));
+        validarPropietario(venta, auth);
         model.addAttribute("venta", venta);
         model.addAttribute("empresa", new EmpresaView("Happy Paws", "Av. Principal 123", "20123456789"));
         return "views/ventas/ticket";
+    }
+
+    private void aplicarContextoCliente(Model model, Venta venta, Authentication auth) {
+        boolean isClientUser = auth != null && auth.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_CLIENTE".equals(authority.getAuthority()));
+
+        if (isClientUser) {
+            Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
+            venta.setCliente(cliente);
+            model.addAttribute("isClientUser", true);
+            model.addAttribute("clienteNombre", cliente.getRazonSocial());
+            model.addAttribute("clienteId", cliente.getId());
+            model.addAttribute("clientes", null);
+        } else {
+            model.addAttribute("isClientUser", false);
+            model.addAttribute("clientes", clienteService.listar());
+        }
+    }
+
+    private void validarPropietario(Venta venta, Authentication auth) {
+        boolean isClientUser = auth != null && auth.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_CLIENTE".equals(authority.getAuthority()));
+
+        if (isClientUser) {
+            Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
+            if (venta.getCliente() == null || venta.getCliente().getId() == null || !cliente.getId().equals(venta.getCliente().getId())) {
+                throw new IllegalArgumentException("No tienes permiso para ver o modificar esta venta");
+            }
+        }
     }
 
     private String generarNumero() {

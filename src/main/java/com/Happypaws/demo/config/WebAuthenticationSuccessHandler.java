@@ -22,14 +22,7 @@ public class WebAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucc
 				.map(GrantedAuthority::getAuthority)
 				.collect(Collectors.toSet());
 
-		String targetUrl = "/dashboard";
-		if (authorities.contains("ROLE_VETERINARIO")) {
-			targetUrl = "/citas";
-		} else if (authorities.contains("ROLE_RECEPCIONISTA")) {
-			targetUrl = "/clientes";
-		} else if (authorities.contains("ROLE_CLIENTE")) {
-			targetUrl = "/dashboard";
-		}
+		String targetUrl = authorities.contains("ROLE_CLIENTE") ? "/dashboard/cliente" : "/dashboard/colaboradores";
 
 		getRedirectStrategy().sendRedirect(request, response, targetUrl);
 	}

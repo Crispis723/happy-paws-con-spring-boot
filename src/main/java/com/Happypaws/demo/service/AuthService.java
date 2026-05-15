@@ -15,11 +15,13 @@ public class AuthService {
     private final UserRepository repository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ClienteService clienteService;
 
-    public AuthService(UserRepository repository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository repository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, ClienteService clienteService) {
         this.repository = repository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.clienteService = clienteService;
     }
 
     public User registrar(RegisterRequest request) {
@@ -38,6 +40,12 @@ public class AuthService {
                 .orElseThrow(() -> new IllegalStateException("No existe el rol " + roleName));
         user.setRoles(new LinkedHashSet<>(java.util.List.of(role)));
 
-        return repository.save(user);
+        User savedUser = repository.save(user);
+
+        if ("CLIENTE".equals(roleName)) {
+            clienteService.resolverOCrearClienteAutenticado(savedUser.getEmail(), savedUser.getName());
+        }
+
+        return savedUser;
     }
 }

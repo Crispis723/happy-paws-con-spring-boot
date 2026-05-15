@@ -39,13 +39,37 @@ public class DashboardController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(Authentication authentication, Model model, Principal principal) {
+    public String dashboard(Authentication authentication) {
+        boolean isClient = authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_CLIENTE".equals(authority.getAuthority()));
+        return isClient ? "redirect:/dashboard/cliente" : "redirect:/dashboard/colaboradores";
+    }
+
+    @GetMapping("/dashboard/cliente")
+    public String clientDashboard(Authentication authentication, Model model, Principal principal) {
         boolean isClient = authentication != null && authentication.getAuthorities().stream()
                 .anyMatch(authority -> "ROLE_CLIENTE".equals(authority.getAuthority()));
 
         if (isClient) {
-            model.addAttribute("nombreUsuario", principal != null ? principal.getName() : "Cliente");
+            String email = principal != null ? principal.getName() : null;
+            model.addAttribute("nombreUsuario", email != null ? email : "Cliente");
+            if (email != null) {
+                var cliente = clienteService.resolverOCrearClienteAutenticado(email, email);
+                model.addAttribute("mascotas", petService.listarPorClienteId(cliente.getId()));
+            }
             return "views/dashboard/public";
+        }
+
+        return "redirect:/dashboard/colaboradores";
+    }
+
+    @GetMapping("/dashboard/colaboradores")
+    public String collaboratorDashboard(Authentication authentication, Model model, Principal principal) {
+        boolean isClient = authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_CLIENTE".equals(authority.getAuthority()));
+
+        if (isClient) {
+            return "redirect:/dashboard/cliente";
         }
 
         model.addAttribute("nombreUsuario", principal != null ? principal.getName() : "Usuario");

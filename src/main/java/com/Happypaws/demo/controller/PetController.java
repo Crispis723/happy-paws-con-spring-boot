@@ -5,6 +5,7 @@ import com.Happypaws.demo.model.Pet;
 import com.Happypaws.demo.service.ClienteService;
 import com.Happypaws.demo.service.PetService;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,24 +27,42 @@ public class PetController {
     }
 
     @GetMapping("/mascotas")
-    public String listar(Model model) {
-        model.addAttribute("mascotas", petService.listar());
+    public String listar(Model model, Authentication auth) {
+        boolean isClientUser = auth != null && auth.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_CLIENTE".equals(authority.getAuthority()));
+
+        if (isClientUser) {
+            Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
+            model.addAttribute("mascotas", petService.listarPorClienteId(cliente.getId()));
+            model.addAttribute("isClientUser", true);
+            model.addAttribute("clienteNombre", cliente.getRazonSocial());
+        } else {
+            model.addAttribute("mascotas", petService.listar());
+            model.addAttribute("isClientUser", false);
+        }
         return "views/mascotas/index";
     }
 
     @GetMapping("/mascotas/nuevo")
-    public String nuevo(Model model) {
+    public String nuevo(Model model, Authentication auth) {
         Pet mascota = new Pet();
-        mascota.setCliente(new Cliente());
         model.addAttribute("mascota", mascota);
-        model.addAttribute("clientes", clienteService.listar());
+        aplicarContextoCliente(model, mascota, auth);
         return "views/mascotas/formulario";
     }
 
     @PostMapping("/mascotas/guardar")
-    public String guardar(@Valid @ModelAttribute("mascota") Pet mascota, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
+    public String guardar(@Valid @ModelAttribute("mascota") Pet mascota, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model, Authentication auth) {
+        boolean isClientUser = auth != null && auth.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_CLIENTE".equals(authority.getAuthority()));
+
+        if (isClientUser) {
+            Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
+            mascota.setCliente(cliente);
+        }
+
         if (bindingResult.hasErrors()) {
-            model.addAttribute("clientes", clienteService.listar());
+            aplicarContextoCliente(model, mascota, auth);
             return "views/mascotas/formulario";
         }
         if (mascota.getCliente() != null && mascota.getCliente().getId() != null) {
@@ -62,29 +81,68 @@ public class PetController {
     }
 
     @GetMapping("/mascotas/edit/{id}")
-    public String editar(@PathVariable Long id, Model model) {
+    public String editar(@PathVariable Long id, Model model, Authentication auth) {
         Pet mascota = petService.buscarPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Mascota no encontrada"));
+        validarPropietario(mascota, auth);
         if (mascota.getCliente() == null) {
             mascota.setCliente(new Cliente());
         }
         model.addAttribute("mascota", mascota);
-        model.addAttribute("clientes", clienteService.listar());
+        aplicarContextoCliente(model, mascota, auth);
         return "views/mascotas/formulario";
     }
 
     @GetMapping("/mascotas/delete/{id}")
-    public String eliminar(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String eliminar(@PathVariable Long id, RedirectAttributes redirectAttributes, Authentication auth) {
+        Pet mascota = petService.buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Mascota no encontrada"));
+        validarPropietario(mascota, auth);
         petService.eliminar(id);
         redirectAttributes.addFlashAttribute("success", "Mascota eliminada correctamente");
         return "redirect:/mascotas";
     }
 
     @GetMapping("/mascotas/{id}")
-    public String ver(@PathVariable Long id, Model model) {
+    public String ver(@PathVariable Long id, Model model, Authentication auth) {
+        boolean isClientUser = auth != null && auth.getAuthorities().stream()
+            .anyMatch(authority -> "ROLE_CLIENTE".equals(authority.getAuthority()));
+        if (isClientUser) {
+            return "redirect:/mascotas";
+        }
         Pet mascota = petService.buscarPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Mascota no encontrada"));
+        validarPropietario(mascota, auth);
         model.addAttribute("mascota", mascota);
         return "views/mascotas/show";
+    }
+
+    private void aplicarContextoCliente(Model model, Pet mascota, Authentication auth) {
+        boolean isClientUser = auth != null && auth.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_CLIENTE".equals(authority.getAuthority()));
+
+        if (isClientUser) {
+            Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
+            mascota.setCliente(cliente);
+            model.addAttribute("isClientUser", true);
+            model.addAttribute("clienteNombre", cliente.getRazonSocial());
+            model.addAttribute("clienteId", cliente.getId());
+            model.addAttribute("clientes", null);
+        } else {
+            model.addAttribute("isClientUser", false);
+            model.addAttribute("clientes", clienteService.listar());
+        }
+    }
+
+    private void validarPropietario(Pet mascota, Authentication auth) {
+        boolean isClientUser = auth != null && auth.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_CLIENTE".equals(authority.getAuthority()));
+
+        if (isClientUser) {
+            Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
+            if (mascota.getCliente() == null || mascota.getCliente().getId() == null || !cliente.getId().equals(mascota.getCliente().getId())) {
+                throw new IllegalArgumentException("No tienes permiso para ver o modificar esta mascota");
+            }
+        }
     }
 }

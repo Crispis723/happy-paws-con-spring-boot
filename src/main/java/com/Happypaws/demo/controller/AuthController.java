@@ -34,15 +34,13 @@ public class AuthController {
     public String loginForm(@RequestParam(required = false) String error,
                             @RequestParam(required = false) String logout,
                             Model model) {
-        model.addAttribute("authOpen", true);
-        model.addAttribute("authForm", "login");
         if (error != null) {
             model.addAttribute("error", "Credenciales inválidas");
         }
         if (logout != null) {
             model.addAttribute("success", "Sesión cerrada correctamente");
         }
-        return "views/landing";
+        return "views/autenticacion/login";
     }
 
     // ================= REGISTER =================

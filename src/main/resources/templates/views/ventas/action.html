@@ -31,12 +31,17 @@
                     <label class="form-label fw-semibold">Fecha</label>
                     <input type="date" class="form-control form-control-lg" th:field="*{fecha}">
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6" th:if="${isClientUser == null or !isClientUser}">
                     <label class="form-label fw-semibold">Cliente</label>
                     <select class="form-select form-select-lg" th:field="*{cliente.id}">
                         <option value="">-- Seleccionar --</option>
                         <option th:each="cliente : ${clientes}" th:value="${cliente.id}" th:text="${cliente.razonSocial}"></option>
                     </select>
+                </div>
+                <div class="col-md-6" th:if="${isClientUser}">
+                    <label class="form-label fw-semibold">Cliente</label>
+                    <input type="text" class="form-control form-control-lg" th:value="${clienteNombre}" readonly>
+                    <input type="hidden" th:field="*{cliente.id}">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label fw-semibold">Forma de pago</label>

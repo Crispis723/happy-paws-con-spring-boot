@@ -10,40 +10,61 @@
 </head>
 <body>
     <div th:insert="partials/header :: header"></div>
-    <div class="container-fluid p-4">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title mb-0">Formulario de cita</h3></div>
-            <div class="card-body">
-                <form th:action="@{/citas/guardar}" th:object="${cita}" method="post" class="row g-4">
-                    <input type="hidden" th:field="*{id}">
-                    <div class="col-md-6">
-                        <label class="form-label">Cliente</label>
-                        <select class="form-select" th:field="*{clienteId}">
-                            <option value="">-- Seleccionar --</option>
-                            <option th:each="cliente : ${clientes}" th:value="${cliente.id}" th:text="${cliente.razonSocial}"></option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Mascota</label>
-                        <select class="form-select" th:field="*{petId}">
-                            <option value="">-- Seleccionar --</option>
-                            <option th:each="mascota : ${mascotas}" th:value="${mascota.id}" th:text="${mascota.nombre + ' - ' + mascota.especie}"></option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Fecha</label>
-                        <input type="date" class="form-control" th:field="*{fecha}">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Motivo</label>
-                        <textarea class="form-control" rows="4" th:field="*{motivo}"></textarea>
-                    </div>
-                    <div class="col-12 d-flex justify-content-between gap-2">
-                        <a th:href="@{/citas}" class="btn btn-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-primary">Guardar cita</button>
-                    </div>
-                </form>
+    <div class="page-shell">
+        <div class="hero-panel d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+            <div>
+                <span class="hero-kicker mb-2"><i class="bi bi-calendar-plus-fill"></i> Agenda</span>
+                <h1 class="display-6 fw-bold mb-2">Agendar cita</h1>
+                <p class="mb-0 opacity-75">Programa una cita con un formato visual similar al módulo de mascotas.</p>
             </div>
+            <a href="javascript:history.back()" class="btn btn-outline-light btn-lg rounded-pill fw-semibold px-4">
+                <i class="bi bi-arrow-left me-1"></i> Regresar
+            </a>
+        </div>
+
+        <div class="surface-card p-4 p-md-5">
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <form th:action="@{/citas/guardar}" th:object="${cita}" method="post" class="row g-4">
+                <input type="hidden" th:field="*{id}">
+                <div class="col-md-6" th:if="${isClientUser == null or !isClientUser}">
+                    <label class="form-label fw-semibold">Cliente</label>
+                    <select class="form-select form-select-lg" th:field="*{clienteId}">
+                        <option value="">-- Seleccionar --</option>
+                        <option th:each="cliente : ${clientes}" th:value="${cliente.id}" th:text="${cliente.razonSocial}"></option>
+                    </select>
+                </div>
+                <div class="col-md-6" th:if="${isClientUser}">
+                    <label class="form-label fw-semibold">Cliente</label>
+                    <input type="text" class="form-control form-control-lg" th:value="${clienteNombre}" disabled />
+                    <input type="hidden" th:field="*{clienteId}" th:value="${clienteId}" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Mascota</label>
+                    <select class="form-select form-select-lg" th:field="*{petId}">
+                        <option value="">-- Seleccionar --</option>
+                        <option th:each="mascota : ${mascotas}" th:value="${mascota.id}" th:text="${mascota.nombre + ' - ' + mascota.especie}"></option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Veterinario</label>
+                    <select class="form-select form-select-lg" th:field="*{veterinarioId}">
+                        <option value="">-- Seleccionar --</option>
+                        <option th:each="veterinario : ${veterinarios}" th:value="${veterinario.id}" th:text="${veterinario.name}"></option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Fecha</label>
+                    <input type="date" class="form-control form-control-lg" th:field="*{fecha}">
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Motivo</label>
+                    <textarea class="form-control" rows="4" th:field="*{motivo}"></textarea>
+                </div>
+                <div class="col-12 d-flex justify-content-between gap-2">
+                    <a th:href="@{/dashboard}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Guardar cita</button>
+                </div>
+            </form>
         </div>
     </div>
     <div th:insert="partials/footer :: footer"></div>

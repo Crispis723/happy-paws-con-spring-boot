@@ -15,9 +15,12 @@
             <div>
                 <span class="hero-kicker mb-2"><i class="bi bi-cash-coin"></i> Ventas</span>
                 <h1 class="display-6 fw-bold mb-2">Panel de ventas</h1>
-                <p class="mb-0 opacity-75">Consulta, imprime y administra ventas con una presentación más moderna.</p>
+                <p class="mb-0 opacity-75" th:text="${isClientUser ? 'Consulta tus compras, comprobantes y movimientos del carrito.' : 'Consulta, imprime y administra ventas con una presentación más moderna.'}">Consulta, imprime y administra ventas con una presentación más moderna.</p>
             </div>
-            <a th:href="@{/ventas/create}" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4"><i class="bi bi-plus-circle me-1"></i> Nueva venta</a>
+            <div class="d-flex flex-column flex-sm-row gap-2">
+                <a href="javascript:history.back()" class="btn btn-outline-light btn-lg rounded-pill fw-semibold px-4"><i class="bi bi-arrow-left me-1"></i> Regresar</a>
+                <a th:href="@{/ventas/create}" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4"><i class="bi bi-plus-circle me-1"></i> <span th:text="${isClientUser ? 'Nuevo pedido' : 'Nueva venta'}">Nueva venta</span></a>
+            </div>
         </div>
 
         <div class="surface-card p-4 mb-4">
@@ -58,13 +61,59 @@
                             <td><span class="role-badge role-badge--success" th:text="${venta.estado}">Registrada</span></td>
                             <td class="text-center">
                                 <a th:href="@{/ventas/{id}(id=${venta.id})}" class="btn btn-sm btn-outline-info" title="Ver/Imprimir"><i class="bi bi-printer"></i></a>
-                                <a th:href="@{/ventas/edit/{id}(id=${venta.id})}" class="btn btn-sm btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="if(confirm('¿Está seguro?')) window.location.href=this.dataset.url;" th:data-url="@{/ventas/delete/{id}(id=${venta.id})}" title="Eliminar"><i class="bi bi-trash"></i></button>
+                                <a th:if="${!isClientUser}" th:href="@{/ventas/edit/{id}(id=${venta.id})}" class="btn btn-sm btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
+                                <button th:if="${!isClientUser}" type="button" class="btn btn-sm btn-outline-danger" onclick="if(confirm('¿Está seguro?')) window.location.href=this.dataset.url;" th:data-url="@{/ventas/delete/{id}(id=${venta.id})}" title="Eliminar"><i class="bi bi-trash"></i></button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <div class="surface-card p-4 mt-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                <div>
+                    <h3 class="h5 fw-bold mb-1 text-primary">Productos disponibles</h3>
+                    <p class="text-muted mb-0">Catálogo visual para revisar lo que puede ir al carrito.</p>
+                </div>
+                <a th:href="@{/productos}" class="btn btn-sm btn-outline-primary rounded-pill">Ver inventario completo</a>
+            </div>
+            <div class="catalog-grid" th:if="${!#lists.isEmpty(productos)}">
+                <article class="catalog-card" th:each="producto : ${productos}">
+                    <span class="catalog-card__badge" th:text="${producto.stock > 0 ? 'Disponible' : 'Sin stock'}">Disponible</span>
+                    <div th:if="${producto.imagen != null}" class="mb-3">
+                        <img th:src="@{'/uploads/productos/' + ${producto.imagen}}" th:alt="${producto.nombre}" class="catalog-card__image">
+                    </div>
+                    <div th:if="${producto.imagen == null}" class="mb-3 catalog-card__fallback">
+                        <i class="bi bi-bag-check"></i>
+                    </div>
+                    <div class="d-flex align-items-start justify-content-between gap-2">
+                        <div>
+                            <h4 class="h5 fw-bold mb-1" th:text="${producto.nombre}">Producto</h4>
+                            <p class="mb-0 text-muted" th:text="${producto.codigo}">COD-001</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-success" th:text="${'S/ ' + #numbers.formatDecimal(producto.precioUnitario, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</div>
+                            <div class="small text-muted" th:text="${producto.stock + ' uds'}">0 uds</div>
+                        </div>
+                    </div>
+                    <div class="catalog-card__meta">
+                        <div class="catalog-card__field">
+                            <span class="catalog-card__label">Unidad</span>
+                            <span class="catalog-card__value" th:text="${producto.unidad != null ? producto.unidad.descripcion : '-'}">Unidad</span>
+                        </div>
+                        <div class="catalog-card__field">
+                            <span class="catalog-card__label">Afectación</span>
+                            <span class="catalog-card__value" th:text="${producto.afectacionTipo != null ? producto.afectacionTipo.descripcion : '-'}">IGV</span>
+                        </div>
+                    </div>
+                    <div class="catalog-card__actions">
+                        <a th:href="@{/productos/{id}(id=${producto.id})}" class="btn btn-sm btn-outline-info">Ver</a>
+                        <a th:if="${producto.stock > 0}" th:href="@{/ventas/create}" class="btn btn-sm btn-success">Pedir</a>
+                    </div>
+                </article>
+            </div>
+            <div th:if="${#lists.isEmpty(productos)}" class="text-center text-muted py-4">No hay productos disponibles para mostrar.</div>
         </div>
     </div>
     <div th:insert="partials/footer :: footer"></div>

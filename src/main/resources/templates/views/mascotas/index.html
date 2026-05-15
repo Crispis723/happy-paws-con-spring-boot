@@ -62,6 +62,73 @@
         .table tbody tr:hover {
             background: #f5fbfb;
         }
+        .pet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 1rem;
+        }
+        .pet-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px;
+            border: 1px solid rgba(138, 223, 215, 0.24);
+            background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(240,252,252,.94));
+            box-shadow: 0 16px 36px rgba(71, 150, 164, 0.08);
+            padding: 1.25rem;
+        }
+        .pet-card__art {
+            width: 86px;
+            height: 86px;
+            border-radius: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #8adfd7, #58b8c7);
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 12px 24px rgba(88, 184, 199, 0.18);
+        }
+        .pet-card__meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .75rem;
+            margin-top: 1rem;
+        }
+        .pet-card__field {
+            background: rgba(138, 223, 215, 0.08);
+            border-radius: 16px;
+            padding: .75rem .85rem;
+        }
+        .pet-card__label {
+            display: block;
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: #5a8f95;
+            margin-bottom: .25rem;
+            font-weight: 700;
+        }
+        .pet-card__value {
+            font-weight: 700;
+            color: #1f2d2b;
+        }
+        .pet-card__actions {
+            display: flex;
+            gap: .5rem;
+            margin-top: 1rem;
+        }
+        .pet-card__badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: .45rem .75rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,.92);
+            border: 1px solid rgba(88,184,199,.18);
+            font-size: .78rem;
+            font-weight: 700;
+            color: #58b8c7;
+        }
     </style>
 </head>
 <body>
@@ -73,9 +140,14 @@
                 <h1 class="display-6 fw-bold mb-2">Mascotas</h1>
                 <p class="mb-0 opacity-75">Revisa el registro de mascotas con una interfaz más clara y ordenada.</p>
             </div>
-            <a th:href="@{/mascotas/nuevo}" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4">
-                <i class="bi bi-plus-circle me-1"></i> Nueva mascota
-            </a>
+            <div class="d-flex flex-column flex-sm-row gap-2">
+                <a href="javascript:history.back()" class="btn btn-outline-light btn-lg rounded-pill fw-semibold px-4">
+                    <i class="bi bi-arrow-left me-1"></i> Regresar
+                </a>
+                <a th:href="@{/mascotas/nuevo}" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4">
+                    <i class="bi bi-plus-circle me-1"></i> Nueva mascota
+                </a>
+            </div>
         </div>
 
         <div class="surface-card">
@@ -84,7 +156,35 @@
                 <span class="text-muted small">Nombre, especie, cliente y edad</span>
             </div>
             <div class="card-body p-0 p-md-3">
-                <div class="table-responsive">
+                <div th:if="${isClientUser}" class="pet-grid p-3 p-md-4">
+                    <article class="pet-card" th:each="mascota : ${mascotas}">
+                        <span class="pet-card__badge" th:text="${mascota.especie}">Perro</span>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="pet-card__art">
+                                <i class="bi bi-heart-fill"></i>
+                            </div>
+                            <div>
+                                <h4 class="h5 fw-bold mb-1" th:text="${mascota.nombre}">Max</h4>
+                                <p class="mb-0 text-muted" th:text="${mascota.raza}">Golden Retriever</p>
+                            </div>
+                        </div>
+                        <div class="pet-card__meta">
+                            <div class="pet-card__field">
+                                <span class="pet-card__label">Cliente</span>
+                                <span class="pet-card__value" th:text="${mascota.clienteNombre}">Cliente</span>
+                            </div>
+                            <div class="pet-card__field">
+                                <span class="pet-card__label">Edad</span>
+                                <span class="pet-card__value" th:text="${mascota.edad + ' años'}">3 años</span>
+                            </div>
+                        </div>
+                        <div class="pet-card__actions">
+                            <a th:href="@{/historial/mascota/{petId}(petId=${mascota.id})}" class="btn btn-sm btn-outline-primary">Historial</a>
+                            <a th:href="@{/citas/create}" class="btn btn-sm btn-outline-success">Pedir cita</a>
+                        </div>
+                    </article>
+                </div>
+                <div class="table-responsive" th:if="${!isClientUser}">
                             <table class="table table-hover align-middle mb-0">
                                 <thead>
                                     <tr>
@@ -107,6 +207,9 @@
                                         <td th:text="${mascota.clienteNombre}">--</td>
                                         <td th:text="${mascota.edad}">--</td>
                                         <td class="text-center">
+                                            <a th:href="@{/historial/mascota/{petId}(petId=${mascota.id})}" class="btn btn-sm btn-outline-primary" title="Historial clínico">
+                                                <i class="bi bi-journal-medical"></i>
+                                            </a>
                                             <a th:href="@{/mascotas/{id}(id=${mascota.id})}" class="btn btn-sm btn-outline-info" title="Ver">
                                                 <i class="bi bi-eye"></i>
                                             </a>
@@ -121,8 +224,6 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

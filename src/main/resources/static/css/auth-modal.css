@@ -122,6 +122,51 @@
   font-family: 'Krona One', sans-serif;
 }
 
+.auth-role-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+  margin: 0 0 1.25rem;
+}
+
+.auth-role-option {
+  border: 1px solid #d7e6e7;
+  background: #fafefe;
+  color: var(--text-primary);
+  border-radius: 16px;
+  padding: .95rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.auth-role-option:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary-color);
+}
+
+.auth-role-option.active {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 10px 24px rgba(71, 150, 164, 0.22);
+}
+
+.auth-role-note {
+  margin: -0.25rem 0 1.25rem;
+  padding: .9rem 1rem;
+  border-radius: 14px;
+  background: rgba(138, 223, 215, 0.14);
+  color: var(--text-primary);
+  border: 1px solid rgba(138, 223, 215, 0.22);
+  font-size: .92rem;
+  line-height: 1.45;
+}
+
+.auth-role-note strong {
+  color: var(--secondary-color);
+}
+
 /* Form Group */
 .form-group {
   margin-bottom: 1.5rem;
@@ -179,6 +224,12 @@
   background-color: #efe;
   border-color: #6d6;
   color: #393;
+}
+
+.auth-alert.info {
+  background-color: #eef9fb;
+  border-color: #9cdbe7;
+  color: #2e6f7d;
 }
 
 /* Buttons */

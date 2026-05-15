@@ -17,7 +17,11 @@
                 <h1 class="display-6 fw-bold mb-2">Bienvenido, <span th:text="${nombreUsuario}">cliente</span></h1>
                 <p class="mb-0 opacity-75">Accede a tus citas, mascotas y perfil en una interfaz limpia y ligera.</p>
             </div>
-            <a th:href="@{/citas/create}" class="btn btn-light btn-lg px-4 rounded-pill fw-semibold text-info"><i class="bi bi-plus-circle me-1"></i> Agendar cita</a>
+            <div class="d-flex flex-column gap-2">
+                <a href="#" class="btn btn-outline-light btn-lg px-4 rounded-pill fw-semibold" onclick="document.getElementById('logout-form-dashboard').submit(); return false;"><i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión</a>
+                <a th:href="@{/citas/create}" class="btn btn-light btn-lg px-4 rounded-pill fw-semibold text-info"><i class="bi bi-plus-circle me-1"></i> Agendar cita</a>
+                <a th:href="@{/mascotas/nuevo}" class="btn btn-light btn-lg px-4 rounded-pill fw-semibold text-success"><i class="bi bi-heart-fill me-1"></i> Registrar mascota</a>
+            </div>
         </div>
 
         <div class="row g-4">
@@ -73,6 +77,19 @@
                     <a th:href="@{/perfil}" class="btn btn-outline-warning rounded-pill w-100">Editar perfil</a>
                 </div>
             </div>
+            <div class="col-md-6">
+                <div class="surface-card h-100 p-4">
+                    <div class="d-flex align-items-start justify-content-between mb-4">
+                        <div>
+                            <div class="stat-pill mb-2"><i class="bi bi-bag-check"></i> Carrito</div>
+                            <h3 class="h4 fw-bold mb-1">Mis compras</h3>
+                            <p class="text-muted mb-0">Revisa tus ventas, comprobantes y accesos de cliente.</p>
+                        </div>
+                        <span class="role-card__icon" style="background:#58b8c7"><i class="bi bi-bag-check"></i></span>
+                    </div>
+                    <a th:href="@{/ventas}" class="btn btn-outline-success rounded-pill w-100">Ir al carrito</a>
+                </div>
+            </div>
         </div>
 
         <div class="row mt-4">
@@ -89,6 +106,9 @@
             </div>
         </div>
     </div>
+    <form id="logout-form-dashboard" th:action="@{/logout}" method="post" class="d-none">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    </form>
     <div th:insert="partials/footer :: footer"></div>
 </body>
 </html>

@@ -32,8 +32,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/register", "/error", "/error/403", "/assets/**", "/css/**", "/js/**", "/bootstrap-icons-1.13.1/**", "/images/**").permitAll()
                         .requestMatchers("/usuarios/**", "/users/**", "/roles/**", "/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/productos/**", "/compras/**", "/proveedores/**", "/comprobante-series/**", "/comprobante-tipos/**", "/documento-tipos/**", "/unidades/**", "/afectacion-tipos/**").hasAnyRole("ADMIN", "RECEPCIONISTA")
-                        .requestMatchers("/clientes/**", "/mascotas/**", "/citas/**").hasAnyRole("ADMIN", "VETERINARIO", "RECEPCIONISTA", "CLIENTE")
+                        .requestMatchers("/ventas/**").hasAnyRole("ADMIN", "VETERINARIO", "RECEPCIONISTA", "CLIENTE")
+                        .requestMatchers("/productos/**", "/compras/**", "/proveedores/**", "/comprobante-series/**", "/comprobante-tipos/**", "/documento-tipos/**", "/unidades/**", "/afectacion-tipos/**").hasAnyRole("ADMIN", "VETERINARIO", "RECEPCIONISTA")
+                        .requestMatchers("/clientes/**", "/mascotas/**", "/citas/**", "/historial/**").hasAnyRole("ADMIN", "VETERINARIO", "RECEPCIONISTA", "CLIENTE")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

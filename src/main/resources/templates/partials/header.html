@@ -7,6 +7,16 @@
                     <i class="bi bi-list"></i>
                 </a>
             </li>
+            <li class="nav-item" th:if="${currentPath != '/dashboard' and currentPath != '/dashboard/cliente' and currentPath != '/dashboard/colaboradores'}">
+                <a class="nav-link text-white" href="javascript:history.back()" title="Volver">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+            </li>
+            <li class="nav-item" th:if="${currentPath == '/dashboard' or currentPath == '/dashboard/cliente' or currentPath == '/dashboard/colaboradores'}">
+                <a class="nav-link text-white" href="#" title="Cerrar sesión" onclick="document.getElementById('logout-form').submit(); return false;">
+                    <i class="bi bi-box-arrow-right"></i>
+                </a>
+            </li>
             <li class="nav-item d-none d-md-block"><a th:href="@{/citas/create}" class="nav-link text-white">Pedir cita</a></li>
             <li class="nav-item d-none d-md-block" sec:authorize="hasAnyRole('ADMIN','VETERINARIO','RECEPCIONISTA')"><a th:href="@{/mascotas}" class="nav-link text-white">Pacientes</a></li>
         </ul>

@@ -20,6 +20,10 @@ public class PetService {
 		return repository.findAll();
 	}
 
+	public List<Pet> listarPorClienteId(Long clienteId) {
+		return repository.findByClienteId(clienteId);
+	}
+
 	public Optional<Pet> buscarPorId(Long id) {
 		return repository.findById(id);
 	}

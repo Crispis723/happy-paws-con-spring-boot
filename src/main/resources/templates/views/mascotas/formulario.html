@@ -188,6 +188,30 @@
             font-size: .92rem;
         }
 
+        .pet-preview {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 18px;
+            background: rgba(214, 244, 239, 0.72);
+            border: 1px solid rgba(185, 139, 201, 0.18);
+        }
+
+        .pet-preview__art {
+            width: 84px;
+            height: 84px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 12px 24px rgba(122, 26, 201, 0.18);
+            flex: 0 0 auto;
+        }
+
         @media (min-width: 768px) {
             .field.half {
                 grid-column: span 6;
@@ -202,11 +226,24 @@
         <h1>Formulario de mascota</h1>
         <p>Captura los datos básicos con una presentación clara y alineada al resto del proyecto.</p>
     </section>
+    <div th:if="${success}" style="margin-bottom:12px;">
+        <div style="border-radius:12px;padding:12px;background:#e6ffed;border:1px solid #b7f2c6;color:#065f2d;"> 
+            <span th:text="${success}"></span>
+        </div>
+    </div>
 
     <section class="card">
         <div class="card-header">
             <span class="pill primary">Nueva mascota</span>
             <span style="color: var(--text-muted); font-weight: 600;">Campos principales</span>
+        </div>
+
+        <div th:if="${isClientUser}" class="pet-preview" style="margin: 0 24px 24px;">
+            <div class="pet-preview__art"><i class="bi bi-heart-fill"></i></div>
+            <div>
+                <div class="fw-bold" th:text="${clienteNombre}">Mi mascota</div>
+                <div class="text-muted">El cliente autenticado verá y registrará solo sus mascotas.</div>
+            </div>
         </div>
 
         <form th:action="@{/mascotas/guardar}" th:object="${mascota}" method="post">
@@ -235,7 +272,7 @@
                     <input type="number" th:field="*{edad}" placeholder="Ej. 3">
                 </div>
 
-                <div class="field">
+                <div class="field" th:if="${isClientUser == null or !isClientUser}">
                     <label>Cliente</label>
                     <select th:field="*{cliente.id}">
                         <option value="">Selecciona un cliente</option>
@@ -243,10 +280,15 @@
                     </select>
                     <div class="invalid" th:if="${#fields.hasErrors('cliente')}" th:errors="*{cliente}"></div>
                 </div>
+                <div class="field" th:if="${isClientUser}">
+                    <label>Cliente</label>
+                    <input type="text" class="form-control" th:value="${mascota.cliente != null ? mascota.cliente.razonSocial : ''}" disabled />
+                    <input type="hidden" th:field="*{cliente.id}" />
+                </div>
             </div>
 
             <div class="actions">
-                <a href="/mascotas" class="btn btn-secondary">Volver</a>
+                <a href="javascript:history.back()" class="btn btn-secondary">Regresar</a>
                 <button type="submit" class="btn btn-primary">Guardar mascota</button>
             </div>
         </form>
