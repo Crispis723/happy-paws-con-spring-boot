@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Happy Paws - Dashboard</title>
+    <link rel="shortcut icon" th:href="@{/assets/favicon.ico}" type="image/x-icon">
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}" />
+    <link rel="stylesheet" th:href="@{/css/colors.css}" />
+    <link rel="stylesheet" th:href="@{/css/happypaws-ui.css}" />
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}" />
+      <link rel="stylesheet" th:href="@{/css/happypaws-ui.css}" />
+    <style>
+      :root {
+        --card-surface: rgba(255, 255, 255, 0.82);
+        --stroke: rgba(138, 223, 215, 0.28);
+      }
+      body {
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top left, rgba(138, 223, 215, 0.28), transparent 28%),
+          radial-gradient(circle at top right, rgba(88, 184, 199, 0.18), transparent 26%),
+          linear-gradient(180deg, #f8fdfd 0%, #eef8f7 100%);
+      }
+      .dashboard-wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem 3rem;
+      }
+      .hero-card {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(240, 252, 252, 0.88) 100%);
+        border: 1px solid var(--stroke);
+        border-radius: 28px;
+        box-shadow: 0 22px 50px rgba(71, 150, 164, 0.10);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(10px);
+      }
+      .module-card {
+        position: relative;
+        background: var(--card-surface);
+        border: 1px solid var(--stroke);
+        border-radius: 24px;
+        box-shadow: 0 16px 36px rgba(71, 150, 164, 0.08);
+        padding: 1.5rem;
+        height: 100%;
+        transition: transform .2s ease, box-shadow .2s ease;
+        backdrop-filter: blur(10px);
+      }
+      .module-card:hover {
+        transform: translateY(-6px) scale(1.01);
+        box-shadow: 0 24px 44px rgba(71, 150, 164, 0.14);
+      }
+      .module-icon {
+        width: 62px;
+        height: 62px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        color: white;
+        font-size: 1.6rem;
+        box-shadow: 0 10px 22px rgba(71, 150, 164, 0.16);
+      }
+      .bg-primary-soft { background: linear-gradient(135deg, #8adfd7, #58b8c7); }
+      .bg-success-soft { background: linear-gradient(135deg, #9be5c6, #58b8a0); }
+      .bg-danger-soft { background: linear-gradient(135deg, #8cc9ff, #5c9ad6); }
+      .bg-warning-soft { background: linear-gradient(135deg, #a7e2d7, #7ecfc6); }
+      .bg-info-soft { background: linear-gradient(135deg, #a5e6ea, #66bfcf); }
+      .dashboard-actions a {
+        border-radius: 999px;
+        padding-inline: 1rem;
+      }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .35rem .75rem;
+        border-radius: 999px;
+        background: rgba(138, 223, 215, 0.14);
+        color: #3d8d93;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        font-size: .72rem;
+      }
+      .hero-card::after {
+        content: '';
+        position: absolute;
+        right: -40px;
+        top: -40px;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(138, 223, 215, 0.36) 0%, rgba(138, 223, 215, 0) 72%);
+      }
+      .hero-card::before {
+        content: '';
+        position: absolute;
+        left: -50px;
+        bottom: -60px;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(88, 184, 199, 0.22) 0%, rgba(88, 184, 199, 0) 70%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-wrap">
+      <div class="hero-card d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+        <div>
+          <p class="eyebrow mb-2">Happy Paws</p>
+          <h1 class="display-6 fw-bold mb-2">Bienvenido al panel principal</h1>
+          <p class="text-muted mb-0">Desde aquí puedes acceder a los módulos más usados del sistema.</p>
+        </div>
+        <div class="dashboard-actions d-flex gap-2 flex-wrap">
+          <a href="#" class="btn btn-outline-secondary" onclick="document.getElementById('logout-form-dashboard').submit(); return false;">Cerrar sesión</a>
+          <a th:href="@{/}" class="btn btn-primary">Ir al inicio</a>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+          <div class="module-card">
+            <div class="module-icon bg-primary-soft"><i class="bi bi-calendar-check"></i></div>
+            <h3 class="h5 fw-bold">Citas</h3>
+            <p class="text-muted">Agenda, revisa y administra citas.</p>
+            <a th:href="@{/citas}" class="btn btn-sm btn-primary">Abrir módulo</a>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="module-card">
+            <div class="module-icon bg-danger-soft"><i class="bi bi-heart-fill"></i></div>
+            <h3 class="h5 fw-bold">Mascotas</h3>
+            <p class="text-muted">Administra el registro de mascotas.</p>
+            <a th:href="@{/mascotas}" class="btn btn-sm btn-info text-white">Abrir módulo</a>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="module-card">
+            <div class="module-icon bg-success-soft"><i class="bi bi-people-fill"></i></div>
+            <h3 class="h5 fw-bold">Clientes</h3>
+            <p class="text-muted">Ver y gestionar clientes.</p>
+            <a th:href="@{/clientes}" class="btn btn-sm btn-success">Abrir módulo</a>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="module-card">
+            <div class="module-icon bg-warning-soft"><i class="bi bi-box-seam"></i></div>
+            <h3 class="h5 fw-bold">Productos</h3>
+            <p class="text-muted">Inventario y catálogo de productos.</p>
+            <a th:href="@{/productos}" class="btn btn-sm btn-info text-white">Abrir módulo</a>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="module-card">
+            <div class="module-icon bg-info-soft"><i class="bi bi-cart-check"></i></div>
+            <h3 class="h5 fw-bold">Compras</h3>
+            <p class="text-muted">Seguimiento de compras y proveedores.</p>
+            <a th:href="@{/compras}" class="btn btn-sm btn-info text-white">Abrir módulo</a>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="module-card">
+            <div class="module-icon bg-primary-soft"><i class="bi bi-cash-coin"></i></div>
+            <h3 class="h5 fw-bold">Ventas</h3>
+            <p class="text-muted">Ventas y facturación del sistema.</p>
+            <a th:href="@{/ventas}" class="btn btn-sm btn-primary">Abrir módulo</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-card mt-4">
+        <h2 class="h5 fw-bold mb-2">Accesos rápidos</h2>
+        <p class="text-muted mb-3">Conexión directa con otros apartados del sistema.</p>
+        <div class="d-flex gap-2 flex-wrap">
+          <a th:href="@{/register}" class="btn btn-outline-primary">Registro</a>
+          <a th:href="@{/usuarios}" class="btn btn-outline-secondary">Usuarios</a>
+          <a th:href="@{/dashboard}" class="btn btn-outline-dark">Dashboard actual</a>
+        </div>
+      </div>
+    </div>
+    <form id="logout-form-dashboard" th:action="@{/logout}" method="post" class="d-none">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    </form>
+  </body>
+</html>

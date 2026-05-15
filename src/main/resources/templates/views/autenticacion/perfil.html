@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de usuario - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+    <style>
+        body { min-height: 100vh; background: linear-gradient(180deg, #f8fdfd 0%, #eef8f7 100%); }
+        .shell { max-width: 920px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+        .hero { border-radius: 24px; padding: 2rem; margin-bottom: 1.5rem; color: #fff; background: linear-gradient(135deg, #8adfd7 0%, #58b8c7 100%); }
+        .card-panel { background: rgba(255,255,255,.94); border-radius: 24px; box-shadow: 0 16px 36px rgba(71, 150, 164, 0.08); overflow: hidden; }
+    </style>
+</head>
+<body>
+<div th:insert="partials/header :: header"></div>
+<main class="shell">
+    <section class="hero">
+        <h1 class="mb-2">Perfil de usuario</h1>
+        <p class="mb-0">Actualiza tus datos personales y contraseña.</p>
+    </section>
+
+    <section class="card-panel p-4 p-md-5">
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <form th:action="@{/perfil}" method="post">
+            <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="name" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="name" name="name" th:value="${registro.name}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" th:value="${registro.email}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="password" class="form-label">Nueva Contraseña (Opcional)</label>
+                    <input type="password" class="form-control" id="password" name="password">
+                </div>
+                <div class="col-md-6">
+                    <label for="password_confirmation" class="form-label">Confirmar Contraseña</label>
+                    <input type="password" class="form-control" id="password_confirmation" name="password_confirmation">
+                </div>
+            </div>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <button type="submit" class="btn btn-primary">Actualizar Perfil</button>
+            </div>
+        </form>
+    </section>
+</main>
+<div th:insert="partials/footer :: footer"></div>
+</body>
+</html>

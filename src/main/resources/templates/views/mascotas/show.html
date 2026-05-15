@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de mascota</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+</head>
+<body>
+<main class="container py-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h1 class="h4 mb-0" th:text="'Mascota: ' + ${mascota.nombre}">Mascota</h1>
+        </div>
+        <div class="card-body">
+            <p><strong>Especie:</strong> <span th:text="${mascota.especie}">--</span></p>
+            <p><strong>Raza:</strong> <span th:text="${mascota.raza}">--</span></p>
+            <p><strong>Edad:</strong> <span th:text="${mascota.edad}">--</span></p>
+            <p><strong>Cliente:</strong> <span th:text="${mascota.clienteNombre}">--</span></p>
+            <a th:href="@{/citas/create}" class="btn btn-primary">Pedir cita para esta mascota</a>
+            <a th:href="@{/mascotas}" class="btn btn-secondary">Volver</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>
