@@ -51,40 +51,36 @@ public class AppointmentController {
 
     @GetMapping("/create")
     public String create(Model model, Authentication auth) {
-        boolean isClientUser = auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_CLIENTE"));
         AppointmentDTO dto = new AppointmentDTO();
+        if (auth != null) {
+            Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
+            dto.setClienteId(cliente.getId());
+            model.addAttribute("clienteNombre", cliente.getRazonSocial());
+            model.addAttribute("mascotas", petService.listarPorClienteId(cliente.getId()));
+        } else {
+            model.addAttribute("clienteNombre", "Cliente no autenticado");
+            model.addAttribute("mascotas", petService.listar());
+        }
         model.addAttribute("cita", dto);
         model.addAttribute("veterinarios", userService.listarVeterinarios());
-        if (isClientUser) {
-            Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
-            model.addAttribute("mascotas", petService.listarPorClienteId(cliente.getId()));
-            model.addAttribute("isClientUser", true);
-            model.addAttribute("clienteId", cliente.getId());
-            model.addAttribute("clienteNombre", cliente.getRazonSocial());
-            model.addAttribute("clientes", null);
-        } else {
-            model.addAttribute("mascotas", petService.listar());
-            model.addAttribute("clientes", clienteService.listar());
-            model.addAttribute("isClientUser", false);
-        }
         return "views/citas/create";
     }
 
     @PostMapping("/guardar")
     public String guardar(@Valid @ModelAttribute("cita") AppointmentDTO dto, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, Authentication auth) {
-        boolean isClientUser = auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_CLIENTE"));
+        if (auth != null) {
+            Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
+            dto.setClienteId(cliente.getId());
+        }
+
         if (bindingResult.hasErrors()) {
-            if (isClientUser) {
+            if (auth != null) {
                 Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
                 model.addAttribute("mascotas", petService.listarPorClienteId(cliente.getId()));
-                model.addAttribute("clienteId", cliente.getId());
                 model.addAttribute("clienteNombre", cliente.getRazonSocial());
-                model.addAttribute("isClientUser", true);
-                model.addAttribute("clientes", null);
             } else {
                 model.addAttribute("mascotas", petService.listar());
-                model.addAttribute("clientes", clienteService.listar());
-                model.addAttribute("isClientUser", false);
+                model.addAttribute("clienteNombre", "Cliente no autenticado");
             }
             model.addAttribute("veterinarios", userService.listarVeterinarios());
             return "views/citas/create";
@@ -100,7 +96,7 @@ public class AppointmentController {
         appointment.setVeterinario(userService.buscarPorId(dto.getVeterinarioId())
             .orElseThrow(() -> new IllegalArgumentException("Veterinario no encontrado")));
 
-        if (isClientUser) {
+        if (auth != null) {
             Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
             // Ensure pet belongs to client
             if (!appointment.getMascota().getCliente().getId().equals(cliente.getId())) {
@@ -134,25 +130,36 @@ public class AppointmentController {
         dto.setClienteId(appointment.getCliente().getId());
         dto.setVeterinarioId(appointment.getVeterinario() != null ? appointment.getVeterinario().getId() : null);
         model.addAttribute("cita", dto);
-        boolean isClientUser = auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_CLIENTE"));
-        if (isClientUser) {
+        if (auth != null) {
             Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
             if (!appointment.getCliente().getId().equals(cliente.getId())) {
                 throw new IllegalArgumentException("No tienes permiso para editar esta cita");
             }
             model.addAttribute("mascotas", petService.listarPorClienteId(cliente.getId()));
-            model.addAttribute("clientes", null);
-            model.addAttribute("isClientUser", true);
-            model.addAttribute("clienteId", cliente.getId());
             model.addAttribute("clienteNombre", cliente.getRazonSocial());
             model.addAttribute("veterinarios", userService.listarVeterinarios());
         } else {
             model.addAttribute("mascotas", petService.listar());
-            model.addAttribute("clientes", clienteService.listar());
-            model.addAttribute("isClientUser", false);
+            model.addAttribute("clienteNombre", appointment.getCliente().getRazonSocial());
             model.addAttribute("veterinarios", userService.listarVeterinarios());
         }
         return "views/citas/create";
+    }
+
+    @GetMapping("/show/{id}")
+    public String ver(@PathVariable Long id, Model model, Authentication auth) {
+        Appointment cita = appointmentService.buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cita no encontrada"));
+
+        if (auth != null) {
+            Cliente cliente = clienteService.resolverOCrearClienteAutenticado(auth.getName(), auth.getName());
+            if (!cita.getCliente().getId().equals(cliente.getId())) {
+                throw new IllegalArgumentException("No tienes permiso para ver esta cita");
+            }
+        }
+
+        model.addAttribute("cita", cita);
+        return "views/citas/show";
     }
 
     @GetMapping("/delete/{id}")

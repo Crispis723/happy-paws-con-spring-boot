@@ -21,6 +21,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -39,7 +40,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/historial")
 public class HistorialMascotaController {
 
-    private static final Path HISTORIAL_UPLOAD_DIR = Paths.get("uploads", "historial");
+    private final Path historialUploadDir;
 
     private final HistorialMascotaService historialMascotaService;
     private final PetService petService;
@@ -49,11 +50,13 @@ public class HistorialMascotaController {
     public HistorialMascotaController(HistorialMascotaService historialMascotaService,
                                       PetService petService,
                                       ClienteService clienteService,
-                                      AppointmentService appointmentService) {
+                                      AppointmentService appointmentService,
+                                      @Value("${app.storage.path:uploads}") String storagePath) {
         this.historialMascotaService = historialMascotaService;
         this.petService = petService;
         this.clienteService = clienteService;
         this.appointmentService = appointmentService;
+        this.historialUploadDir = Paths.get(storagePath, "historial");
     }
 
     @GetMapping("/mascota/{petId}")
@@ -167,7 +170,7 @@ public class HistorialMascotaController {
             throw new IllegalArgumentException("Este registro no tiene archivo adjunto");
         }
 
-        Path archivoPath = HISTORIAL_UPLOAD_DIR.resolve(historial.getArchivoGuardado()).normalize();
+        Path archivoPath = historialUploadDir.resolve(historial.getArchivoGuardado()).normalize();
         Resource recurso = new UrlResource(archivoPath.toUri());
         if (!recurso.exists() || !recurso.isReadable()) {
             throw new IllegalArgumentException("No se pudo leer el archivo adjunto");
@@ -213,7 +216,7 @@ public class HistorialMascotaController {
     }
 
     private void guardarArchivo(HistorialMascota historial, MultipartFile archivo) throws IOException {
-        Files.createDirectories(HISTORIAL_UPLOAD_DIR);
+        Files.createDirectories(historialUploadDir);
         String nombreOriginal = archivo.getOriginalFilename() != null ? archivo.getOriginalFilename() : "archivo";
         String extension = "";
         int index = nombreOriginal.lastIndexOf('.');
@@ -221,7 +224,7 @@ public class HistorialMascotaController {
             extension = nombreOriginal.substring(index);
         }
         String nombreGuardado = UUID.randomUUID() + extension;
-        Path destino = HISTORIAL_UPLOAD_DIR.resolve(nombreGuardado).normalize();
+        Path destino = historialUploadDir.resolve(nombreGuardado).normalize();
         Files.copy(archivo.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
 
         historial.setArchivoOriginal(nombreOriginal);
@@ -235,7 +238,7 @@ public class HistorialMascotaController {
             return;
         }
         try {
-            Files.deleteIfExists(HISTORIAL_UPLOAD_DIR.resolve(archivoGuardado).normalize());
+            Files.deleteIfExists(historialUploadDir.resolve(archivoGuardado).normalize());
         } catch (IOException ignored) {
             // Si no se puede eliminar físicamente, no bloqueamos la operación de negocio.
         }

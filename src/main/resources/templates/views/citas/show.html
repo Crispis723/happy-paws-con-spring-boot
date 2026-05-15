@@ -22,33 +22,23 @@
                 <p class="text-uppercase small fw-semibold mb-1 opacity-75">Agenda médica</p>
                 <h1 class="display-6 fw-bold mb-0">Detalle de cita</h1>
             </div>
-            <span class="badge bg-light text-dark px-3 py-2" th:text="${cita.estado != null ? #strings.capitalize(cita.estado) : 'Pendiente'}">Pendiente</span>
+            <span class="badge bg-light text-dark px-3 py-2">Programada</span>
         </div>
 
         <div class="surface-card p-4 p-md-5">
             <dl class="row mb-0">
-                <dt class="col-sm-4 fw-bold">Fecha y Hora</dt>
-                <dd class="col-sm-8" th:text="${cita.fecha_hora != null ? #temporals.format(cita.fecha_hora, 'dd/MM/yyyy HH:mm') : '-'}">-</dd>
+                <dt class="col-sm-4 fw-bold">Fecha</dt>
+                <dd class="col-sm-8" th:text="${cita.fecha != null ? #temporals.format(cita.fecha, 'dd/MM/yyyy') : '-'}">-</dd>
                 <dt class="col-sm-4 fw-bold">Cliente</dt>
-                <dd class="col-sm-8" th:text="${cita.cliente_nombre}">-</dd>
-                <dt class="col-sm-4 fw-bold">Teléfono</dt>
-                <dd class="col-sm-8" th:text="${cita.cliente_telefono != null ? cita.cliente_telefono : '-'}">-</dd>
+                <dd class="col-sm-8" th:text="${cita.cliente != null ? cita.cliente.razonSocial : '-'}">-</dd>
                 <dt class="col-sm-4 fw-bold">Mascota</dt>
-                <dd class="col-sm-8"><strong th:text="${cita.mascota_nombre}">Mascota</strong></dd>
+                <dd class="col-sm-8"><strong th:text="${cita.mascota != null ? cita.mascota.nombre : '-'}">Mascota</strong></dd>
                 <dt class="col-sm-4 fw-bold">Especie</dt>
-                <dd class="col-sm-8" th:text="${cita.mascota_especie}">-</dd>
+                <dd class="col-sm-8" th:text="${cita.mascota != null ? cita.mascota.especie : '-'}">-</dd>
                 <dt class="col-sm-4 fw-bold">Veterinario</dt>
                 <dd class="col-sm-8" th:text="${cita.veterinario != null ? cita.veterinario.name : 'Sin asignar'}">-</dd>
                 <dt class="col-sm-4 fw-bold">Motivo</dt>
                 <dd class="col-sm-8" th:text="${cita.motivo}">-</dd>
-                <dt class="col-sm-4 fw-bold">Estado</dt>
-                <dd class="col-sm-8"><span class="badge bg-info" th:text="${cita.estado != null ? #strings.capitalize(cita.estado) : 'Pendiente'}">Pendiente</span></dd>
-                <dt class="col-sm-4 fw-bold">Precio</dt>
-                <dd class="col-sm-8" th:text="${cita.precio != null ? 'S/. ' + #numbers.formatDecimal(cita.precio, 1, 'COMMA', 2, 'POINT') : '-'}">-</dd>
-                <dt class="col-sm-4 fw-bold" th:if="${cita.notas != null and !#strings.isEmpty(cita.notas)}">Notas</dt>
-                <dd class="col-sm-8" th:if="${cita.notas != null and !#strings.isEmpty(cita.notas)}">
-                    <div class="alert alert-light border mb-0" th:text="${cita.notas}">Notas</div>
-                </dd>
             </dl>
 
             <div class="d-flex justify-content-between gap-2 mt-4">

@@ -47,6 +47,7 @@
                             <td th:text="${cita.veterinarioNombre != null and !cita.veterinarioNombre.isBlank() ? cita.veterinarioNombre : '-'}">--</td>
                             <td th:text="${cita.motivo}">--</td>
                             <td class="text-center">
+                                <a th:href="@{/citas/show/{id}(id=${cita.id})}" class="btn btn-sm btn-outline-info" title="Ver detalle"><i class="bi bi-eye"></i></a>
                                 <a th:href="@{/citas/edit/{id}(id=${cita.id})}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
                                 <a th:href="@{/citas/delete/{id}(id=${cita.id})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta cita?')"><i class="bi bi-trash"></i></a>
                             </td>

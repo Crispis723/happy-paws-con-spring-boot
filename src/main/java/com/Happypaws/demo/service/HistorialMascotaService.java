@@ -20,6 +20,9 @@ public class HistorialMascotaService {
     public List<HistorialMascota> listarPorMascotaId(Long mascotaId) {
         return repository.findByMascotaIdOrderByFechaRegistroDesc(mascotaId);
     }
+    public List<HistorialMascota> listarVencimientosPorCliente(Long clienteId, LocalDate fechaInicio, LocalDate fechaFin) {
+        return repository.findByMascotaClienteIdAndFechaExpiracionBetweenOrderByFechaExpiracionAsc(clienteId, fechaInicio, fechaFin);
+    }
 
     public Optional<HistorialMascota> buscarPorId(Long id) {
         return repository.findById(id);

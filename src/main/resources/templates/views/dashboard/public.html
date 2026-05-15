@@ -90,6 +90,46 @@
                     <a th:href="@{/ventas}" class="btn btn-outline-success rounded-pill w-100">Ir al carrito</a>
                 </div>
             </div>
+            <div class="col-12">
+                <div class="surface-card p-4">
+                    <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-3">
+                        <div>
+                            <div class="stat-pill mb-2"><i class="bi bi-bell-fill"></i> Recordatorios</div>
+                            <h3 class="h4 fw-bold mb-1">Próximos avisos</h3>
+                            <p class="text-muted mb-0">Citas de los próximos 7 días y archivos clínicos que vencen en los próximos 30 días.</p>
+                        </div>
+                        <span class="role-badge role-badge--info" th:text="${(cantidadRecordatorios != null ? cantidadRecordatorios : 0) + ' pendientes'}">0 pendientes</span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <div class="p-3 rounded-4 border theme-outline bg-light h-100">
+                                <div class="fw-bold text-primary mb-2"><i class="bi bi-calendar-event me-1"></i> Citas próximas</div>
+                                <ul class="list-unstyled mb-0" th:if="${proximasCitas != null and !#lists.isEmpty(proximasCitas)}">
+                                    <li th:each="cita : ${proximasCitas}" class="mb-2 pb-2 border-bottom">
+                                        <div class="fw-semibold" th:text="${cita.fecha + ' - ' + (cita.mascota != null ? cita.mascota.nombre : 'Mascota')}">Fecha</div>
+                                        <div class="text-muted small" th:text="${cita.motivo}">Motivo</div>
+                                    </li>
+                                </ul>
+                                <p class="text-muted mb-0" th:if="${proximasCitas == null or #lists.isEmpty(proximasCitas)}">No tienes citas próximas.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="p-3 rounded-4 border theme-outline bg-light h-100">
+                                <div class="fw-bold text-warning mb-2"><i class="bi bi-file-earmark-medical me-1"></i> Archivos por vencer</div>
+                                <ul class="list-unstyled mb-0" th:if="${vencimientosHistorial != null and !#lists.isEmpty(vencimientosHistorial)}">
+                                    <li th:each="item : ${vencimientosHistorial}" class="mb-2 pb-2 border-bottom">
+                                        <div class="fw-semibold" th:text="${item.mascota != null ? item.mascota.nombre : 'Mascota'}">Mascota</div>
+                                        <div class="text-muted small" th:text="${item.titulo + ' - vence: ' + item.fechaExpiracion}">Vence</div>
+                                        <a th:href="@{/historial/mascota/{petId}(petId=${item.mascota.id})}" class="small">Ver historial</a>
+                                    </li>
+                                </ul>
+                                <p class="text-muted mb-0" th:if="${vencimientosHistorial == null or #lists.isEmpty(vencimientosHistorial)}">No tienes archivos clínicos por vencer.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="row mt-4">

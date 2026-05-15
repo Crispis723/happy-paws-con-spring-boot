@@ -30,6 +30,35 @@ O usar el JAR:
 java -jar target/*.jar
 ```
 
+Despliegue en Render
+1. Sube el proyecto a GitHub.
+2. En Render crea un Web Service apuntando al repositorio.
+3. Si usas Blueprint, Render detecta automáticamente [render.yaml](render.yaml).
+4. Si no usas Blueprint, configura:
+
+```bash
+Build Command: ./mvnw -DskipTests clean package
+Start Command: java -jar target/demo-0.0.1-SNAPSHOT.jar
+```
+
+Variables de entorno recomendadas en Render:
+
+```bash
+PORT=10000
+DB_URL=jdbc:mysql://<host>:3306/<db>?useSSL=true&requireSSL=true&serverTimezone=UTC
+DB_USERNAME=<usuario>
+DB_PASSWORD=<password>
+JPA_DDL_AUTO=update
+SQL_INIT_MODE=never
+JPA_SHOW_SQL=false
+APP_STORAGE_PATH=/var/data/uploads
+```
+
+Notas importantes para producción:
+- Para archivos clínicos (radiografías, adjuntos), en Render conviene usar un Persistent Disk y asignar su ruta a APP_STORAGE_PATH.
+- Si no usas disco persistente, Render puede borrar archivos en redeploy/restart.
+- La lógica de historial clínico mantiene vencimiento automático a 1 año por registro.
+
 Presentación y entregables
 - He añadido una presentación mínima en `docs/presentation.html` que resume el proyecto y muestra capturas de pantalla y puntos clave.
 - Para la entrega final, se recomienda generar un PDF desde `docs/presentation.html` o usar una versión en `docs/`.
