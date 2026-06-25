@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/css/happypaws-ui.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+</head>
+<body>
+    <div th:insert="partials/header :: header"></div>
+    <div class="page-shell">
+        <div class="hero-panel d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+            <div>
+                <span class="hero-kicker mb-2"><i class="bi bi-box-seam-fill"></i> Inventario</span>
+                <h1 class="display-6 fw-bold mb-2">Productos</h1>
+                <p class="mb-0 opacity-75">Catálogo e inventario con la misma línea visual del resto del sistema.</p>
+            </div>
+            <a th:href="@{/productos/create}" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4"><i class="bi bi-plus-circle me-1"></i> Nuevo producto</a>
+        </div>
+
+        <div class="surface-card p-4">
+            <div class="table-responsive">
+                <table class="table app-table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Unidad</th>
+                            <th>Afectación</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(productos)}">
+                            <td colspan="7" class="text-center text-muted py-4">No hay productos registrados</td>
+                        </tr>
+                        <tr th:each="producto : ${productos}">
+                            <td th:text="${producto.codigo}">--</td>
+                            <td class="fw-semibold" th:text="${producto.nombre}">--</td>
+                            <td th:text="${producto.unidad != null ? producto.unidad.descripcion : '-'}">--</td>
+                            <td th:text="${producto.afectacionTipo != null ? producto.afectacionTipo.descripcion : '-'}">--</td>
+                            <td th:text="${'S/ ' + #numbers.formatDecimal(producto.precioUnitario, 1, 'COMMA', 2, 'POINT')}">--</td>
+                            <td>
+                                <span class="role-badge" th:classappend="${producto.stock > 0 ? 'role-badge--success' : 'role-badge--danger'}" th:text="${producto.stock}">0</span>
+                            </td>
+                            <td class="text-center">
+                                <a th:href="@{/productos/{id}(id=${producto.id})}" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
+                                <a th:href="@{/productos/edit/{id}(id=${producto.id})}" class="btn btn-sm btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="if(confirm('¿Está seguro?')) window.location.href=this.dataset.url;" th:data-url="@{/productos/delete/{id}(id=${producto.id})}" title="Eliminar"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div th:insert="partials/footer :: footer"></div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: happy-paws
+    runtime: java
+    plan: free
+    buildCommand: ./mvnw -DskipTests clean package
+    startCommand: java -jar target/*.jar
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JPA_DDL_AUTO
+        value: update
+      - key: SQL_INIT_MODE
+        value: never
+      - key: JPA_SHOW_SQL
+        value: false
+      - key: APP_STORAGE_PATH
+        value: /var/data/uploads

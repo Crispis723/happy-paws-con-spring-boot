@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventas - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/css/happypaws-ui.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+</head>
+<body>
+    <div th:insert="partials/header :: header"></div>
+    <div class="page-shell">
+        <div class="hero-panel d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+            <div>
+                <span class="hero-kicker mb-2"><i class="bi bi-cash-coin"></i> Ventas</span>
+                <h1 class="display-6 fw-bold mb-2">Panel de ventas</h1>
+                <p class="mb-0 opacity-75" th:text="${isClientUser ? 'Consulta tus compras, comprobantes y movimientos del carrito.' : 'Consulta, imprime y administra ventas con una presentación más moderna.'}">Consulta, imprime y administra ventas con una presentación más moderna.</p>
+            </div>
+            <div class="d-flex flex-column flex-sm-row gap-2">
+                <a href="javascript:history.back()" class="btn btn-outline-light btn-lg rounded-pill fw-semibold px-4"><i class="bi bi-arrow-left me-1"></i> Regresar</a>
+                <a th:href="@{/ventas/create}" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4"><i class="bi bi-plus-circle me-1"></i> <span th:text="${isClientUser ? 'Nuevo pedido' : 'Nueva venta'}">Nueva venta</span></a>
+            </div>
+        </div>
+
+        <div class="surface-card p-4 mb-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="p-3 rounded-4 bg-light border theme-outline">
+                        <div class="text-muted small text-uppercase">Ventas registradas</div>
+                        <div class="display-6 fw-bold text-primary" th:text="${#lists.size(ventas)}">0</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 rounded-4 bg-light border theme-outline">
+                        <div class="text-muted small text-uppercase">Estado visible</div>
+                        <div class="display-6 fw-bold text-success">Activo</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 rounded-4 bg-light border theme-outline">
+                        <div class="text-muted small text-uppercase">Vista</div>
+                        <div class="display-6 fw-bold text-info">Ticket</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="surface-card p-4">
+            <div class="table-responsive">
+                <table class="table app-table table-hover align-middle mb-0">
+                    <thead><tr><th>Número</th><th>Fecha</th><th>Cliente</th><th>Forma de Pago</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(ventas)}"><td colspan="7" class="text-center text-muted py-4">No hay ventas registradas</td></tr>
+                        <tr th:each="venta : ${ventas}">
+                            <td class="fw-semibold" th:text="${venta.numero}">--</td>
+                            <td th:text="${venta.fecha}">--</td>
+                            <td th:text="${venta.clienteNombre}">--</td>
+                            <td th:text="${venta.formaPago}">--</td>
+                            <td th:text="${'S/ ' + #numbers.formatDecimal(venta.total, 1, 'COMMA', 2, 'POINT')}">--</td>
+                            <td><span class="role-badge role-badge--success" th:text="${venta.estado}">Registrada</span></td>
+                            <td class="text-center">
+                                <a th:href="@{/ventas/{id}(id=${venta.id})}" class="btn btn-sm btn-outline-info" title="Ver/Imprimir"><i class="bi bi-printer"></i></a>
+                                <a th:if="${!isClientUser}" th:href="@{/ventas/edit/{id}(id=${venta.id})}" class="btn btn-sm btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
+                                <button th:if="${!isClientUser}" type="button" class="btn btn-sm btn-outline-danger" onclick="if(confirm('¿Está seguro?')) window.location.href=this.dataset.url;" th:data-url="@{/ventas/delete/{id}(id=${venta.id})}" title="Eliminar"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="surface-card p-4 mt-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                <div>
+                    <h3 class="h5 fw-bold mb-1 text-primary">Productos disponibles</h3>
+                    <p class="text-muted mb-0">Catálogo visual para revisar lo que puede ir al carrito.</p>
+                </div>
+                <a th:href="@{/productos}" class="btn btn-sm btn-outline-primary rounded-pill">Ver inventario completo</a>
+            </div>
+            <div class="catalog-grid" th:if="${!#lists.isEmpty(productos)}">
+                <article class="catalog-card" th:each="producto : ${productos}">
+                    <span class="catalog-card__badge" th:text="${producto.stock > 0 ? 'Disponible' : 'Sin stock'}">Disponible</span>
+                    <div th:if="${producto.imagen != null}" class="mb-3">
+                        <img th:src="@{'/uploads/productos/' + ${producto.imagen}}" th:alt="${producto.nombre}" class="catalog-card__image">
+                    </div>
+                    <div th:if="${producto.imagen == null}" class="mb-3 catalog-card__fallback">
+                        <i class="bi bi-bag-check"></i>
+                    </div>
+                    <div class="d-flex align-items-start justify-content-between gap-2">
+                        <div>
+                            <h4 class="h5 fw-bold mb-1" th:text="${producto.nombre}">Producto</h4>
+                            <p class="mb-0 text-muted" th:text="${producto.codigo}">COD-001</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-success" th:text="${'S/ ' + #numbers.formatDecimal(producto.precioUnitario, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</div>
+                            <div class="small text-muted" th:text="${producto.stock + ' uds'}">0 uds</div>
+                        </div>
+                    </div>
+                    <div class="catalog-card__meta">
+                        <div class="catalog-card__field">
+                            <span class="catalog-card__label">Unidad</span>
+                            <span class="catalog-card__value" th:text="${producto.unidad != null ? producto.unidad.descripcion : '-'}">Unidad</span>
+                        </div>
+                        <div class="catalog-card__field">
+                            <span class="catalog-card__label">Afectación</span>
+                            <span class="catalog-card__value" th:text="${producto.afectacionTipo != null ? producto.afectacionTipo.descripcion : '-'}">IGV</span>
+                        </div>
+                    </div>
+                    <div class="catalog-card__actions">
+                        <a th:href="@{/productos/{id}(id=${producto.id})}" class="btn btn-sm btn-outline-info">Ver</a>
+                        <a th:if="${producto.stock > 0}" th:href="@{/ventas/create}" class="btn btn-sm btn-success">Pedir</a>
+                    </div>
+                </article>
+            </div>
+            <div th:if="${#lists.isEmpty(productos)}" class="text-center text-muted py-4">No hay productos disponibles para mostrar.</div>
+        </div>
+    </div>
+    <div th:insert="partials/footer :: footer"></div>
+    <script th:src="@{/js/crud.js}"></script>
+</body>
+</html>

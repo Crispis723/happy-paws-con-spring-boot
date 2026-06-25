@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Happy Paws - Bienvenida</title>
+    <link rel="stylesheet" th:href="@{/css/colors.css}">
+    <link rel="stylesheet" th:href="@{/css/happypaws-ui.css}">
+    <link rel="stylesheet" th:href="@{/css/landing.css}">
+    <link rel="stylesheet" th:href="@{/css/auth-modal.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(138, 223, 215, 0.22), transparent 28%),
+                radial-gradient(circle at top right, rgba(88, 184, 199, 0.14), transparent 26%),
+                linear-gradient(180deg, #f8fdfd 0%, #eef8f7 100%);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        .wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 3rem 1rem 4rem;
+        }
+        .hero {
+            position: relative;
+            overflow: hidden;
+            border-radius: 32px;
+            padding: clamp(2rem, 5vw, 3.5rem);
+            background: linear-gradient(135deg, #8adfd7 0%, #58b8c7 100%);
+            color: white;
+            box-shadow: 0 24px 60px rgba(71, 150, 164, 0.16);
+        }
+        .kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            padding: .35rem .85rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.16);
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+        .hero h1 {
+            margin: .9rem 0 .75rem;
+            font-size: clamp(2.4rem, 5vw, 4rem);
+            line-height: .95;
+            max-width: 12ch;
+        }
+        .hero p {
+            max-width: 60ch;
+            font-size: 1.05rem;
+            line-height: 1.65;
+            opacity: .93;
+            margin: 0;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .8rem;
+            margin-top: 1.75rem;
+        }
+        .btn-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            border-radius: 999px;
+            padding: .95rem 1.25rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease;
+        }
+        .btn-pill:hover { transform: translateY(-1px); }
+        .btn-primary-soft { background: white; color: #47a6b5; box-shadow: 0 12px 24px rgba(0,0,0,.10); }
+        .btn-secondary-soft { background: rgba(255,255,255,.18); color: white; border: 1px solid rgba(255,255,255,.22); }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            margin-top: 1.25rem;
+        }
+        .feature {
+            background: rgba(255,255,255,.82);
+            border: 1px solid rgba(138, 223, 215, .22);
+            border-radius: 22px;
+            padding: 1.2rem;
+            box-shadow: 0 16px 36px rgba(71, 150, 164, 0.08);
+            color: #254b52;
+        }
+        .feature i { font-size: 1.25rem; color: #47a6b5; }
+        .feature h2 { margin: .75rem 0 .35rem; font-size: 1.02rem; }
+        .feature p { margin: 0; color: #57737a; line-height: 1.55; }
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <section class="hero">
+            <span class="kicker"><i class="bi bi-heart-pulse-fill"></i> Happy Paws</span>
+            <h1>Bienvenido al sistema veterinario</h1>
+            <p>Gestiona citas, clientes, mascotas, productos, compras y ventas desde una interfaz limpia, consistente y lista para Thymeleaf.</p>
+            <div class="actions">
+                <a th:href="@{/login}" class="btn-pill btn-primary-soft"><i class="bi bi-box-arrow-in-right"></i> Ingresar</a>
+                <a th:href="@{/register}" class="btn-pill btn-secondary-soft"><i class="bi bi-person-plus"></i> Registrarse</a>
+                <a th:href="@{/dashboard}" class="btn-pill btn-secondary-soft"><i class="bi bi-speedometer2"></i> Ir al dashboard</a>
+            </div>
+        </section>
+
+        <div class="grid">
+            <article class="feature">
+                <i class="bi bi-calendar2-heart"></i>
+                <h2>Citas y atención</h2>
+                <p>Agenda y seguimiento para la operación diaria sin perder el hilo del negocio.</p>
+            </article>
+            <article class="feature">
+                <i class="bi bi-people"></i>
+                <h2>Clientes y mascotas</h2>
+                <p>Administra dueños y pacientes con una relación clara entre ambas entidades.</p>
+            </article>
+            <article class="feature">
+                <i class="bi bi-cart-check"></i>
+                <h2>Inventario y ventas</h2>
+                <p>Controla productos, compras y ventas con un flujo visual uniforme.</p>
+            </article>
+        </div>
+    </div>
+</body>
+</html>
