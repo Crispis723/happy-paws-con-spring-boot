@@ -1,0 +1,68 @@
+<aside th:fragment="menu" class="app-sidebar shadow" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" style="background: linear-gradient(180deg, #f5f5f5 0%, #ffffff 100%); border-right: 3px solid var(--primary-color);" data-bs-theme="light">
+    <div class="sidebar-brand" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); border-bottom: none;">
+        <a th:href="@{/dashboard}" class="brand-link">
+            <img th:src="@{/assets/img/shared/logo.jpg}" alt="Happy Paws Logo" class="brand-image opacity-100 shadow" style="height: 40px; width: auto;" />
+            <span class="brand-text fw-bold text-white">Happy Paws</span>
+        </a>
+    </div>
+    <div class="sidebar-wrapper">
+        <nav class="mt-2">
+            <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a th:href="@{/dashboard}" class="nav-link" id="itemDashboard" style="color: var(--text-primary);">
+                        <i class="nav-icon bi bi-calendar-check" style="color: var(--primary-color);"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','VETERINARIO','RECEPCIONISTA','CLIENTE')">
+                    <a th:href="@{/citas}" class="nav-link" id="itemCitasIndex">
+                        <i class="nav-icon bi bi-calendar-week" style="color: var(--primary-color);"></i>
+                        <p>Citas</p>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','RECEPCIONISTA','VETERINARIO','CLIENTE')">
+                    <a th:href="@{/ventas}" class="nav-link" id="itemVentas">
+                        <i class="nav-icon bi bi-cart-check" style="color: var(--primary-color);"></i>
+                        <p>Ventas / Carrito</p>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','RECEPCIONISTA','VETERINARIO')">
+                    <a th:href="@{/productos}" class="nav-link" id="itemProductos">
+                        <i class="nav-icon bi bi-basket2-fill"></i>
+                        <p>Productos</p>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','RECEPCIONISTA')">
+                    <a th:href="@{/clientes}" class="nav-link" id="itemClientes">
+                        <i class="nav-icon bi bi-person-vcard"></i>
+                        <p>Clientes</p>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/usuarios}" class="nav-link" id="itemUsers">
+                        <i class="nav-icon bi bi-people"></i>
+                        <p>Usuarios</p>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/roles}" class="nav-link" id="itemRoles">
+                        <i class="nav-icon bi bi-shield-lock"></i>
+                        <p>Roles</p>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','VETERINARIO')">
+                    <a th:href="@{/reportes/financieros}" class="nav-link" id="itemReportes">
+                        <i class="nav-icon bi bi-clipboard-data"></i>
+                        <p>Reportes</p>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/admin/settings}" class="nav-link" id="itemSettings">
+                        <i class="nav-icon bi bi-gear"></i>
+                        <p>Configuración</p>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</aside>

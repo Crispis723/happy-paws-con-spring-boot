@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: happy-paws
+    runtime: java
+    plan: free
+    buildCommand: bash ./mvnw -DskipTests clean package
+    startCommand: java -jar target/*.jar
+    envVars:
+      - key: PORT
+        value: 10000
+
+      # --- Base de datos (Supabase, proyecto vonswlsiujblwcbkkilc) ---
+      # DB_URL = connection string del "Session pooler" de Supabase, ej:
+      # jdbc:postgresql://aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require
+      - key: DB_URL
+        sync: false
+      # DB_USERNAME = postgres.vonswlsiujblwcbkkilc  (formato del pooler de Supabase)
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+
+      - key: JPA_DDL_AUTO
+        value: update
+      - key: SQL_INIT_MODE
+        value: never
+      - key: JPA_SHOW_SQL
+        value: false
+
+      # --- Supabase Storage (adjuntos del historial clinico) ---
+      # SUPABASE_URL = https://vonswlsiujblwcbkkilc.supabase.co
+      - key: SUPABASE_URL
+        sync: false
+      # service_role key (Project Settings > API). NUNCA la anon key.
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        value: historial-clinico
+
+      # --- Usuario administrador inicial ---
+      # Si la tabla de usuarios esta vacia, se crea este admin una sola vez.
+      - key: ADMIN_INITIAL_EMAIL
+        value: admin@happypaws.com
+      - key: ADMIN_INITIAL_PASSWORD
+        sync: false
+
+      # Mantener false en produccion para no crear usuarios demo.
+      - key: SEED_DEMO_USERS
+        value: false

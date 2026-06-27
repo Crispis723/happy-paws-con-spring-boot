@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración del Sistema - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+    <style>
+        body { min-height: 100vh; background: linear-gradient(180deg, #f8fdfd 0%, #eef8f7 100%); }
+        .page-shell { max-width: 1180px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+        .surface-card { background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); border: 1px solid rgba(138, 223, 215, 0.22); border-radius: 24px; box-shadow: 0 16px 36px rgba(71, 150, 164, 0.08); height: 100%; }
+    </style>
+</head>
+<body>
+<div th:insert="partials/header :: header"></div>
+<div class="page-shell">
+    <div class="mb-4">
+        <h2 class="fw-bold"><i class="bi bi-gear-fill text-secondary me-2"></i>Configuración del Sistema</h2>
+        <p class="text-muted mb-0">Ajustes generales para administración.</p>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="surface-card p-4 h-100">
+                <h5 class="card-title"><i class="bi bi-currency-dollar text-success me-2"></i>Precio de Citas</h5>
+                <p class="card-text">Configurar precio estándar de consulta.</p>
+                <a href="#" class="btn btn-primary" onclick="return false;">Próximamente</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="surface-card p-4 h-100">
+                <h5 class="card-title"><i class="bi bi-people-fill text-primary me-2"></i>Usuarios</h5>
+                <p class="card-text">Gestión de usuarios y permisos.</p>
+                <a href="#" class="btn btn-primary" onclick="return false;">Próximamente</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="surface-card p-4 h-100">
+                <h5 class="card-title"><i class="bi bi-shield-lock text-warning me-2"></i>Roles y Permisos</h5>
+                <p class="card-text">Configurar accesos del sistema.</p>
+                <a href="#" class="btn btn-primary" onclick="return false;">Próximamente</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:insert="partials/footer :: footer"></div>
+</body>
+</html>

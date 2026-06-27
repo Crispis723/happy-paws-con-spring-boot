@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de compra - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/css/happypaws-ui.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+    <style>
+        body { min-height: 100vh; background: linear-gradient(180deg, #f8fdfd 0%, #eef8f7 100%); }
+        .page-shell { max-width: 1060px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+        .hero-panel { background: linear-gradient(135deg, #8adfd7 0%, #58b8c7 100%); color: white; border-radius: 28px; padding: 2rem; box-shadow: 0 22px 50px rgba(71, 150, 164, 0.12); margin-bottom: 1.5rem; }
+        .surface-card { background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); border: 1px solid rgba(138, 223, 215, 0.22); border-radius: 24px; box-shadow: 0 16px 36px rgba(71, 150, 164, 0.08); overflow: hidden; }
+        .detail-value { font-size: 1.03rem; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div th:insert="partials/header :: header"></div>
+    <div class="page-shell">
+        <div class="hero-panel">
+            <p class="text-uppercase small fw-semibold mb-1 opacity-75">Compras</p>
+            <h1 class="display-6 fw-bold mb-2">Detalle de compra</h1>
+            <p class="mb-0 opacity-75">Consulta la información general de la compra antes de editarla o imprimirla.</p>
+        </div>
+
+        <div class="surface-card p-4 p-md-5">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="p-4 rounded-4 bg-light h-100">
+                        <p class="text-muted small mb-1">Fecha</p>
+                        <div class="detail-value" th:text="${compra.fecha}">-</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-4 rounded-4 bg-light h-100">
+                        <p class="text-muted small mb-1">Proveedor</p>
+                        <div class="detail-value" th:text="${compra.proveedor != null ? compra.proveedor.razonSocial : '-'}">-</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-4 rounded-4 bg-light h-100">
+                        <p class="text-muted small mb-1">Forma de pago</p>
+                        <div class="detail-value text-capitalize" th:text="${compra.formaPago}">-</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-4 rounded-4 bg-light h-100">
+                        <p class="text-muted small mb-1">Estado</p>
+                        <div class="detail-value text-capitalize" th:text="${compra.estado}">-</div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="p-4 rounded-4 bg-light">
+                        <p class="text-muted small mb-1">Total</p>
+                        <div class="display-6 fw-bold text-success" th:text="'S/. ' + ${#numbers.formatDecimal(compra.total, 1, 'COMMA', 2, 'POINT')}">S/. 0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mt-4">
+                <a th:href="@{/compras}" class="btn btn-outline-secondary btn-lg px-4">Volver</a>
+                <a th:href="@{/compras/edit/{id}(id=${compra.id})}" class="btn btn-primary btn-lg px-4">Editar</a>
+            </div>
+        </div>
+    </div>
+    <div th:insert="partials/footer :: footer"></div>
+</body>
+</html>
