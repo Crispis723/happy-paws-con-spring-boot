@@ -18,7 +18,7 @@
                 <p class="mb-0 opacity-75" th:text="${isClientUser ? 'Consulta tus compras, comprobantes y movimientos del carrito.' : 'Consulta, imprime y administra ventas con una presentación más moderna.'}">Consulta, imprime y administra ventas con una presentación más moderna.</p>
             </div>
             <div class="d-flex flex-column flex-sm-row gap-2">
-                <a href="javascript:history.back()" class="btn btn-outline-light btn-lg rounded-pill fw-semibold px-4"><i class="bi bi-arrow-left me-1"></i> Regresar</a>
+                <a href="@{/dashboard}" class="btn btn-outline-light btn-lg rounded-pill fw-semibold px-4"><i class="bi bi-arrow-left me-1"></i> Regresar</a>
                 <a th:href="@{/ventas/create}" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4"><i class="bi bi-plus-circle me-1"></i> <span th:text="${isClientUser ? 'Nuevo pedido' : 'Nueva venta'}">Nueva venta</span></a>
             </div>
         </div>

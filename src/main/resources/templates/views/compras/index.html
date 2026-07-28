@@ -27,7 +27,14 @@
                 <h1 class="display-6 fw-bold mb-2">Registro de compras</h1>
                 <p class="mb-0 opacity-75">Un listado más limpio para revisar proveedor, fecha, total y estado.</p>
             </div>
-            <a th:href="@{/compras/create}" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4"><i class="bi bi-plus-circle me-1"></i> Nueva compra</a>
+           <div class="d-flex flex-column flex-sm-row gap-2">
+                <a href="javascript:history.back()" class="btn btn-outline-light btn-lg rounded-pill fw-semibold px-4">
+                    <i class="bi bi-arrow-left me-1"></i> Regresar
+                </a>
+                <a th:href="@{/compras/create}"  class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4">
+                    <i class="bi bi-plus-circle me-1"></i> Nueva compra
+                </a>
+            </div>
         </div>
         <div class="surface-card">
             <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">

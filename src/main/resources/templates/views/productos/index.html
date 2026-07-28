@@ -17,7 +17,14 @@
                 <h1 class="display-6 fw-bold mb-2">Productos</h1>
                 <p class="mb-0 opacity-75">Catálogo e inventario con la misma línea visual del resto del sistema.</p>
             </div>
-            <a th:href="@{/productos/create}" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4"><i class="bi bi-plus-circle me-1"></i> Nuevo producto</a>
+            <div class="d-flex flex-column flex-sm-row gap-2">
+                <a href="javascript:history.back()" class="btn btn-outline-light btn-lg rounded-pill fw-semibold px-4">
+                    <i class="bi bi-arrow-left me-1"></i> Regresar
+                </a>
+                <a th:href="@{/productos/create}" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4">
+                    <i class="bi bi-plus-circle me-1"></i> Nuevo producto
+                </a>
+            </div>
         </div>
 
         <div class="surface-card p-4">
