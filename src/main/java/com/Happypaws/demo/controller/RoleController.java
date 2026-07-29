@@ -2,6 +2,7 @@ package com.Happypaws.demo.controller;
 
 import com.Happypaws.demo.model.Role;
 import com.Happypaws.demo.service.RoleService;
+import com.Happypaws.demo.service.UserService;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -21,9 +23,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class RoleController {
 
     private final RoleService roleService;
+    private final UserService userService;
 
-    public RoleController(RoleService roleService) {
+    public RoleController(RoleService roleService, UserService userService) {
         this.roleService = roleService;
+        this.userService = userService;
     }
 
     @GetMapping
@@ -75,6 +79,15 @@ public class RoleController {
     public String eliminar(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         roleService.eliminar(id);
         redirectAttributes.addFlashAttribute("success", "Rol eliminado correctamente");
+        return "redirect:/roles";
+    }
+
+    @PostMapping("/asignar")
+    public String asignarRol(@RequestParam String email,
+                             @RequestParam Long roleId,
+                             RedirectAttributes redirectAttributes) {
+        userService.asignarRolAEmail(email, roleId);
+        redirectAttributes.addFlashAttribute("success", "Rol asignado correctamente al usuario");
         return "redirect:/roles";
     }
 
