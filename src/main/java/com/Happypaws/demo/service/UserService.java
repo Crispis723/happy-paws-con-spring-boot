@@ -69,6 +69,22 @@ public class UserService {
     public void eliminar(Long id) {
         repository.deleteById(id);
     }
+     public void asignarRolAEmail(String email, Long roleId) {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado"));
+
+        if (user.getRoles() == null) {
+            user.setRoles(new LinkedHashSet<>());
+        }
+
+        if (user.getRoles().stream().noneMatch(existingRole -> existingRole.getId().equals(role.getId()))) {
+            user.getRoles().add(role);
+            repository.save(user);
+        }
+    }
 
     private Set<Role> resolveRoles(List<Long> roleIds) {
         if (roleIds == null || roleIds.isEmpty()) {
