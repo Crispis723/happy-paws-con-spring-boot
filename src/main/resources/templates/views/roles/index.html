@@ -127,22 +127,11 @@
 
                                         <option value="">Seleccione un rol</option>
 
-                                        <option value="1">
+                                        <option th:each="rolItem : ${roles}"
+                                            th:value="${rolItem.id}"
+                                            th:text="${rolItem.name}">
                                             ADMIN
                                         </option>
-
-                                        <option value="2">
-                                            CLIENTE
-                                        </option>
-
-                                        <option value="3">
-                                            RECEPCIONISTA
-                                        </option>
-
-                                        <option value="4">
-                                            VETERINARIO
-                                        </option>
-
                                     </select>
 
                                 </div>
