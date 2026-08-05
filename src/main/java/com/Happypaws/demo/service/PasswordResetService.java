@@ -26,38 +26,38 @@ public class PasswordResetService {
     private String baseUrl;
 
     public PasswordResetService(UserRepository userRepository,
-                                 PasswordResetTokenRepository tokenRepository,
-                                 PasswordEncoder passwordEncoder,
-                                 JavaMailSender mailSender) {
+            PasswordResetTokenRepository tokenRepository,
+            PasswordEncoder passwordEncoder,
+            JavaMailSender mailSender) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.mailSender = mailSender;
     }
 
-   @Transactional
-public void solicitarRecuperacion(String email) {
+    @Transactional
+    public void solicitarRecuperacion(String email) {
 
-    userRepository.findByEmail(email).ifPresent(user -> {
+        userRepository.findByEmail(email).ifPresent(user -> {
 
-        // Invalidar tokens anteriores
-        tokenRepository.invalidarTokensAnteriores(user.getId());
+            // Invalidar tokens anteriores
+            tokenRepository.invalidarTokensAnteriores(user.getId());
 
-        // Crear nuevo token
-        PasswordResetToken token = new PasswordResetToken();
-        token.setToken(UUID.randomUUID().toString());
-        token.setUser(user);
+            // Crear nuevo token
+            PasswordResetToken token = new PasswordResetToken();
+            token.setToken(UUID.randomUUID().toString());
+            token.setUser(user);
 
-        // El enlace será válido durante 30 minutos
-        token.setExpiryDate(LocalDateTime.now().plusMinutes(30));
+            // El enlace será válido durante 30 minutos
+            token.setExpiryDate(LocalDateTime.now().plusMinutes(30));
 
-        token.setUsed(false);
+            token.setUsed(false);
 
-        tokenRepository.save(token);
+            tokenRepository.save(token);
 
-        enviarCorreo(user, token.getToken());
-    });
-}
+            enviarCorreo(user, token.getToken());
+        });
+    }
 
     private void enviarCorreo(User user, String token) {
         String link = baseUrl + "/reset-password?token=" + token;
@@ -83,17 +83,30 @@ public void solicitarRecuperacion(String email) {
 
     @Transactional
     public void restablecerPassword(String token, String nuevaPassword) {
+
+        if (nuevaPassword == null || nuevaPassword.length() < 8) {
+            throw new IllegalArgumentException(
+                    "La contraseña debe tener mínimo 8 caracteres"
+            );
+        }
+
         PasswordResetToken resetToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Token inválido"));
 
-        if (resetToken.getUsed() || resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("El enlace expiró o ya fue usado");
+        if (resetToken.getUsed()
+                || !resetToken.getExpiryDate().isAfter(LocalDateTime.now())) {
+
+            throw new IllegalArgumentException(
+                    "El enlace expiró o ya fue usado"
+            );
         }
 
         User user = resetToken.getUser();
+
         user.setPassword(passwordEncoder.encode(nuevaPassword));
         userRepository.save(user);
 
+        // El token solamente puede utilizarse una vez
         resetToken.setUsed(true);
         tokenRepository.save(resetToken);
     }
