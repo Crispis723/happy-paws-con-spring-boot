@@ -35,21 +35,29 @@ public class PasswordResetService {
         this.mailSender = mailSender;
     }
 
-    @Transactional
-    public void solicitarRecuperacion(String email) {
-        userRepository.findByEmail(email).ifPresent(user -> {
-            PasswordResetToken token = new PasswordResetToken();
-            token.setToken(UUID.randomUUID().toString());
-            token.setUser(user);
-            token.setExpiryDate(LocalDateTime.now().plusMinutes(30));
-            token.setUsed(false);
-            tokenRepository.save(token);
+   @Transactional
+public void solicitarRecuperacion(String email) {
 
-            enviarCorreo(user, token.getToken());
-        });
-        // Nota: si el email no existe, no lanzamos error.
-        // Así no revelamos qué correos están registrados (evita enumeración de usuarios).
-    }
+    userRepository.findByEmail(email).ifPresent(user -> {
+
+        // Invalidar tokens anteriores
+        tokenRepository.invalidarTokensAnteriores(user.getId());
+
+        // Crear nuevo token
+        PasswordResetToken token = new PasswordResetToken();
+        token.setToken(UUID.randomUUID().toString());
+        token.setUser(user);
+
+        // El enlace será válido durante 30 minutos
+        token.setExpiryDate(LocalDateTime.now().plusMinutes(30));
+
+        token.setUsed(false);
+
+        tokenRepository.save(token);
+
+        enviarCorreo(user, token.getToken());
+    });
+}
 
     private void enviarCorreo(User user, String token) {
         String link = baseUrl + "/reset-password?token=" + token;
