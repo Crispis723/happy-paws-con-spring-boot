@@ -1,19 +1,21 @@
 package com.Happypaws.demo.model;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,15 +40,19 @@ public class User {
     @Column(name = "direccion")
     private String direccion;
 
-    @Column(name = "es_activo")
-    private Boolean esActivo = true;
+    @Column(name = "enabled")
+    private boolean enabled = true;  // ahora coincide con getEnabled()
 
     @Column(name = "fecha_registro")
     private LocalDateTime fechaRegistro;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "user_roles",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles;  // ahora coincide con getRoles() y setRoles()
 
     @PrePersist
     protected void onCreate() {
@@ -55,9 +61,5 @@ public class User {
 
     public String getNombreCompleto() {
         return this.name;
-    }
-
-    public boolean isActivo() {
-        return this.esActivo != null ? this.esActivo : true;
     }
 }
