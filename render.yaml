@@ -41,11 +41,15 @@ services:
       - key: SUPABASE_STORAGE_BUCKET
         value: historial-clinico
 
-      # --- Correo SMTP ---
-      - key: MAIL_USERNAME
+      # --- Twilio Communications Email API ---
+      - key: TWILIO_ACCOUNT_SID
         sync: false
-      - key: MAIL_PASSWORD
+      - key: TWILIO_AUTH_TOKEN
         sync: false
+      - key: TWILIO_FROM_ADDRESS
+        sync: false
+      - key: TWILIO_FROM_NAME
+        value: Happy Paws
 
       # --- Usuario administrador inicial ---
       # Si la tabla de usuarios esta vacia, se crea este admin una sola vez.

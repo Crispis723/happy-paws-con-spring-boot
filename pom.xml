@@ -76,12 +76,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Mail -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
-        </dependency>
-
         <!-- Lombok para anotaciones @Slf4j y @Getter/@Setter -->
         <dependency>
             <groupId>org.projectlombok</groupId>

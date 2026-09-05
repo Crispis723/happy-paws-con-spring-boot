@@ -1,27 +1,44 @@
 package com.Happypaws.demo.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    private final HttpClient httpClient;
+    private final ObjectMapper objectMapper;
 
-    @Value("${spring.mail.username:}")
-    private String fromEmail;
+    @Value("${twilio.account-sid:}")
+    private String accountSid;
+
+    @Value("${twilio.auth-token:}")
+    private String authToken;
+
+    @Value("${twilio.from-address:}")
+    private String fromAddress;
+
+    @Value("${twilio.from-name:Happy Paws}")
+    private String fromName;
 
     @Value("${app.name:Happy Paws}")
     private String appName;
 
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
+    public EmailService(ObjectMapper objectMapper) {
+        this.httpClient = HttpClient.newHttpClient();
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -29,18 +46,7 @@ public class EmailService {
      */
     public void enviarCorreoSimple(String para, String asunto, String cuerpo) {
         try {
-            if (fromEmail == null || fromEmail.isEmpty()) {
-                log.warn("Email no configurado. Omitiendo envío a: {}", para);
-                return;
-            }
-
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(para);
-            message.setSubject(asunto);
-            message.setText(cuerpo);
-
-            mailSender.send(message);
+            enviarPorTwilio(para, asunto, cuerpo, false);
             log.info("Correo enviado exitosamente a: {}", para);
 
         } catch (Exception e) {
@@ -54,20 +60,7 @@ public class EmailService {
      */
     public void enviarCorreoHTML(String para, String asunto, String cuerpoHTML) {
         try {
-            if (fromEmail == null || fromEmail.isEmpty()) {
-                log.warn("Email no configurado. Omitiendo envío HTML a: {}", para);
-                return;
-            }
-
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setFrom(fromEmail);
-            helper.setTo(para);
-            helper.setSubject(asunto);
-            helper.setText(cuerpoHTML, true); // true = es HTML
-
-            mailSender.send(message);
+            enviarPorTwilio(para, asunto, cuerpoHTML, true);
             log.info("Correo HTML enviado exitosamente a: {}", para);
 
         } catch (Exception e) {
@@ -81,18 +74,9 @@ public class EmailService {
      */
     public void enviarCorreoMultiple(String[] paraBcc, String asunto, String cuerpo) {
         try {
-            if (fromEmail == null || fromEmail.isEmpty()) {
-                log.warn("Email no configurado. Omitiendo envío múltiple");
-                return;
+            for (String destinatario : paraBcc) {
+                enviarPorTwilio(destinatario, asunto, cuerpo, false);
             }
-
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setBcc(paraBcc);
-            message.setSubject(asunto);
-            message.setText(cuerpo);
-
-            mailSender.send(message);
             log.info("Correo múltiple enviado a {} destinatarios", paraBcc.length);
 
         } catch (Exception e) {
@@ -100,6 +84,37 @@ public class EmailService {
             throw new RuntimeException("Error al enviar correo múltiple: " + e.getMessage());
         }
     }
+
+        private void enviarPorTwilio(String para, String asunto, String contenido, boolean esHtml)
+            throws Exception {
+        if (accountSid.isBlank() || authToken.isBlank() || fromAddress.isBlank()) {
+            throw new IllegalStateException(
+                "Twilio no está configurado: define TWILIO_ACCOUNT_SID, "
+                    + "TWILIO_AUTH_TOKEN y TWILIO_FROM_ADDRESS");
+        }
+
+        Map<String, Object> payload = Map.of(
+            "from", Map.of("address", fromAddress, "name", fromName),
+            "to", List.of(Map.of("address", para)),
+            "content", Map.of(
+                "subject", asunto,
+                esHtml ? "html" : "text", contenido));
+
+        String credentials = Base64.getEncoder().encodeToString(
+            (accountSid + ":" + authToken).getBytes(StandardCharsets.UTF_8));
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://comms.twilio.com/v1/Emails"))
+            .header("Authorization", "Basic " + credentials)
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new IllegalStateException(
+                "Twilio rechazó el correo (HTTP " + response.statusCode() + "): " + response.body());
+        }
+        }
 
     /**
      * Plantilla de correo para recordatorio de cita

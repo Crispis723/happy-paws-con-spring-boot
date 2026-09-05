@@ -12,8 +12,10 @@
 | `SUPABASE_URL` | URL de tu proyecto Supabase | `https://tu_project_ref.supabase.co` | Si |
 | `SUPABASE_SERVICE_KEY` | `service_role key` de Supabase. Nunca uses la anon key | `eyJ...` | Si |
 | `SUPABASE_STORAGE_BUCKET` | Nombre del bucket privado para adjuntos | `historial-clinico` | Opcional |
-| `MAIL_USERNAME` | Usuario SMTP para correos de recuperacion/notificaciones | `notificacioneshappypaws@gmail.com` | Si usas correo |
-| `MAIL_PASSWORD` | App password SMTP. Configuralo como secreto en Render | `********` | Si usas correo |
+| `TWILIO_ACCOUNT_SID` | Account SID de Twilio Communications | `AC...` | Si usas correo |
+| `TWILIO_AUTH_TOKEN` | Auth Token de Twilio. Configuralo como secreto en Render | `********` | Si usas correo |
+| `TWILIO_FROM_ADDRESS` | Dirección remitente verificada en Twilio | `tu-sender@twilio.email` | Si usas correo |
+| `TWILIO_FROM_NAME` | Nombre visible del remitente | `Happy Paws` | Opcional |
 | `ADMIN_INITIAL_EMAIL` | Email del primer administrador si la tabla de usuarios esta vacia | `admin@happypaws.com` | Opcional |
 | `ADMIN_INITIAL_PASSWORD` | Password del primer administrador. Configuralo como secreto en Render | `********` | Si para primer despliegue |
 | `SEED_DEMO_USERS` | Crea usuarios demo con passwords conocidos. Mantener `false` en produccion | `false` | Opcional |
@@ -51,5 +53,5 @@ Despues de entrar, puedes cambiar el password desde la app o rotarlo manualmente
 1. Sube el proyecto a GitHub.
 2. En Render, crea un Blueprint apuntando al repositorio.
 3. Render detecta `render.yaml`.
-4. Completa las variables secretas: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `MAIL_USERNAME`, `MAIL_PASSWORD` y `ADMIN_INITIAL_PASSWORD`.
+4. Completa las variables secretas: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_ADDRESS` y `ADMIN_INITIAL_PASSWORD`.
 5. Aplica el Blueprint y espera el build.
