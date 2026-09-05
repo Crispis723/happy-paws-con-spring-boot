@@ -30,11 +30,10 @@ Habilitar validación de campos y envío de recordatorios por correo en Happy Pa
 ### En Desarrollo Local (application-dev.properties)
 
 ```properties
-# Email Configuration
-spring.mail.host=smtp.gmail.com
-spring.mail.port=587
-spring.mail.username=tu-email@gmail.com
-spring.mail.password=tu-password-app-gmail
+# Sendlib Email API
+sendlib.api-key=${SENDLIB_API_KEY}
+sendlib.from=${SENDLIB_FROM}
+sendlib.endpoint=https://sendlib.samueltuoyo.com/api/send
 ```
 
 ### En Render (Variables de Entorno)
@@ -46,8 +45,8 @@ Ve a [Render Dashboard](https://dashboard.render.com/):
 3. Agrega estas variables:
 
 ```
-MAIL_USERNAME = tu-email@gmail.com
-MAIL_PASSWORD = tu-password-app-gmail
+SENDLIB_API_KEY = tu-api-key-de-sendlib
+SENDLIB_FROM = Happy Paws <tu-email@gmail.com>
 APP_BASE_URL = https://happy-paws.onrender.com
 ```
 
@@ -65,7 +64,7 @@ APP_BASE_URL = https://happy-paws.onrender.com
    - App: `Mail`
    - Device: `Windows/Linux`
 6. Google te generará una contraseña de 16 caracteres
-7. Copia esa contraseña en `MAIL_PASSWORD`
+7. Copia la API key en `SENDLIB_API_KEY` y configura la cuenta conectada en `SENDLIB_FROM`
 
 **Ejemplo:**
 ```

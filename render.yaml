@@ -41,13 +41,13 @@ services:
       - key: SUPABASE_STORAGE_BUCKET
         value: historial-clinico
 
-      # --- SendGrid Email API ---
-      - key: SENDGRID_API_KEY
+      # --- Sendlib Email API ---
+      - key: SENDLIB_API_KEY
         sync: false
-      - key: SENDGRID_FROM_ADDRESS
+      - key: SENDLIB_FROM
         sync: false
-      - key: SENDGRID_FROM_NAME
-        value: Happy Paws
+      - key: SENDLIB_ENDPOINT
+        value: https://sendlib.samueltuoyo.com/api/send
 
       # --- Usuario administrador inicial ---
       # Si la tabla de usuarios esta vacia, se crea este admin una sola vez.

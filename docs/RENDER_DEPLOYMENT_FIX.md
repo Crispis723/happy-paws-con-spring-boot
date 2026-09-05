@@ -39,8 +39,8 @@ Para crear el primer administrador:
 
 Para recuperación de contraseña por correo:
 
-- MAIL_USERNAME
-- MAIL_PASSWORD
+- SENDLIB_API_KEY
+- SENDLIB_FROM
 
 ## Base de datos: modelo normalizado
 

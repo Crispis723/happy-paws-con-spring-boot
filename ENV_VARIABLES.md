@@ -12,9 +12,9 @@
 | `SUPABASE_URL` | URL de tu proyecto Supabase | `https://tu_project_ref.supabase.co` | Si |
 | `SUPABASE_SERVICE_KEY` | `service_role key` de Supabase. Nunca uses la anon key | `eyJ...` | Si |
 | `SUPABASE_STORAGE_BUCKET` | Nombre del bucket privado para adjuntos | `historial-clinico` | Opcional |
-| `SENDGRID_API_KEY` | API Key de SendGrid con permiso de envío de correo | `SG...` | Si usas correo |
-| `SENDGRID_FROM_ADDRESS` | Dirección remitente verificada en SendGrid | `tu-sender@dominio.com` | Si usas correo |
-| `SENDGRID_FROM_NAME` | Nombre visible del remitente | `Happy Paws` | Opcional |
+| `SENDLIB_API_KEY` | API Key de Sendlib | `sl_...` | Si usas correo |
+| `SENDLIB_FROM` | Cuenta Gmail conectada a Sendlib, opcionalmente con nombre visible | `Happy Paws <tu-cuenta@gmail.com>` | Si usas correo |
+| `SENDLIB_ENDPOINT` | Endpoint REST de Sendlib | `https://sendlib.samueltuoyo.com/api/send` | Opcional |
 | `ADMIN_INITIAL_EMAIL` | Email del primer administrador si la tabla de usuarios esta vacia | `admin@happypaws.com` | Opcional |
 | `ADMIN_INITIAL_PASSWORD` | Password del primer administrador. Configuralo como secreto en Render | `********` | Si para primer despliegue |
 | `SEED_DEMO_USERS` | Crea usuarios demo con passwords conocidos. Mantener `false` en produccion | `false` | Opcional |
@@ -52,5 +52,5 @@ Despues de entrar, puedes cambiar el password desde la app o rotarlo manualmente
 1. Sube el proyecto a GitHub.
 2. En Render, crea un Blueprint apuntando al repositorio.
 3. Render detecta `render.yaml`.
-4. Completa las variables secretas: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SENDGRID_API_KEY`, `SENDGRID_FROM_ADDRESS` y `ADMIN_INITIAL_PASSWORD`.
+4. Completa las variables secretas: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SENDLIB_API_KEY`, `SENDLIB_FROM` y `ADMIN_INITIAL_PASSWORD`.
 5. Aplica el Blueprint y espera el build.

@@ -13,40 +13,30 @@ Este documento explica cómo usar los nuevos servicios de **validación de campo
 Agrega estas variables a tu archivo `.env` o en Render:
 
 ```bash
-# Configuración de Email SMTP (Gmail)
-MAIL_USERNAME=tu-email@gmail.com
-MAIL_PASSWORD=tu-contraseña-app-gmail
+# Configuración de Sendlib
+SENDLIB_API_KEY=tu-api-key-de-sendlib
+SENDLIB_FROM=Happy Paws <tu-email@gmail.com>
+SENDLIB_ENDPOINT=https://sendlib.samueltuoyo.com/api/send
 
 # URL base de la aplicación
 APP_BASE_URL=https://happy-paws.onrender.com
 ```
 
-### 2. Generar Contraseña de Aplicación en Gmail
+### 2. Obtener la API key de Sendlib
 
-Si usas Gmail, sigue estos pasos:
-
-1. Ve a [Google Account Security](https://myaccount.google.com/security)
-2. Activa la **autenticación de dos factores**
-3. Ve a **Contraseñas de aplicación**
-4. Selecciona "Mail" y "Windows/Linux"
-5. Copia la contraseña de 16 caracteres generada
-6. Usa esa contraseña en `MAIL_PASSWORD`
+Conecta la cuenta Gmail desde Sendlib, crea una API key y configúrala como
+`SENDLIB_API_KEY` en Render. El remitente de `SENDLIB_FROM` debe ser la cuenta
+Gmail conectada a Sendlib.
 
 ### 3. Configuración en application.properties
 
 Ya está configurado automáticamente, pero puedes verificar:
 
 ```properties
-# Servidor SMTP de Gmail
-spring.mail.host=smtp.gmail.com
-spring.mail.port=587
-spring.mail.username=${MAIL_USERNAME:}
-spring.mail.password=${MAIL_PASSWORD:}
-
-# Configuración SMTP
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true
-spring.mail.properties.mail.smtp.starttls.required=true
+# API REST de Sendlib
+sendlib.api-key=${SENDLIB_API_KEY:}
+sendlib.from=${SENDLIB_FROM:}
+sendlib.endpoint=${SENDLIB_ENDPOINT:https://sendlib.samueltuoyo.com/api/send}
 ```
 
 ---
@@ -238,16 +228,16 @@ GET http://localhost:8080/api/test/validate/percentage/50
 **Posibles causas:**
 
 1. **Variables de entorno no configuradas**
-   - Verifica que `MAIL_USERNAME` y `MAIL_PASSWORD` estén definidas
+   - Verifica que `SENDLIB_API_KEY` y `SENDLIB_FROM` estén definidas
    - Reinicia la aplicación después de cambiar variables
 
-2. **Contraseña de aplicación incorrecta** (Gmail)
-   - Genera una nueva contraseña de aplicación
-   - No uses la contraseña de la cuenta de Google
+2. **API key o remitente de Sendlib incorrectos**
+   - Genera una API key nueva desde Sendlib
+   - Comprueba que `SENDLIB_FROM` sea una cuenta Gmail conectada a Sendlib
 
-3. **Firewall bloqueando puerto SMTP**
-   - Puerto 587 debe estar abierto
-   - Algunos ISPs bloquean este puerto
+3. **Endpoint de Sendlib inaccesible**
+   - Comprueba `SENDLIB_ENDPOINT=https://sendlib.samueltuoyo.com/api/send`
+   - Revisa la respuesta HTTP registrada por la aplicación
 
 4. **Email no configurado en el cliente**
    - Verifica que el cliente tenga un email válido en la BD

@@ -72,12 +72,11 @@ private BigDecimal precio;
 - ✅ Manejo robusto de errores
 - ✅ Logging completo
 
-**Configuración SMTP:**
+**Configuración Sendlib:**
 ```properties
-spring.mail.host=smtp.gmail.com
-spring.mail.port=587
-spring.mail.username=${MAIL_USERNAME}
-spring.mail.password=${MAIL_PASSWORD}
+sendlib.api-key=${SENDLIB_API_KEY}
+sendlib.from=${SENDLIB_FROM}
+sendlib.endpoint=https://sendlib.samueltuoyo.com/api/send
 ```
 
 ---
@@ -190,18 +189,16 @@ Archivos creados:
 
 En Render:
 ```
-MAIL_USERNAME = tu-email@gmail.com
-MAIL_PASSWORD = tu-password-app-gmail
+SENDLIB_API_KEY = tu-api-key-de-sendlib
+SENDLIB_FROM = Happy Paws <tu-email@gmail.com>
 APP_BASE_URL = https://happy-paws.onrender.com
 ```
 
-### 2. Generar Contraseña de Aplicación Gmail
+### 2. Crear la API key de Sendlib
 
-1. Ve a [Google Account Security](https://myaccount.google.com/security)
-2. Activa autenticación de dos factores
-3. Ve a "Contraseñas de aplicación"
-4. Genera una contraseña para Mail/Linux
-5. Usa esa contraseña en `MAIL_PASSWORD`
+1. Conecta la cuenta Gmail desde Sendlib.
+2. Genera una API key.
+3. Configúrala en `SENDLIB_API_KEY` y usa la cuenta conectada en `SENDLIB_FROM`.
 
 ### 3. Probar Configuración
 

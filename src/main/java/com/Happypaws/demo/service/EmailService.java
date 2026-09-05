@@ -9,7 +9,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -19,14 +19,14 @@ public class EmailService {
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
 
-    @Value("${sendgrid.api-key:}")
+    @Value("${sendlib.api-key:}")
     private String apiKey;
 
-    @Value("${sendgrid.from-address:}")
-    private String fromAddress;
+    @Value("${sendlib.from:}")
+    private String from;
 
-    @Value("${sendgrid.from-name:Happy Paws}")
-    private String fromName;
+    @Value("${sendlib.endpoint:https://sendlib.samueltuoyo.com/api/send}")
+    private String endpoint;
 
     @Value("${app.name:Happy Paws}")
     private String appName;
@@ -41,7 +41,7 @@ public class EmailService {
      */
     public void enviarCorreoSimple(String para, String asunto, String cuerpo) {
         try {
-            enviarPorSendGrid(para, asunto, cuerpo, false);
+            enviarPorSendlib(para, asunto, cuerpo, false);
             log.info("Correo enviado exitosamente a: {}", para);
 
         } catch (Exception e) {
@@ -55,7 +55,7 @@ public class EmailService {
      */
     public void enviarCorreoHTML(String para, String asunto, String cuerpoHTML) {
         try {
-            enviarPorSendGrid(para, asunto, cuerpoHTML, true);
+            enviarPorSendlib(para, asunto, cuerpoHTML, true);
             log.info("Correo HTML enviado exitosamente a: {}", para);
 
         } catch (Exception e) {
@@ -70,7 +70,7 @@ public class EmailService {
     public void enviarCorreoMultiple(String[] paraBcc, String asunto, String cuerpo) {
         try {
             for (String destinatario : paraBcc) {
-                enviarPorSendGrid(destinatario, asunto, cuerpo, false);
+                enviarPorSendlib(destinatario, asunto, cuerpo, false);
             }
             log.info("Correo múltiple enviado a {} destinatarios", paraBcc.length);
 
@@ -80,24 +80,23 @@ public class EmailService {
         }
     }
 
-    private void enviarPorSendGrid(String para, String asunto, String contenido, boolean esHtml)
+    private void enviarPorSendlib(String para, String asunto, String contenido, boolean esHtml)
             throws Exception {
-        if (apiKey.isBlank() || fromAddress.isBlank()) {
+        if (apiKey.isBlank() || from.isBlank()) {
             throw new IllegalStateException(
-                "SendGrid no está configurado: define SENDGRID_API_KEY "
-                    + "y SENDGRID_FROM_ADDRESS");
+                "Sendlib no está configurado: define SENDLIB_API_KEY y SENDLIB_FROM");
         }
 
-        Map<String, Object> payload = Map.of(
-            "personalizations", List.of(Map.of(
-                "to", List.of(Map.of("email", para)),
-                "subject", asunto)),
-            "from", Map.of("email", fromAddress, "name", fromName),
-            "content", List.of(Map.of(
-                "type", esHtml ? "text/html" : "text/plain",
-                "value", contenido)));
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("from", from);
+        payload.put("to", para);
+        payload.put("subject", asunto);
+        payload.put("html", esHtml ? contenido : "<p>" + contenido + "</p>");
+        if (!esHtml) {
+            payload.put("text", contenido);
+        }
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://api.sendgrid.com/v3/mail/send"))
+            .uri(URI.create(endpoint))
             .header("Authorization", "Bearer " + apiKey)
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
@@ -106,7 +105,7 @@ public class EmailService {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
             throw new IllegalStateException(
-                "SendGrid rechazó el correo (HTTP " + response.statusCode() + "): " + response.body());
+                "Sendlib rechazó el correo (HTTP " + response.statusCode() + "): " + response.body());
         }
             }
 

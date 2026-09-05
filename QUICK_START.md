@@ -26,8 +26,8 @@
 3. Ve a **Environment**
 4. Agrega:
 ```
-MAIL_USERNAME = tu-email@gmail.com
-MAIL_PASSWORD = (la contraseña de 16 caracteres que copiaste)
+SENDLIB_API_KEY = tu-api-key-de-sendlib
+SENDLIB_FROM = Happy Paws <tu-email@gmail.com>
 APP_BASE_URL = https://happy-paws.onrender.com
 ```
 5. **Click en Save**
@@ -123,7 +123,7 @@ Cliente crea cita → Sistema envía correo de CONFIRMACIÓN
 
 ```bash
 # 1. Verifica las variables en Render
-# Ve a Render → Environment → ¿Están MAIL_USERNAME y MAIL_PASSWORD?
+# Ve a Render → Environment → ¿Están SENDLIB_API_KEY y SENDLIB_FROM?
 
 # 2. Reinicia la aplicación
 # En Render: Settings → Manual Restart
