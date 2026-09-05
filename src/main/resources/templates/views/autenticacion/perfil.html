@@ -19,9 +19,14 @@
 <body>
 <div th:insert="~{partials/header :: header}"></div>
 <main class="shell">
-    <section class="hero">
-        <h1 class="mb-2">Perfil de usuario</h1>
-        <p class="mb-0">Actualiza tus datos personales y contraseña.</p>
+    <section class="hero d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+        <div>
+            <h1 class="mb-2">Perfil de usuario</h1>
+            <p class="mb-0">Actualiza tus datos personales y contraseña.</p>
+        </div>
+        <a th:href="${isClientUser} ? @{/dashboard/cliente} : @{/dashboard/colaboradores}" class="btn btn-light text-info">
+            <i class="bi bi-arrow-left"></i> Regresar
+        </a>
     </section>
 
     <section class="card-panel p-4 p-md-5">

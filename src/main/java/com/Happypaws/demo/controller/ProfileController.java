@@ -2,6 +2,7 @@ package com.Happypaws.demo.controller;
 
 import com.Happypaws.demo.service.ProfileService;
 import java.security.Principal;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +20,14 @@ public class ProfileController {
     }
 
     @GetMapping("/perfil")
-    public String perfil(Principal principal, Model model) {
+    public String perfil(Principal principal, Authentication authentication, Model model) {
         model.addAttribute("registro", profileService.buscarActual(principal));
+        model.addAttribute("isClientUser", authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_CLIENTE".equals(authority.getAuthority()))
+                && authentication.getAuthorities().stream()
+                .noneMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority())
+                        || "ROLE_VETERINARIO".equals(authority.getAuthority())
+                        || "ROLE_RECEPCIONISTA".equals(authority.getAuthority())));
         return "views/autenticacion/perfil";
     }
 

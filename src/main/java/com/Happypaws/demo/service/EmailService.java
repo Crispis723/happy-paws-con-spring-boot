@@ -9,8 +9,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -21,16 +19,13 @@ public class EmailService {
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
 
-    @Value("${twilio.account-sid:}")
-    private String accountSid;
+    @Value("${sendgrid.api-key:}")
+    private String apiKey;
 
-    @Value("${twilio.auth-token:}")
-    private String authToken;
-
-    @Value("${twilio.from-address:}")
+    @Value("${sendgrid.from-address:}")
     private String fromAddress;
 
-    @Value("${twilio.from-name:Happy Paws}")
+    @Value("${sendgrid.from-name:Happy Paws}")
     private String fromName;
 
     @Value("${app.name:Happy Paws}")
@@ -46,7 +41,7 @@ public class EmailService {
      */
     public void enviarCorreoSimple(String para, String asunto, String cuerpo) {
         try {
-            enviarPorTwilio(para, asunto, cuerpo, false);
+            enviarPorSendGrid(para, asunto, cuerpo, false);
             log.info("Correo enviado exitosamente a: {}", para);
 
         } catch (Exception e) {
@@ -60,7 +55,7 @@ public class EmailService {
      */
     public void enviarCorreoHTML(String para, String asunto, String cuerpoHTML) {
         try {
-            enviarPorTwilio(para, asunto, cuerpoHTML, true);
+            enviarPorSendGrid(para, asunto, cuerpoHTML, true);
             log.info("Correo HTML enviado exitosamente a: {}", para);
 
         } catch (Exception e) {
@@ -75,7 +70,7 @@ public class EmailService {
     public void enviarCorreoMultiple(String[] paraBcc, String asunto, String cuerpo) {
         try {
             for (String destinatario : paraBcc) {
-                enviarPorTwilio(destinatario, asunto, cuerpo, false);
+                enviarPorSendGrid(destinatario, asunto, cuerpo, false);
             }
             log.info("Correo múltiple enviado a {} destinatarios", paraBcc.length);
 
@@ -85,26 +80,25 @@ public class EmailService {
         }
     }
 
-        private void enviarPorTwilio(String para, String asunto, String contenido, boolean esHtml)
+    private void enviarPorSendGrid(String para, String asunto, String contenido, boolean esHtml)
             throws Exception {
-        if (accountSid.isBlank() || authToken.isBlank() || fromAddress.isBlank()) {
+        if (apiKey.isBlank() || fromAddress.isBlank()) {
             throw new IllegalStateException(
-                "Twilio no está configurado: define TWILIO_ACCOUNT_SID, "
-                    + "TWILIO_AUTH_TOKEN y TWILIO_FROM_ADDRESS");
+                "SendGrid no está configurado: define SENDGRID_API_KEY "
+                    + "y SENDGRID_FROM_ADDRESS");
         }
 
         Map<String, Object> payload = Map.of(
-            "from", Map.of("address", fromAddress, "name", fromName),
-            "to", List.of(Map.of("address", para)),
-            "content", Map.of(
-                "subject", asunto,
-                esHtml ? "html" : "text", contenido));
-
-        String credentials = Base64.getEncoder().encodeToString(
-            (accountSid + ":" + authToken).getBytes(StandardCharsets.UTF_8));
+            "personalizations", List.of(Map.of(
+                "to", List.of(Map.of("email", para)),
+                "subject", asunto)),
+            "from", Map.of("email", fromAddress, "name", fromName),
+            "content", List.of(Map.of(
+                "type", esHtml ? "text/html" : "text/plain",
+                "value", contenido)));
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://comms.twilio.com/v1/Emails"))
-            .header("Authorization", "Basic " + credentials)
+            .uri(URI.create("https://api.sendgrid.com/v3/mail/send"))
+            .header("Authorization", "Bearer " + apiKey)
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
             .build();
@@ -112,9 +106,9 @@ public class EmailService {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
             throw new IllegalStateException(
-                "Twilio rechazó el correo (HTTP " + response.statusCode() + "): " + response.body());
+                "SendGrid rechazó el correo (HTTP " + response.statusCode() + "): " + response.body());
         }
-        }
+            }
 
     /**
      * Plantilla de correo para recordatorio de cita

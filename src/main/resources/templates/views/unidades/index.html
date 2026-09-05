@@ -21,8 +21,15 @@
     <div class="page-shell">
         <div class="hero-panel">
             <p class="text-uppercase small fw-semibold mb-1 opacity-75">Catálogo</p>
-            <h1 class="display-6 fw-bold mb-2">Unidades</h1>
-            <p class="mb-0 opacity-75">Gestiona las unidades de medida usadas en productos y movimientos.</p>
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                <div>
+                    <h1 class="display-6 fw-bold mb-2">Unidades</h1>
+                    <p class="mb-0 opacity-75">Gestiona las unidades de medida usadas en productos y movimientos.</p>
+                </div>
+                <a th:href="@{/dashboard/colaboradores}" class="btn btn-light text-info">
+                    <i class="bi bi-arrow-left me-1"></i> Regresar
+                </a>
+            </div>
         </div>
 
         <div class="surface-card">

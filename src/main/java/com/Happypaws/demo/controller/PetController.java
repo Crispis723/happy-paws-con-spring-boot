@@ -14,9 +14,15 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.util.List;
 
 @Controller
 public class PetController {
+
+        private static final List<String> ESPECIES_MASCOTA = List.of(
+                        "Perro", "Gato", "Ave", "Pez", "Conejo", "Hamster",
+                        "Cobayo", "Hurón", "Reptil", "Tortuga"
+        );
 
     private final PetService petService;
     private final ClienteService clienteService;
@@ -293,6 +299,8 @@ public class PetController {
             Model model,
             Pet mascota,
             Authentication auth) {
+
+                model.addAttribute("especiesMascota", ESPECIES_MASCOTA);
 
         boolean isClientUser = esCliente(auth);
         boolean canManageAllPets = puedeGestionarTodasLasMascotas(auth);

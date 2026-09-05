@@ -258,7 +258,12 @@
 
                 <div class="field half">
                     <label>Especie</label>
-                    <input type="text" th:field="*{especie}" placeholder="Ej. Perro">
+                    <select th:field="*{especie}" required>
+                        <option value="">Selecciona una especie</option>
+                        <option th:each="especie : ${especiesMascota}"
+                                th:value="${especie}"
+                                th:text="${especie}"></option>
+                    </select>
                     <div class="invalid" th:if="${#fields.hasErrors('especie')}" th:errors="*{especie}"></div>
                 </div>
 

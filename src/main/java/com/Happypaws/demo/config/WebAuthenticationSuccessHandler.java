@@ -27,24 +27,7 @@ public class WebAuthenticationSuccessHandler
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
 
-        // ==========================================
-        // TIPO DE LOGIN SELECCIONADO
-        // ==========================================
-
-        String loginRole = request.getParameter("loginRole");
-
-        // Si el formulario no envía loginRole, inferimos el tipo de acceso
-        // a partir del rol autenticado. Esto evita perder la sesión por un
-        // parámetro de formulario ausente.
-        if (loginRole == null || loginRole.isBlank()) {
-            if (authorities.contains("ROLE_ADMIN")
-                    || authorities.contains("ROLE_VETERINARIO")
-                    || authorities.contains("ROLE_RECEPCIONISTA")) {
-                loginRole = "colaborador";
-            } else if (authorities.contains("ROLE_CLIENTE")) {
-                loginRole = "cliente";
-            }
-        }
+        String loginRole = esColaborador(authorities) ? "colaborador" : "cliente";
 
         // Guardamos el tipo de acceso en la sesión persistente.
         request.getSession(true).setAttribute("loginRole", loginRole);
@@ -55,47 +38,11 @@ public class WebAuthenticationSuccessHandler
         // ENTRÓ COMO CLIENTE
         // ==========================================
 
-        if ("cliente".equalsIgnoreCase(loginRole)) {
-
-            if (authorities.contains("ROLE_CLIENTE")) {
-
-                targetUrl = "/dashboard/cliente";
-
-            } else {
-
-                targetUrl = "/error/403";
-            }
-
-        }
-
-        // ==========================================
-        // ENTRÓ COMO COLABORADOR
-        // ==========================================
-
-        else if ("colaborador".equalsIgnoreCase(loginRole)) {
-
-            boolean esColaborador =
-                    authorities.contains("ROLE_ADMIN")
-                    || authorities.contains("ROLE_VETERINARIO")
-                    || authorities.contains("ROLE_RECEPCIONISTA");
-
-            if (esColaborador) {
-
-                targetUrl = "/dashboard/colaboradores";
-
-            } else {
-
-                targetUrl = "/error/403";
-            }
-
-        }
-
-        // ==========================================
-        // LOGIN ROLE NO VÁLIDO
-        // ==========================================
-
-        else {
-
+        if ("colaborador".equals(loginRole)) {
+            targetUrl = "/dashboard/colaboradores";
+        } else if (authorities.contains("ROLE_CLIENTE")) {
+            targetUrl = "/dashboard/cliente";
+        } else {
             targetUrl = "/error/403";
         }
 
@@ -104,5 +51,11 @@ public class WebAuthenticationSuccessHandler
                 response,
                 targetUrl
         );
+    }
+
+    private boolean esColaborador(Set<String> authorities) {
+        return authorities.contains("ROLE_ADMIN")
+                || authorities.contains("ROLE_VETERINARIO")
+                || authorities.contains("ROLE_RECEPCIONISTA");
     }
 }

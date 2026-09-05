@@ -41,14 +41,12 @@ services:
       - key: SUPABASE_STORAGE_BUCKET
         value: historial-clinico
 
-      # --- Twilio Communications Email API ---
-      - key: TWILIO_ACCOUNT_SID
+      # --- SendGrid Email API ---
+      - key: SENDGRID_API_KEY
         sync: false
-      - key: TWILIO_AUTH_TOKEN
+      - key: SENDGRID_FROM_ADDRESS
         sync: false
-      - key: TWILIO_FROM_ADDRESS
-        sync: false
-      - key: TWILIO_FROM_NAME
+      - key: SENDGRID_FROM_NAME
         value: Happy Paws
 
       # --- Usuario administrador inicial ---

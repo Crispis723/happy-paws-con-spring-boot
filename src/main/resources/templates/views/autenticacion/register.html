@@ -15,15 +15,6 @@
         <div id="loginForm" class="auth-form">
           <h2>Iniciar Sesión</h2>
 
-          <div class="auth-role-switch" role="tablist" aria-label="Tipo de acceso">
-            <button type="button" class="auth-role-option active" data-role="cliente" onclick="setLoginRole('cliente')">Cliente</button>
-            <button type="button" class="auth-role-option" data-role="colaborador" onclick="setLoginRole('colaborador')">Colaborador</button>
-          </div>
-
-          <div class="auth-role-note" id="loginRoleNote">
-            <strong>Cliente:</strong> entra para ver tus mascotas, citas y carrito personal.
-          </div>
-
           <div class="auth-alert error" th:if="${error}">
             <strong>Error:</strong> <span th:text="${error}"></span>
           </div>
@@ -34,8 +25,6 @@
 
          <form th:action="@{/login}" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <input type="hidden" id="loginRole" name="loginRole" value="cliente" />
-
             <div class="form-group">
               <label for="loginEmail">Correo Electrónico</label>
               <input 
@@ -127,26 +116,6 @@
       document.body.style.overflow = 'hidden';
     }
 
-    function setLoginRole(role) {
-      const roleInput = document.getElementById('loginRole');
-      const roleNote = document.getElementById('loginRoleNote');
-      const buttons = document.querySelectorAll('.auth-role-option');
-
-      if (roleInput) {
-        roleInput.value = role;
-      }
-
-      buttons.forEach((button) => {
-        button.classList.toggle('active', button.dataset.role === role);
-      });
-
-      if (roleNote) {
-        roleNote.innerHTML = role === 'colaborador'
-          ? '<strong>Colaborador:</strong> entra para gestionar clientes, citas, productos y ventas según tu permiso.'
-          : '<strong>Cliente:</strong> entra para ver tus mascotas, citas y carrito personal.';
-      }
-    }
-
     function closeAuthModal() {
       document.getElementById('authModalOverlay').classList.remove('active');
       document.body.style.overflow = 'auto';
@@ -173,7 +142,6 @@
         openAuthModal(authForm);
       }
 
-      setLoginRole('cliente');
     });
   </script>
 </div>
