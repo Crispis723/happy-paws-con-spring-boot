@@ -3,28 +3,40 @@ package com.Happypaws.demo.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Positive;
 import java.time.LocalDateTime;
+
+/**
+ * DTO para crear y actualizar citas veterinarias
+ * Incluye validaciones completas de campos
+ */
 public class AppointmentDTO {
 
     private Long id;
 
-    @NotNull
+    @NotNull(message = "La mascota es requerida")
+    @Positive(message = "El ID de la mascota debe ser un número positivo")
     private Long petId;
 
-    @NotNull
+    @NotNull(message = "El cliente es requerido")
+    @Positive(message = "El ID del cliente debe ser un número positivo")
     private Long clienteId;
 
-    @NotNull
+    @NotNull(message = "El veterinario es requerido")
+    @Positive(message = "El ID del veterinario debe ser un número positivo")
     private Long veterinarioId;
 
-    @NotNull
+    @NotNull(message = "La fecha y hora es requerida")
+    @Future(message = "La fecha y hora debe ser en el futuro (mínimo 15 minutos a partir de ahora)")
     private LocalDateTime fechaHora;
 
-    @NotBlank
-    @Size(max = 255)
+    @NotBlank(message = "El motivo no puede estar vacío")
+    @Size(min = 5, max = 255, message = "El motivo debe tener entre 5 y 255 caracteres")
     private String motivo;
 
-
+    // Getters y Setters
     public Long getId() {
         return this.id;
     }

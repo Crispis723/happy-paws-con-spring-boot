@@ -6,23 +6,24 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+
 public class UserDTO {
 
     private Long id;
 
-    @NotBlank
-    @Size(max = 120)
+    @NotBlank(message = "El nombre es requerido")
+    @Size(min = 3, max = 120, message = "El nombre debe tener entre 3 y 120 caracteres")
     private String name;
 
-    @NotBlank
-    @Email
-    @Size(max = 150)
+    @NotBlank(message = "El email es requerido")
+    @Email(message = "El email debe ser válido")
+    @Size(max = 150, message = "El email no puede exceder 150 caracteres")
     private String email;
 
-    @Size(min = 8, max = 255)
+    @Size(min = 8, max = 255, message = "La contraseña debe tener entre 8 y 255 caracteres")
     private String password;
 
-    @NotNull
+    @NotNull(message = "El estado es requerido")
     private Boolean enabled = true;
 
     private List<Long> roleIds = new ArrayList<>();
