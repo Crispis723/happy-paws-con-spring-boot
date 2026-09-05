@@ -64,6 +64,7 @@ public class AppointmentController {
         }
         
         model.addAttribute("cita", cita.get());
+        model.addAttribute("historial", appointmentService.historial(id));
         return "views/citas/show";
     }
 
@@ -93,7 +94,7 @@ public class AppointmentController {
         }
 
         try {
-            appointmentService.guardar(appointment);
+            appointmentService.guardar(appointment, authenticationName());
             redirectAttributes.addFlashAttribute("success", "Cita creada exitosamente");
             return "redirect:/citas";
         } catch (Exception e) {
@@ -138,7 +139,7 @@ public class AppointmentController {
         }
 
         try {
-            appointmentService.actualizar(id, appointment);
+            appointmentService.actualizar(id, appointment, authenticationName());
             redirectAttributes.addFlashAttribute("success", "Cita actualizada exitosamente");
             return "redirect:/citas/" + id;
         } catch (Exception e) {
@@ -159,7 +160,7 @@ public class AppointmentController {
                                RedirectAttributes redirectAttributes) {
         try {
             EstadoCita nuevoEstado = EstadoCita.valueOf(estado.toUpperCase());
-            appointmentService.cambiarEstado(id, nuevoEstado);
+            appointmentService.cambiarEstado(id, nuevoEstado, authenticationName());
             redirectAttributes.addFlashAttribute("success", "Estado de cita actualizado");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al cambiar estado: " + e.getMessage());
@@ -207,5 +208,10 @@ public class AppointmentController {
         model.addAttribute("veterinarioId", id);
         model.addAttribute("titulo", "Citas de Hoy");
         return "views/citas/lista-veterinario";
+    }
+
+    private String authenticationName() {
+        return org.springframework.security.core.context.SecurityContextHolder.getContext()
+                .getAuthentication().getName();
     }
 }

@@ -2,7 +2,9 @@ package com.Happypaws.demo.service;
 
 import com.Happypaws.demo.model.Appointment;
 import com.Happypaws.demo.model.Appointment.EstadoCita;
+import com.Happypaws.demo.model.AppointmentVersion;
 import com.Happypaws.demo.repository.AppointmentRepository;
+import com.Happypaws.demo.repository.AppointmentVersionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +17,12 @@ import java.util.Optional;
 public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
+    private final AppointmentVersionRepository appointmentVersionRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository,
+                               AppointmentVersionRepository appointmentVersionRepository) {
         this.appointmentRepository = appointmentRepository;
+        this.appointmentVersionRepository = appointmentVersionRepository;
     }
 
     /**
@@ -94,19 +99,27 @@ public class AppointmentService {
      * Guardar nueva cita
      */
     public Appointment guardar(Appointment appointment) {
+        return guardar(appointment, "Sistema");
+    }
+
+    public Appointment guardar(Appointment appointment, String createdBy) {
         if (appointment.getEstado() == null) {
             appointment.setEstado(EstadoCita.PENDIENTE);
         }
-        return appointmentRepository.save(appointment);
+        Appointment saved = appointmentRepository.save(appointment);
+        appointmentVersionRepository.save(AppointmentVersion.from(saved, 1,
+                createdBy == null || createdBy.isBlank() ? "Sistema" : createdBy));
+        return saved;
     }
 
     /**
      * Actualizar cita
      */
-    public Appointment actualizar(Long id, Appointment appointmentActualizada) {
+    public Appointment actualizar(Long id, Appointment appointmentActualizada, String changedBy) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cita no encontrada"));
 
+        guardarVersionInicialSiEsNecesario(appointment, changedBy);
         appointment.setFechaHora(appointmentActualizada.getFechaHora());
         appointment.setMotivo(appointmentActualizada.getMotivo());
         appointment.setNotas(appointmentActualizada.getNotas());
@@ -114,18 +127,49 @@ public class AppointmentService {
         appointment.setPrecio(appointmentActualizada.getPrecio());
         appointment.setVeterinario(appointmentActualizada.getVeterinario());
 
-        return appointmentRepository.save(appointment);
+        Appointment saved = appointmentRepository.save(appointment);
+        guardarVersion(saved, changedBy);
+        return saved;
+    }
+
+    public Appointment actualizar(Long id, Appointment appointmentActualizada) {
+        return actualizar(id, appointmentActualizada, "Sistema");
     }
 
     /**
      * Cambiar estado de cita
      */
-    public Appointment cambiarEstado(Long id, EstadoCita nuevoEstado) {
+    public Appointment cambiarEstado(Long id, EstadoCita nuevoEstado, String changedBy) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cita no encontrada"));
 
+        guardarVersionInicialSiEsNecesario(appointment, changedBy);
         appointment.setEstado(nuevoEstado);
-        return appointmentRepository.save(appointment);
+        Appointment saved = appointmentRepository.save(appointment);
+        guardarVersion(saved, changedBy);
+        return saved;
+    }
+
+    public Appointment cambiarEstado(Long id, EstadoCita nuevoEstado) {
+        return cambiarEstado(id, nuevoEstado, "Sistema");
+    }
+
+    public List<AppointmentVersion> historial(Long appointmentId) {
+        return appointmentVersionRepository.findByAppointmentIdOrderByVersionNumberDesc(appointmentId);
+    }
+
+    private void guardarVersion(Appointment appointment, String changedBy) {
+        int nextVersion = (int) appointmentVersionRepository.countByAppointmentId(appointment.getId()) + 1;
+        appointmentVersionRepository.save(AppointmentVersion.from(appointment,
+                nextVersion,
+                changedBy == null || changedBy.isBlank() ? "Sistema" : changedBy));
+    }
+
+    private void guardarVersionInicialSiEsNecesario(Appointment appointment, String changedBy) {
+        if (appointmentVersionRepository.countByAppointmentId(appointment.getId()) == 0) {
+            appointmentVersionRepository.save(AppointmentVersion.from(appointment, 1,
+                    changedBy == null || changedBy.isBlank() ? "Registro previo" : changedBy));
+        }
     }
 
     /**
