@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar mascota | Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/css/colors.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+            color: var(--text-primary);
+            background:
+                radial-gradient(circle at top left, rgba(138, 223, 215, 0.28), transparent 30%),
+                radial-gradient(circle at top right, rgba(88, 184, 199, 0.20), transparent 24%),
+                linear-gradient(180deg, #f8fcfc 0%, #edf7f7 100%);
+        }
+
+        .page-shell {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 32px 0 56px;
+        }
+
+        .hero-panel {
+            position: relative;
+            overflow: hidden;
+            border-radius: 28px;
+            padding: 32px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 55%, #3f8f9d 100%);
+            box-shadow: 0 22px 48px rgba(54, 122, 134, 0.18);
+        }
+
+        .hero-panel::after {
+            content: '';
+            position: absolute;
+            inset: auto -80px -100px auto;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.14);
+            filter: blur(2px);
+        }
+
+        .eyebrow {
+            margin: 0 0 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            font-size: 0.78rem;
+            font-weight: 700;
+            opacity: 0.82;
+        }
+
+        .hero-panel h1 {
+            margin: 0 0 10px;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            line-height: 1.05;
+        }
+
+        .hero-panel p {
+            margin: 0;
+            max-width: 64ch;
+            font-size: 1.02rem;
+            opacity: 0.9;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(138, 223, 215, 0.22);
+            border-radius: 28px;
+            box-shadow: 0 18px 42px rgba(53, 80, 78, 0.08);
+        }
+
+        .form-panel {
+            overflow: hidden;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 22px 24px;
+            border-bottom: 1px solid rgba(53, 80, 78, 0.08);
+            background: linear-gradient(180deg, rgba(255,255,255,.96) 0%, rgba(248,252,252,.92) 100%);
+        }
+
+        .panel-title {
+            margin: 0;
+            font-size: 1.12rem;
+            font-weight: 800;
+            color: var(--gray-dark);
+        }
+
+        .panel-subtitle {
+            margin: 4px 0 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .badge-soft {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(138, 223, 215, 0.18);
+            color: var(--secondary-color);
+            font-weight: 800;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        form {
+            padding: 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .field {
+            grid-column: span 12;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--gray-dark);
+        }
+
+        .hint {
+            margin-top: 7px;
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+        }
+
+        input {
+            width: 100%;
+            border: 2px solid rgba(110, 169, 175, 0.22);
+            border-radius: 16px;
+            padding: 14px 16px;
+            font: inherit;
+            background: #fff;
+            transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(138, 223, 215, 0.22);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+
+        .btn-lite,
+        .btn-solid {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 160px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+        }
+
+        .btn-lite:hover,
+        .btn-solid:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-lite {
+            background: #fff;
+            color: var(--secondary-color);
+            border: 1px solid rgba(88, 184, 199, 0.20);
+        }
+
+        .btn-solid {
+            border: 0;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 14px 30px rgba(88, 184, 199, 0.20);
+        }
+
+        .side-panel {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .info-card {
+            padding: 18px;
+            border-radius: 22px;
+            background: linear-gradient(180deg, rgba(255,255,255,.95) 0%, rgba(242,250,250,.9) 100%);
+            border: 1px solid rgba(138, 223, 215, 0.2);
+        }
+
+        .info-card h2,
+        .info-card h3 {
+            margin: 0 0 10px;
+            font-size: 1.05rem;
+            color: var(--gray-dark);
+        }
+
+        .info-card p,
+        .info-card li {
+            color: var(--text-secondary);
+            line-height: 1.55;
+        }
+
+        .info-list {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .mini-stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .stat {
+            padding: 14px;
+            border-radius: 18px;
+            background: rgba(138, 223, 215, 0.12);
+            border: 1px solid rgba(138, 223, 215, 0.18);
+        }
+
+        .stat strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 1.15rem;
+            color: var(--gray-dark);
+        }
+
+        .stat span {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+        }
+
+        @media (min-width: 768px) {
+            .field.half {
+                grid-column: span 6;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page-shell {
+                width: min(100% - 20px, 1180px);
+                padding: 18px 0 34px;
+            }
+
+            .hero-panel,
+            .panel,
+            .info-card {
+                border-radius: 22px;
+            }
+
+            .hero-panel,
+            form,
+            .side-panel {
+                padding: 20px;
+            }
+
+            .btn-lite,
+            .btn-solid {
+                width: 100%;
+            }
+
+            .actions {
+                flex-direction: column-reverse;
+            }
+
+            .mini-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="page-shell">
+    <section class="hero-panel">
+        <p class="eyebrow">Módulo mascotas</p>
+        <h1>Registrar nueva mascota</h1>
+        <p>Completa la información básica con una vista más clara, moderna y alineada al estilo general del proyecto.</p>
+    </section>
+
+    <section class="content-grid">
+        <div class="panel form-panel">
+            <div class="panel-header">
+                <div>
+                    <h2 class="panel-title">Datos principales</h2>
+                    <p class="panel-subtitle">Los campos marcados con * son obligatorios.</p>
+                </div>
+                <span class="badge-soft"><i class="bi bi-stars"></i> Nuevo registro</span>
+            </div>
+
+            <form action="#" method="post" onsubmit="return false;">
+                <div class="form-grid">
+                    <div class="field half">
+                        <label for="nombre">Nombre <span style="color: #c0392b;">*</span></label>
+                        <input id="nombre" type="text" name="nombre" placeholder="Ej. Luna" autocomplete="off">
+                        <div class="hint">Usa un nombre corto y fácil de identificar.</div>
+                    </div>
+
+                    <div class="field half">
+                        <label for="especie">Especie <span style="color: #c0392b;">*</span></label>
+                        <input id="especie" type="text" name="especie" placeholder="Ej. Perro" autocomplete="off">
+                        <div class="hint">Perro, gato, ave, conejo u otra especie.</div>
+                    </div>
+
+                    <div class="field">
+                        <label for="raza">Raza <span style="color: var(--text-secondary);">(opcional)</span></label>
+                        <input id="raza" type="text" name="raza" placeholder="Ej. Golden Retriever" autocomplete="off">
+                        <div class="hint">Sirve para una descripción más precisa del animal.</div>
+                    </div>
+
+                    <div class="field">
+                        <div class="actions">
+                            <a th:href="@{/mascotas}" class="btn-lite"><i class="bi bi-arrow-left"></i> Volver</a>
+                            <button type="submit" class="btn-solid"><i class="bi bi-check2-circle"></i> Guardar mascota</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <aside class="panel side-panel">
+            <div class="info-card">
+                <h3>Cómo debe verse</h3>
+                <p>Una jerarquía clara, bordes suaves y un panel principal con suficiente aire para que el formulario se sienta ordenado.</p>
+            </div>
+
+            <div class="info-card">
+                <h3>Recomendación visual</h3>
+                <ul class="info-list">
+                    <li>Encabezado destacado con gradiente suave.</li>
+                    <li>Campos amplios con espacio entre bloques.</li>
+                    <li>Botones claros para cancelar y guardar.</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>Guía rápida</h3>
+                <div class="mini-stats">
+                    <div class="stat">
+                        <strong>3</strong>
+                        <span>campos principales</span>
+                    </div>
+                    <div class="stat">
+                        <strong>1</strong>
+                        <span>acción primaria</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </section>
+</main>
+</body>
+</html>

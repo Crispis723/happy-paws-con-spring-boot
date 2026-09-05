@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial clínico - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/css/happypaws-ui.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+
+<div th:replace="~{partials/session-guard :: guard}"></div>
+
+</head>
+<body>
+    <div th:insert="~{partials/header :: header}"></div>
+    <div class="page-shell">
+        <div class="hero-panel d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+            <div>
+                <span class="hero-kicker mb-2"><i class="bi bi-journal-medical"></i> Gestión veterinaria</span>
+                <h1 class="display-6 fw-bold mb-2">Historial clínico de <span th:text="${mascota.nombre}">mascota</span></h1>
+                <p class="mb-0 opacity-75">Registro de citas, diagnósticos, tratamientos y adjuntos (radiografías o documentos) con vigencia de 1 año.</p>
+            </div>
+            <div class="d-flex flex-column flex-sm-row gap-2">
+                <a th:href="@{/mascotas}" class="btn btn-outline-light btn-lg rounded-pill fw-semibold px-4"><i class="bi bi-arrow-left me-1"></i> Regresar</a>
+                <a th:if="${!isClientUser}" th:href="@{/historial/mascota/{petId}/nuevo(petId=${mascota.id})}" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4"><i class="bi bi-plus-circle me-1"></i> Nuevo registro</a>
+            </div>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <div class="surface-card p-4">
+            <div class="table-responsive">
+                <table class="table app-table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Título</th>
+                            <th>Cita</th>
+                            <th>Diagnóstico</th>
+                            <th>Tratamiento</th>
+                            <th>Adjunto</th>
+                            <th>Vigencia</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(historiales)}">
+                            <td colspan="8" class="text-center text-muted py-4">No hay registros clínicos para esta mascota</td>
+                        </tr>
+                        <tr th:each="item : ${historiales}">
+                            <td th:text="${item.fechaRegistro}">--</td>
+                            <td class="fw-semibold" th:text="${item.titulo}">--</td>
+                            <td th:text="${item.cita != null && item.cita.fechaHora != null ? #temporals.format(item.cita.fechaHora, 'dd/MM/yyyy HH:mm') : '-'}">--</td>
+                            <td th:text="${item.diagnostico != null && !#strings.isEmpty(item.diagnostico) ? item.diagnostico : '-'}">--</td>
+                            <td th:text="${item.tratamiento != null && !#strings.isEmpty(item.tratamiento) ? item.tratamiento : '-'}">--</td>
+                            <td>
+                                <a th:if="${item.archivoGuardado != null}" th:href="@{/historial/archivo/{id}(id=${item.id})}" class="btn btn-sm btn-outline-info">
+                                    <i class="bi bi-file-earmark-arrow-down"></i> Descargar
+                                </a>
+                                <span th:if="${item.archivoGuardado == null}" class="text-muted">Sin adjunto</span>
+                            </td>
+                            <td>
+                                <span th:class="${item.vigente} ? 'role-badge role-badge--success' : 'role-badge role-badge--danger'"
+                                      th:text="${item.vigente ? 'Vigente hasta ' + item.fechaExpiracion : 'Vencido ' + item.fechaExpiracion}">Vigente</span>
+                            </td>
+                            <td class="text-center">
+                                <a th:if="${!isClientUser}" th:href="@{/historial/{id}/editar(id=${item.id})}" class="btn btn-sm btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
+                                <a th:if="${!isClientUser}" th:href="@{/historial/{id}/eliminar(id=${item.id})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este registro clínico?');" title="Eliminar"><i class="bi bi-trash"></i></a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div th:insert="~{partials/footer :: footer}"></div>
+</body>
+</html>

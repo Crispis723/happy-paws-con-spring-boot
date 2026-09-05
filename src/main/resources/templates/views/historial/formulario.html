@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro clínico - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/css/happypaws-ui.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+
+<div th:replace="~{partials/session-guard :: guard}"></div>
+
+</head>
+<body>
+    <div th:insert="~{partials/header :: header}"></div>
+    <div class="page-shell">
+        <div class="hero-panel d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+            <div>
+                <span class="hero-kicker mb-2"><i class="bi bi-journal-plus"></i> Historial clínico</span>
+                <h1 class="display-6 fw-bold mb-2">Registro para <span th:text="${mascota.nombre}">mascota</span></h1>
+                <p class="mb-0 opacity-75">Guarda evolución médica, diagnósticos y archivos de soporte con vigencia anual.</p>
+            </div>
+            <a th:href="@{/historial/mascota/{petId}(petId=${mascota.id})}" class="btn btn-outline-light btn-lg rounded-pill fw-semibold px-4"><i class="bi bi-arrow-left me-1"></i> Regresar</a>
+        </div>
+
+        <div class="surface-card p-4 p-md-5">
+            <form th:action="@{/historial/mascota/{petId}/guardar(petId=${mascota.id})}" th:object="${historial}" method="post" enctype="multipart/form-data" class="row g-4">
+                <input type="hidden" th:field="*{id}">
+                <input type="hidden" th:field="*{archivoGuardado}">
+                <input type="hidden" th:field="*{archivoOriginal}">
+                <input type="hidden" th:field="*{archivoTipo}">
+                <input type="hidden" th:field="*{archivoTamanio}">
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Fecha de registro</label>
+                    <input type="date" class="form-control form-control-lg" th:field="*{fechaRegistro}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Cita relacionada</label>
+                    <select class="form-select form-select-lg" th:field="*{cita.id}">
+                        <option value="">-- Sin cita relacionada --</option>
+                        <option th:each="cita : ${citasMascota}" th:value="${cita.id}" th:text="${#temporals.format(cita.fechaHora, 'dd/MM/yyyy HH:mm') + ' - ' + cita.motivo}">Cita</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Título</label>
+                    <input type="text" class="form-control form-control-lg" th:field="*{titulo}" maxlength="150" placeholder="Ej. Control postoperatorio">
+                    
+                    <div class="text-danger"  th:if="${#fields.hasErrors('titulo')}"  th:errors="*{titulo}"> </div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Detalle clínico</label>
+                    <textarea class="form-control" rows="4" th:field="*{detalle}" maxlength="1500" placeholder="Evolución, observaciones y procedimientos realizados"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Diagnóstico</label>
+                    <textarea class="form-control" rows="3" th:field="*{diagnostico}" maxlength="500"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Tratamiento</label>
+                    <textarea class="form-control" rows="3" th:field="*{tratamiento}" maxlength="500"></textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Adjunto clínico (radiografía, examen, receta)</label>
+                    <input type="file" class="form-control" name="archivo" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
+                    <div class="form-text">El archivo quedará vigente por 1 año desde la fecha del registro.</div>
+                    <div class="form-text" th:if="${historial.archivoOriginal != null}">Archivo actual: <span class="fw-semibold" th:text="${historial.archivoOriginal}">archivo</span></div>
+                </div>
+                <div class="col-12 d-flex justify-content-end gap-2">
+                    <a th:href="@{/historial/mascota/{petId}(petId=${mascota.id})}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Guardar historial</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div th:insert="~{partials/footer :: footer}"></div>
+</body>
+</html>

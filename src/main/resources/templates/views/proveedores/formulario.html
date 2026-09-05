@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proveedor - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+
+<div th:replace="~{partials/session-guard :: guard}"></div>
+
+</head>
+<body>
+    <div th:insert="~{partials/header :: header}"></div>
+    <div class="container-fluid p-4">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title mb-0">Formulario de proveedor</h3></div>
+            <div class="card-body">
+                <form th:action="@{/proveedores/guardar}" th:object="${proveedor}" method="post" class="row g-3">
+                    <input type="hidden" th:field="*{id}">
+                    <div class="col-md-6"><label class="form-label">Documento tipo</label><input class="form-control" th:field="*{documentoTipoCodigo}"></div>
+                    <div class="col-md-6"><label class="form-label">Número documento</label><input class="form-control" th:field="*{numeroDocumento}"></div>
+                    <div class="col-md-6"><label class="form-label">Razón social</label><input class="form-control" th:field="*{razonSocial}"></div>
+                    <div class="col-md-6"><label class="form-label">Email</label><input class="form-control" th:field="*{email}"></div>
+                    <div class="col-md-6"><label class="form-label">Teléfono</label><input class="form-control" th:field="*{telefono}"></div>
+                    <div class="col-md-6"><label class="form-label">Dirección</label><input class="form-control" th:field="*{direccion}"></div>
+                    <div class="col-12 d-flex justify-content-between gap-2">
+                        <a th:href="@{/proveedores}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div th:insert="~{partials/footer :: footer}"></div>
+</body>
+</html>

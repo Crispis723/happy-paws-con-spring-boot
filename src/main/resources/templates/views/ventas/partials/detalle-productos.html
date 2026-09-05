@@ -1,0 +1,298 @@
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="detalleProductos">
+
+    <!-- Catálogo oculto: una opción por producto, con sus datos en atributos data-* -->
+    <select id="catalogoProductos" class="d-none" multiple aria-hidden="true">
+        <option th:each="p : ${productos}"
+                th:value="${p.id}"
+                th:text="${p.codigo + ' - ' + p.nombre}"
+                th:attr="data-codigo=${p.codigo},
+                         data-nombre=${p.nombre},
+                         data-precio=${p.precioUnitario},
+                         data-igv=${p.afectacionTipo != null ? p.afectacionTipo.porcentaje : 0},
+                         data-stock=${p.stock}">
+        </option>
+    </select>
+
+    <!-- Líneas ya guardadas (solo aplica en edición) para precargar el carrito -->
+    <div id="detallesExistentes" class="d-none" th:if="${venta != null and venta.idVenta != null}">
+        <div th:each="d : ${venta.detalles}"
+             th:attr="data-id=${d.producto.id},
+                      data-codigo=${d.producto.codigo},
+                      data-nombre=${d.producto.nombre},
+                      data-precio=${d.precioUnitario},
+                      data-igv=${d.porcentajeIgv},
+                      data-cantidad=${d.cantidad}">
+        </div>
+    </div>
+
+    <div class="col-12" th:if="${error}">
+        <div class="alert alert-danger mb-0" th:text="${error}">Error</div>
+    </div>
+
+    <div class="col-12">
+        <div class="border border-primary-subtle rounded-4 p-3 bg-white">
+            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-search me-1"></i> Agregar producto</h6>
+            <div class="row g-2 align-items-end">
+                <div class="col-md-6 position-relative">
+                    <label class="form-label fw-semibold small">Buscar por ID, código o nombre</label>
+                    <input type="text" id="buscarProducto" class="form-control" placeholder="Ej: 12, PR-001, alimento para perro..." autocomplete="off">
+                    <div id="sugerenciasProducto" class="list-group position-absolute w-100 shadow" style="z-index: 1000; max-height: 240px; overflow-y:auto; display:none;"></div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label fw-semibold small">Cantidad</label>
+                    <input type="number" id="cantidadProducto" class="form-control" min="1" step="1" value="1">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label fw-semibold small">Precio unit.</label>
+                    <input type="text" id="precioProducto" class="form-control" readonly value="0.00">
+                </div>
+                <div class="col-12 col-md-2 d-grid">
+                    <button type="button" id="btnAgregarProducto" class="btn btn-success" disabled>
+                        <i class="bi bi-plus-circle me-1"></i> Agregar
+                    </button>
+                </div>
+            </div>
+            <div id="productoSeleccionadoInfo" class="form-text mt-1">&nbsp;</div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="table-responsive rounded-4 border bg-white shadow-sm overflow-hidden">
+            <table class="table table-bordered table-sm align-middle mb-0" id="tablaDetalles">
+                <thead class="table-light text-center">
+                    <tr>
+                        <th style="width:40px">#</th>
+                        <th>Producto</th>
+                        <th style="width:100px">Cant.</th>
+                        <th style="width:110px">P. Unit.</th>
+                        <th style="width:80px">IGV</th>
+                        <th style="width:120px">Subtotal</th>
+                        <th style="width:50px"></th>
+                    </tr>
+                </thead>
+                <tbody id="tablaDetallesBody">
+                    <tr id="filaVacia"><td colspan="7" class="text-center text-muted py-4">Aún no agregaste productos a esta venta.</td></tr>
+                </tbody>
+                <tfoot class="table-light">
+                    <tr>
+                        <td colspan="5" class="text-end fw-semibold">Subtotal</td>
+                        <td colspan="2" class="text-end" id="totalSubtotal">S/. 0.00</td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" class="text-end fw-semibold">IGV</td>
+                        <td colspan="2" class="text-end" id="totalIgv">S/. 0.00</td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" class="text-end fw-bold">Total</td>
+                        <td colspan="2" class="text-end fw-bold text-success" id="totalGeneral">S/. 0.00</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Aquí se generan dinámicamente los <input type="hidden" name="productoId"> / name="cantidad" -->
+    <div id="hiddenInputsDetalle"></div>
+
+    <script th:inline="none">
+    (function () {
+        var catalogoSelect = document.getElementById('catalogoProductos');
+        var catalogo = Array.prototype.map.call(catalogoSelect.options, function (opt) {
+            return {
+                id: opt.value,
+                codigo: opt.dataset.codigo || '',
+                nombre: opt.dataset.nombre || '',
+                precio: parseFloat(opt.dataset.precio) || 0,
+                igv: parseFloat(opt.dataset.igv) || 0,
+                stock: opt.dataset.stock || '0'
+            };
+        });
+
+        var buscarInput = document.getElementById('buscarProducto');
+        var sugerencias = document.getElementById('sugerenciasProducto');
+        var cantidadInput = document.getElementById('cantidadProducto');
+        var precioInput = document.getElementById('precioProducto');
+        var btnAgregar = document.getElementById('btnAgregarProducto');
+        var infoDiv = document.getElementById('productoSeleccionadoInfo');
+        var tbody = document.getElementById('tablaDetallesBody');
+        var filaVacia = document.getElementById('filaVacia');
+        var hiddenContainer = document.getElementById('hiddenInputsDetalle');
+
+        var seleccionado = null;
+        var carrito = [];
+
+        var preload = document.getElementById('detallesExistentes');
+        if (preload) {
+            Array.prototype.forEach.call(preload.querySelectorAll('[data-id]'), function (el) {
+                carrito.push({
+                    id: el.dataset.id,
+                    codigo: el.dataset.codigo,
+                    nombre: el.dataset.nombre,
+                    precio: parseFloat(el.dataset.precio) || 0,
+                    igv: parseFloat(el.dataset.igv) || 0,
+                    cantidad: parseInt(el.dataset.cantidad, 10) || 1
+                });
+            });
+        }
+
+        function fmt(n) {
+            return 'S/. ' + n.toFixed(2);
+        }
+
+        function limpiarSeleccion() {
+            seleccionado = null;
+            btnAgregar.disabled = true;
+            precioInput.value = '0.00';
+            infoDiv.innerHTML = '&nbsp;';
+        }
+
+        function buscar(term) {
+            term = term.trim().toLowerCase();
+            if (!term) return [];
+            return catalogo.filter(function (p) {
+                return p.id.toString() === term ||
+                    p.codigo.toLowerCase().indexOf(term) !== -1 ||
+                    p.nombre.toLowerCase().indexOf(term) !== -1;
+            }).slice(0, 8);
+        }
+
+        buscarInput.addEventListener('input', function () {
+            limpiarSeleccion();
+            var resultados = buscar(buscarInput.value);
+            if (resultados.length === 0) {
+                sugerencias.style.display = 'none';
+                sugerencias.innerHTML = '';
+                return;
+            }
+            sugerencias.innerHTML = resultados.map(function (p) {
+                return '<button type="button" class="list-group-item list-group-item-action" data-id="' + p.id + '">' +
+                    '<strong>' + p.codigo + '</strong> - ' + p.nombre +
+                    ' <span class="text-muted">(S/. ' + p.precio.toFixed(2) + ' · stock ' + p.stock + ')</span>' +
+                    '</button>';
+            }).join('');
+            sugerencias.style.display = 'block';
+        });
+
+        sugerencias.addEventListener('click', function (e) {
+            var btn = e.target.closest('button[data-id]');
+            if (!btn) return;
+            var p = catalogo.filter(function (c) { return c.id === btn.dataset.id; })[0];
+            if (!p) return;
+            seleccionado = p;
+            buscarInput.value = p.codigo + ' - ' + p.nombre;
+            precioInput.value = p.precio.toFixed(2);
+            infoDiv.textContent = 'Stock disponible: ' + p.stock + ' · IGV: ' + p.igv + '%';
+            btnAgregar.disabled = false;
+            sugerencias.style.display = 'none';
+            cantidadInput.focus();
+            cantidadInput.select();
+        });
+
+        document.addEventListener('click', function (e) {
+            if (e.target !== buscarInput && !sugerencias.contains(e.target)) {
+                sugerencias.style.display = 'none';
+            }
+        });
+
+        btnAgregar.addEventListener('click', function () {
+            if (!seleccionado) return;
+            var cantidad = parseInt(cantidadInput.value, 10);
+            if (!cantidad || cantidad <= 0) {
+                alert('Ingresa una cantidad válida.');
+                return;
+            }
+            var existente = carrito.filter(function (item) { return item.id === seleccionado.id; })[0];
+            if (existente) {
+                existente.cantidad += cantidad;
+            } else {
+                carrito.push({
+                    id: seleccionado.id,
+                    codigo: seleccionado.codigo,
+                    nombre: seleccionado.nombre,
+                    precio: seleccionado.precio,
+                    igv: seleccionado.igv,
+                    cantidad: cantidad
+                });
+            }
+            renderCarrito();
+            buscarInput.value = '';
+            cantidadInput.value = 1;
+            limpiarSeleccion();
+            buscarInput.focus();
+        });
+
+        function eliminarLinea(id) {
+            carrito = carrito.filter(function (item) { return item.id !== id; });
+            renderCarrito();
+        }
+
+        function actualizarCantidad(id, valor) {
+            var item = carrito.filter(function (i) { return i.id === id; })[0];
+            if (!item) return;
+            var cantidad = parseInt(valor, 10);
+            item.cantidad = cantidad > 0 ? cantidad : 1;
+            renderCarrito();
+        }
+
+        window.hpEliminarLineaVenta = eliminarLinea;
+        window.hpActualizarCantidadVenta = actualizarCantidad;
+
+        function renderCarrito() {
+            if (carrito.length === 0) {
+                tbody.innerHTML = '';
+                tbody.appendChild(filaVacia);
+            } else {
+                tbody.innerHTML = carrito.map(function (item, idx) {
+                    var subtotalLinea = item.precio * item.cantidad;
+                    return '<tr>' +
+                        '<td class="text-center">' + (idx + 1) + '</td>' +
+                        '<td>' + item.codigo + ' - ' + item.nombre + '</td>' +
+                        '<td><input type="number" min="1" value="' + item.cantidad + '" class="form-control form-control-sm text-center" ' +
+                        'onchange="hpActualizarCantidadVenta(\'' + item.id + '\', this.value)"></td>' +
+                        '<td class="text-end">S/. ' + item.precio.toFixed(2) + '</td>' +
+                        '<td class="text-center">' + item.igv + '%</td>' +
+                        '<td class="text-end">S/. ' + subtotalLinea.toFixed(2) + '</td>' +
+                        '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger" ' +
+                        'onclick="hpEliminarLineaVenta(\'' + item.id + '\')"><i class="bi bi-trash"></i></button></td>' +
+                        '</tr>';
+                }).join('');
+            }
+            calcularTotales();
+            renderHiddenInputs();
+        }
+
+        function calcularTotales() {
+            var subtotal = 0;
+            var igv = 0;
+            carrito.forEach(function (item) {
+                var sub = item.precio * item.cantidad;
+                subtotal += sub;
+                igv += sub * (item.igv / 100);
+            });
+            var total = subtotal + igv;
+            document.getElementById('totalSubtotal').textContent = fmt(subtotal);
+            document.getElementById('totalIgv').textContent = fmt(igv);
+            document.getElementById('totalGeneral').textContent = fmt(total);
+        }
+
+        function renderHiddenInputs() {
+            hiddenContainer.innerHTML = carrito.map(function (item) {
+                return '<input type="hidden" name="productoId" value="' + item.id + '">' +
+                    '<input type="hidden" name="cantidad" value="' + item.cantidad + '">';
+            }).join('');
+        }
+
+        var form = document.getElementById('formVenta');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                if (carrito.length === 0) {
+                    e.preventDefault();
+                    alert('Agrega al menos un producto a la venta antes de guardar.');
+                }
+            });
+        }
+
+        renderCarrito();
+    })();
+    </script>
+</div>

@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acceso - Happy Paws</title>
+    <link rel="shortcut icon" th:href="@{/assets/favicon.ico}" type="image/x-icon">
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}" />
+    <link rel="stylesheet" th:href="@{/css/colors.css}" />
+    <link rel="stylesheet" th:href="@{/css/happypaws-ui.css}" />
+    <link rel="stylesheet" th:href="@{/css/auth-modal.css}" />
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}" />
+    <style>
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background:
+          radial-gradient(circle at top left, rgba(138, 223, 215, 0.22), transparent 26%),
+          radial-gradient(circle at top right, rgba(88, 184, 199, 0.16), transparent 24%),
+          linear-gradient(180deg, #f8fdfd 0%, #eef8f7 100%);
+      }
+      .auth-shell {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1.1fr .9fr;
+        gap: 2rem;
+        align-items: center;
+        padding: 2rem;
+      }
+      .auth-hero {
+        color: var(--hp-ink);
+      }
+      .auth-hero h1 {
+        font-size: clamp(2.4rem, 5vw, 4.5rem);
+        line-height: .95;
+        margin: 0 0 1rem;
+        letter-spacing: -0.04em;
+      }
+      .auth-hero p {
+        max-width: 60ch;
+        font-size: 1.08rem;
+        color: var(--hp-muted);
+      }
+      .auth-badges {
+        display: flex;
+        gap: .75rem;
+        flex-wrap: wrap;
+        margin-top: 1.5rem;
+      }
+      .auth-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .65rem .95rem;
+        border-radius: 999px;
+        background: rgba(255,255,255,.84);
+        border: 1px solid rgba(138, 223, 215, .28);
+        box-shadow: var(--hp-shadow);
+        font-weight: 700;
+      }
+      .auth-card {
+        background: rgba(255,255,255,.92);
+        border: 1px solid var(--hp-border);
+        border-radius: 28px;
+        box-shadow: var(--hp-shadow-strong);
+        overflow: hidden;
+      }
+      .auth-card__header {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--hp-primary), var(--hp-secondary));
+        color: white;
+      }
+      .auth-card__body {
+        padding: 1.5rem;
+      }
+      .auth-role-switch {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .75rem;
+        margin-bottom: 1rem;
+      }
+      .auth-role-option {
+        border: 1px solid var(--hp-border);
+        background: white;
+        border-radius: 16px;
+        padding: .95rem 1rem;
+        font-weight: 700;
+        transition: all .2s ease;
+      }
+      .auth-role-option.active {
+        background: linear-gradient(135deg, var(--hp-primary), var(--hp-secondary));
+        color: white;
+        border-color: transparent;
+      }
+      .auth-muted-note {
+        background: #f3fbfb;
+        border: 1px solid var(--hp-border);
+        border-radius: 16px;
+        padding: 1rem;
+        color: var(--hp-ink);
+        margin-bottom: 1rem;
+      }
+      @media (max-width: 992px) {
+        .auth-shell { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="auth-shell">
+      <section class="auth-hero">
+        <a th:href="@{/}" class="d-inline-flex align-items-center gap-3 text-decoration-none mb-4" style="color:inherit;">
+          <img th:src="@{/assets/img/shared/logo.jpg}" alt="Happy Paws" style="height:72px;width:72px;border-radius:20px;object-fit:cover;box-shadow: var(--hp-shadow);">
+          <div>
+            <div class="section-kicker" style="background: rgba(88,184,199,.12); color: var(--hp-secondary);">Happy Paws</div>
+            <div class="small text-muted mt-2">Clínica veterinaria y gestión integral</div>
+          </div>
+        </a>
+        <h1>Acceso premium para clientes y colaboradores.</h1>
+        <p>Entra a un panel veterinario diseñado para trabajar rápido: clientes con acceso a sus mascotas y compras, colaboradores con control de citas, inventario y ventas.</p>
+        <div class="auth-badges">
+          <span class="auth-badge"><i class="bi bi-heart-fill"></i> Mascotas</span>
+          <span class="auth-badge"><i class="bi bi-calendar-check"></i> Citas</span>
+          <span class="auth-badge"><i class="bi bi-cart-check"></i> Ventas</span>
+          <span class="auth-badge"><i class="bi bi-people"></i> Clientes</span>
+        </div>
+      </section>
+
+      <section class="auth-card">
+        <div class="auth-card__header">
+          <div class="d-flex align-items-center gap-3">
+            <span class="role-card__icon" style="background: rgba(255,255,255,.2); color:white;"><i class="bi bi-box-arrow-in-right"></i></span>
+            <div>
+              <h2 class="h3 fw-bold mb-1">Iniciar sesión</h2>
+              <p class="mb-0 opacity-75">Selecciona tu tipo de acceso y entra con tus credenciales.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="auth-card__body">
+          <div class="auth-role-switch" role="tablist" aria-label="Tipo de acceso">
+            <button type="button" class="auth-role-option active" data-role="cliente" onclick="setLoginRole('cliente')">Cliente</button>
+            <button type="button" class="auth-role-option" data-role="colaborador" onclick="setLoginRole('colaborador')">Colaborador</button>
+          </div>
+
+          <div class="auth-muted-note" id="loginRoleNote">
+            <strong>Cliente:</strong> entra para ver tus mascotas, citas y carrito personal.
+          </div>
+
+          <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+          <div class="alert alert-warning"  th:if="${param.tabExpired}">La sesión de esta pestaña ha expirado. Inicia sesión nuevamente para continuar.</div>
+          <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+
+          <form th:action="@{/login}" method="post" class="row g-3" id="loginForm">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" id="loginRole" name="loginRole" value="cliente" />
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Correo electrónico</label>
+              <input id="loginEmail" type="email" name="email" class="form-control form-control-lg" th:value="${email}" placeholder="tu@correo.com" required />
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Contraseña</label>
+              <input id="loginPassword" type="password" name="password" class="form-control form-control-lg" placeholder="••••••••" required />
+            </div>
+
+            <div class="col-12 d-grid gap-2 mt-2">
+              <button type="submit" class="btn btn-lg btn-primary">Ingresar</button>
+              <a th:href="@{/}" class="btn btn-lg btn-outline-secondary">Volver al inicio</a>
+            </div>
+          </form>
+
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+            <a th:href="@{/forgot-password}" class="text-decoration-none">¿Olvidaste tu contraseña?</a>
+            <a th:href="@{/register}" class="text-decoration-none fw-semibold">Crear cuenta</a>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      function setLoginRole(role) {
+        const roleInput = document.getElementById('loginRole');
+        const roleNote = document.getElementById('loginRoleNote');
+        const buttons = document.querySelectorAll('.auth-role-option');
+
+        if (roleInput) {
+          roleInput.value = role;
+        }
+
+        buttons.forEach((button) => {
+          button.classList.toggle('active', button.dataset.role === role);
+        });
+
+        if (roleNote) {
+          roleNote.innerHTML = role === 'colaborador'
+            ? '<strong>Colaborador:</strong> entra para gestionar clientes, citas, productos y ventas según tu permiso.'
+            : '<strong>Cliente:</strong> entra para ver tus mascotas, citas y carrito personal.';
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        setLoginRole('cliente');
+      });
+    </script>
+      <script>
+      // La pestaña que inicia sesión queda marcada como la pestaña propietaria
+      // de la sesión HTTP. Una pestaña nueva no tendrá esta marca.
+      document.getElementById('loginForm')?.addEventListener('submit', function () {
+        try {
+          sessionStorage.setItem('happyPawsSessionTab', 'active');
+        } catch (e) {}
+      });
+    </script>
+</body>
+</html>

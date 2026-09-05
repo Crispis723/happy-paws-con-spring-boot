@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar compra - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/css/happypaws-ui.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+    <style>
+        body { min-height: 100vh; background: linear-gradient(180deg, #f8fdfd 0%, #eef8f7 100%); }
+        .page-shell { max-width: 1180px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+        .hero-panel { background: linear-gradient(135deg, #8adfd7 0%, #58b8c7 100%); color: white; border-radius: 28px; padding: 2rem; box-shadow: 0 22px 50px rgba(71, 150, 164, 0.12); margin-bottom: 1.5rem; }
+        .surface-card { background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); border: 1px solid rgba(138, 223, 215, 0.22); border-radius: 24px; box-shadow: 0 16px 36px rgba(71, 150, 164, 0.08); overflow: hidden; }
+    </style>
+
+<div th:replace="~{partials/session-guard :: guard}"></div>
+
+</head>
+<body>
+    <div th:insert="~{partials/header :: header}"></div>
+    <div class="page-shell">
+        <div class="hero-panel">
+            <p class="text-uppercase small fw-semibold mb-1 opacity-75">Compras</p>
+            <h1 class="display-6 fw-bold mb-2">Editar compra</h1>
+            <p class="mb-0 opacity-75">Ajusta la compra con una interfaz moderna y más legible.</p>
+        </div>
+
+        <div class="surface-card">
+            <div class="card-header bg-white border-bottom-0 py-3">
+                <h5 class="mb-0 text-primary fw-bold"><i class="bi bi-cart-plus me-1"></i> Datos de la compra</h5>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <form id="formCompra" th:action="@{/compras/guardar}" th:object="${compra}" method="post" novalidate class="row g-4">
+                    <input type="hidden" th:field="*{id}">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Número</label>
+                        <input type="text" class="form-control form-control-lg" th:field="*{numero}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Fecha <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control form-control-lg" th:field="*{fecha}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Proveedor <span class="text-danger">*</span></label>
+                        <select class="form-select form-select-lg" th:field="*{proveedor.id}">
+                            <option value="">-- Seleccionar proveedor --</option>
+                            <option th:each="proveedor : ${proveedores}" th:value="${proveedor.id}" th:text="${proveedor.razonSocial}">Proveedor</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Tipo comprobante <span class="text-danger">*</span></label>
+                        <select class="form-select form-select-lg" th:field="*{comprobanteTipoCodigo}">
+                            <option value="">-- Seleccionar tipo --</option>
+                            <option th:each="tipo : ${comprobanteTipos}" th:value="${tipo.codigo}" th:text="${tipo.descripcion}">Tipo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Forma de pago <span class="text-danger">*</span></label>
+                        <select class="form-select form-select-lg" th:field="*{formaPago}">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="tarjeta">Tarjeta</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="cheque">Cheque</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Estado</label>
+                        <select class="form-select form-select-lg" th:field="*{estado}">
+                            <option value="registrada">Registrada</option>
+                            <option value="anulada">Anulada</option>
+                        </select>
+                    </div>
+                    <div th:replace="~{views/compras/partials/detalle-productos :: detalleProductos}"></div>
+
+                    <div class="col-12 d-flex flex-column flex-sm-row justify-content-between gap-2 pt-2">
+                        <a th:href="@{/compras}" class="btn btn-outline-secondary btn-lg px-4">Cancelar</a>
+                        <button type="submit" class="btn btn-primary btn-lg px-4">Actualizar compra</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div th:insert="~{partials/footer :: footer}"></div>
+</body>
+</html>

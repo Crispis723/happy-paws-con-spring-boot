@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar cita - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/css/happypaws-ui.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+
+<div th:replace="~{partials/session-guard :: guard}"></div>
+
+</head>
+<body>
+    <div th:insert="~{partials/header :: header}"></div>
+    <div class="page-shell">
+        <div class="hero-panel d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+            <div>
+                <span class="hero-kicker mb-2"><i class="bi bi-calendar-plus-fill"></i> Agenda</span>
+                <h1 class="display-6 fw-bold mb-2">Agendar cita</h1>
+                <p class="mb-0 opacity-75">Programa una cita con un formato visual similar al módulo de mascotas.</p>
+            </div>
+            <a th:href="@{/citas}" class="btn btn-outline-light btn-lg rounded-pill fw-semibold px-4">
+                <i class="bi bi-arrow-left me-1"></i> Regresar
+            </a>
+        </div>
+
+        <div class="surface-card p-4 p-md-5">
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <form th:action="@{/citas/guardar}" th:object="${cita}" method="post" class="row g-4">
+                <input type="hidden" th:field="*{id}">
+                <input type="hidden" th:field="*{clienteId}">
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Cliente asociado</label>
+                    <input type="text" class="form-control form-control-lg" th:value="${clienteNombre}" disabled />
+                    <small class="text-muted">La cita se registra con el mismo usuario autenticado.</small>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Tipo de atención</label>
+                    <select class="form-select form-select-lg" name="tipoAtencion">
+                        <option value="consulta">Consulta general</option>
+                        <option value="control">Control</option>
+                        <option value="vacunacion">Vacunación</option>
+                        <option value="emergencia">Emergencia</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Mascota</label>
+                    <select class="form-select form-select-lg" th:field="*{petId}" required>
+                        <option value="">-- Seleccionar --</option>
+                        <option th:each="mascota : ${mascotas}" th:value="${mascota.id}" th:text="${mascota.nombre + ' - ' + mascota.especie}"></option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Veterinario</label>
+                    <select class="form-select form-select-lg" th:field="*{veterinarioId}" required>
+                        <option value="">-- Seleccionar --</option>
+                        <option th:each="veterinario : ${veterinarios}" th:value="${veterinario.id}" th:text="${veterinario.name}"></option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Fecha y hora</label>
+                    <input type="datetime-local" class="form-control form-control-lg" th:field="*{fechaHora}" required>
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('fechaHora')}" th:errors="*{fechaHora}"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Rango de hora preferido</label>
+                    <select class="form-select form-select-lg" name="horarioPreferido">
+                        <option value="manana">Mañana (08:00 - 12:00)</option>
+                        <option value="tarde">Tarde (12:00 - 17:00)</option>
+                        <option value="noche">Noche (17:00 - 20:00)</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Teléfono de contacto</label>
+                    <input type="tel" class="form-control form-control-lg" name="telefonoContacto" placeholder="Ej. 999999999">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Prioridad</label>
+                    <select class="form-select form-select-lg" name="prioridad">
+                        <option value="normal">Normal</option>
+                        <option value="alta">Alta</option>
+                        <option value="urgente">Urgente</option>
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Motivo</label>
+                    <textarea class="form-control" rows="4" th:field="*{motivo}" placeholder="Describe síntomas, antecedentes o motivo de la consulta" required></textarea>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Observaciones adicionales</label>
+                    <textarea class="form-control" rows="3" name="observaciones" placeholder="Medicamentos actuales, alergias, comportamiento, etc."></textarea>
+                </div>
+
+                <div class="col-12 d-flex justify-content-between gap-2">
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/citas}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Devolverse</a>
+                        <a th:href="@{/citas}" class="btn btn-outline-dark"><i class="bi bi-calendar-check"></i> Ver citas</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Guardar cita</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div th:insert="~{partials/footer :: footer}"></div>
+</body>
+</html>

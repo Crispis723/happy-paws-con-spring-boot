@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso no autorizado - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+    <style>
+        body { min-height: 100vh; background: linear-gradient(180deg, #f8fdfd 0%, #eef8f7 100%); }
+        .page-shell { max-width: 920px; margin: 0 auto; padding: 3rem 1rem; }
+        .surface-card { background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); border: 1px solid rgba(138, 223, 215, 0.22); border-radius: 24px; box-shadow: 0 16px 36px rgba(71, 150, 164, 0.08); overflow: hidden; }
+    </style>
+
+<div th:replace="~{partials/session-guard :: guard}"></div>
+
+</head>
+<body>
+    <div th:insert="~{partials/header :: header}"></div>
+    <div class="page-shell">
+        <div class="surface-card p-5 text-center">
+            <i class="bi bi-shield-exclamation text-danger" style="font-size: 4rem;"></i>
+            <h1 class="h3 fw-bold mt-3" th:text="${title != null ? title : 'Acceso no autorizado'}">Acceso no autorizado</h1>
+            <p class="text-muted mb-4" th:text="${error != null ? error : 'No tienes permisos para ver esta sección.'}">No tienes permisos para ver esta sección.</p>
+            <a th:href="@{/dashboard}" class="btn btn-primary">Volver al dashboard</a>
+        </div>
+    </div>
+    <div th:insert="~{partials/footer :: footer}"></div>
+</body>
+</html>

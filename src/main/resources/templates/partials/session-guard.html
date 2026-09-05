@@ -1,0 +1,37 @@
+<!--
+    Happy Paws: guardia de sesión por pestaña.
+
+    Por qué existe: la cookie JSESSIONID vive en el servidor y es compartida
+    por TODAS las pestañas del navegador. Si solo dependiéramos de ella,
+    cerrar una pestaña y volver a abrir la URL (o restaurar pestañas del
+    navegador) dejaría al usuario "adentro" sin pedir contraseña otra vez.
+
+    Cómo funciona: sessionStorage es exclusivo de cada pestaña y se borra
+    en cuanto esa pestaña (o el navegador) se cierra. En login.html, al
+    enviar el formulario, se marca sessionStorage.happyPawsSessionTab = 'active'.
+    Cada vista protegida incluye este fragmento, que revisa esa marca ANTES
+    de pintar la página: si no está, oculta el HTML y redirige a /login.
+
+    Para agregarlo a una vista nueva: pegar esta línea dentro de <head>,
+    antes de cualquier otro contenido visible:
+
+        <div th:replace="~{partials/session-guard :: guard}"></div>
+
+    No se necesita tocar nada más: cualquier cambio futuro a esta lógica
+    se hace en este único archivo.
+-->
+<div th:fragment="guard" th:if="${#authorization != null}" th:remove="tag">
+<script th:inline="javascript">
+(function () {
+  'use strict';
+  var KEY = 'happyPawsSessionTab';
+  var LOGIN = /*[[@{/login(tabExpired=true)}]]*/ '/login?tabExpired=true';
+  var ok = false;
+  try { ok = sessionStorage.getItem(KEY) === 'active'; } catch (e) {}
+  if (!ok) {
+    document.documentElement.style.visibility = 'hidden';
+    window.location.replace(LOGIN);
+  }
+})();
+</script>
+</div>
