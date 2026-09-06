@@ -95,6 +95,10 @@ public class AppointmentService {
         return appointmentRepository.findByOwnerId(propietarioId);
     }
 
+    public List<Appointment> citasPorPropietarioEmail(String email) {
+        return appointmentRepository.findByMascotaOwnerEmailOrderByFechaHoraDesc(email);
+    }
+
     /**
      * Guardar nueva cita
      */

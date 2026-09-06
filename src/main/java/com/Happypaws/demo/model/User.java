@@ -35,6 +35,7 @@ public class User {
     private String password;
 
     @Column(name = "telefono")
+    @Pattern(regexp = "^[0-9]{10}$", message = "El teléfono debe tener exactamente 10 dígitos")
     private String telefono;
 
     @Column(name = "direccion")

@@ -29,8 +29,8 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Teléfono <span class="text-danger">*</span></label>
-                            <input type="tel" name="cliente_telefono" class="form-control @error('cliente_telefono') is-invalid @enderror" value="{{ old('cliente_telefono') }}" placeholder="Ej. 999999999" pattern="^[0-9\s\-\+]{6,}$" required aria-describedby="help-telefono">
-                            <small id="help-telefono" class="text-muted">Solo números, espacios, guiones o +. Mínimo 6 caracteres.</small>
+                            <input type="tel" name="cliente_telefono" class="form-control @error('cliente_telefono') is-invalid @enderror" value="{{ old('cliente_telefono') }}" placeholder="Ej. 9999999999" pattern="[0-9]{10}" minlength="10" maxlength="10" inputmode="numeric" required aria-describedby="help-telefono">
+                            <small id="help-telefono" class="text-muted">Ingresa exactamente 10 dígitos.</small>
                             @error('cliente_telefono') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         @else

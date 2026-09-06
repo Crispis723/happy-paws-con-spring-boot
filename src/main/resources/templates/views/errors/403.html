@@ -1,26 +1,16 @@
-@extends('plantilla.app')
-@section('contenido')
-<div class="container-fluid">
-    <!--begin::Row-->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card mb-4">
-                <div class="card-header d-flex align-items-center bg-danger text-white">
-                    <h3 class="card-title flex-grow-1">Acceso no autorizado</h3>
-                </div>
-                <!-- /.card-header -->
-                <div class="card-body">
-
-                </div>
-                <!-- /.card-body -->
-                <div class="card-footer clearfix">
-                    
-                </div>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Acceso restringido</title></head>
+<body>
+<div th:replace="~{views/plantilla/app :: content}">
+    <div class="container-fluid py-5">
+        <div class="row justify-content-center"><div class="col-lg-7">
+            <div class="card border-danger text-center">
+                <div class="card-header bg-danger text-white"><h3 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Acceso restringido</h3></div>
+                <div class="card-body py-5"><p class="lead mb-4">No tienes permisos para acceder a esta sección.</p><a th:href="@{/dashboard}" class="btn btn-primary"><i class="bi bi-grid me-1"></i>Ir a mi dashboard</a></div>
             </div>
-            <!-- /.card -->
-        </div>
-        <!-- /.col -->
+        </div></div>
     </div>
-    <!--end::Row-->
 </div>
-@endsection
+</body>
+</html>

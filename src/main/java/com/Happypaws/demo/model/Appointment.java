@@ -55,6 +55,7 @@ public class Appointment {
     private String clienteNombre;
 
     @Column(name = "cliente_telefono")
+    @Pattern(regexp = "^[0-9]{10}$", message = "El teléfono debe tener exactamente 10 dígitos")
     private String clienteTelefono;
 
     @Column(name = "mascota_nombre")

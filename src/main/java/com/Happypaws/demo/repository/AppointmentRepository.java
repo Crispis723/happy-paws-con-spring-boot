@@ -20,6 +20,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     List<Appointment> findByMascotaId(Long mascotaId);
 
+    List<Appointment> findByMascotaOwnerEmailOrderByFechaHoraDesc(String email);
+
     List<Appointment> findByFechaHoraBetween(LocalDateTime inicio, LocalDateTime fin);
 
     List<Appointment> findByVeterinarioIdAndFechaHoraBetween(Long veterinarioId, LocalDateTime inicio, LocalDateTime fin);

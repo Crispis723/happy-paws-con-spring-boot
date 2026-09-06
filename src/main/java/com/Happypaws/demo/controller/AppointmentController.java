@@ -6,6 +6,7 @@ import com.Happypaws.demo.service.AppointmentService;
 import com.Happypaws.demo.service.VeterinarioService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,17 +33,14 @@ public class AppointmentController {
      * Listar todas las citas (según rol)
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'RECEPCIONISTA')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'RECEPCIONISTA', 'CLIENTE')")
     public String index(Model model, Authentication authentication) {
         List<Appointment> citas;
-        
-        // Si es veterinario, mostrar solo sus citas
+
         if (authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_VETERINARIO"))) {
-            // TODO: Obtener ID del veterinario autenticado
-            citas = appointmentService.listarTodas(); // Por ahora mostrar todas
+                .anyMatch(a -> a.getAuthority().equals("ROLE_CLIENTE"))) {
+            citas = appointmentService.citasPorPropietarioEmail(authentication.getName());
         } else {
-            // Admin y recepcionista ven todas
             citas = appointmentService.listarTodas();
         }
         
@@ -55,13 +53,15 @@ public class AppointmentController {
      * Ver detalles de una cita
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'RECEPCIONISTA')")
-    public String show(@PathVariable Long id, Model model) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'RECEPCIONISTA', 'CLIENTE')")
+    public String show(@PathVariable Long id, Model model, Authentication authentication) {
         Optional<Appointment> cita = appointmentService.buscarPorId(id);
         
         if (cita.isEmpty()) {
             throw new IllegalArgumentException("Cita no encontrada");
         }
+
+        validarPermisoDeEdicion(cita.get(), authentication);
         
         model.addAttribute("cita", cita.get());
         model.addAttribute("historial", appointmentService.historial(id));
@@ -108,13 +108,15 @@ public class AppointmentController {
      * Formulario para editar cita
      */
     @GetMapping("/{id}/edit")
-    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'RECEPCIONISTA')")
-    public String editForm(@PathVariable Long id, Model model) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'RECEPCIONISTA', 'CLIENTE')")
+    public String editForm(@PathVariable Long id, Model model, Authentication authentication) {
         Optional<Appointment> cita = appointmentService.buscarPorId(id);
         
         if (cita.isEmpty()) {
             throw new IllegalArgumentException("Cita no encontrada");
         }
+
+        validarPermisoDeEdicion(cita.get(), authentication);
         
         model.addAttribute("appointment", cita.get());
         model.addAttribute("veterinarios", veterinarioService.listarActivos());
@@ -126,12 +128,19 @@ public class AppointmentController {
      * Actualizar cita
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'RECEPCIONISTA')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'RECEPCIONISTA', 'CLIENTE')")
     public String update(@PathVariable Long id,
                         @Valid @ModelAttribute Appointment appointment,
                         BindingResult result,
                         RedirectAttributes redirectAttributes,
                         Model model) {
+        Optional<Appointment> citaActual = appointmentService.buscarPorId(id);
+        if (citaActual.isEmpty()) {
+            throw new IllegalArgumentException("Cita no encontrada");
+        }
+        validarPermisoDeEdicion(citaActual.get(),
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication());
+
         if (result.hasErrors()) {
             model.addAttribute("veterinarios", veterinarioService.listarActivos());
             model.addAttribute("estados", EstadoCita.values());
@@ -213,5 +222,17 @@ public class AppointmentController {
     private String authenticationName() {
         return org.springframework.security.core.context.SecurityContextHolder.getContext()
                 .getAuthentication().getName();
+    }
+
+    private void validarPermisoDeEdicion(Appointment cita, Authentication authentication) {
+        boolean esCliente = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_CLIENTE"));
+        boolean esPropietario = cita.getMascota() != null
+                && cita.getMascota().getOwner() != null
+                && authentication.getName().equalsIgnoreCase(cita.getMascota().getOwner().getEmail());
+
+        if (esCliente && !esPropietario) {
+            throw new AccessDeniedException("Solo puedes modificar tus propias citas");
+        }
     }
 }
