@@ -1,3 +1,4 @@
+```java
 package com.Happypaws.demo.controller;
 
 import com.Happypaws.demo.dto.AppointmentDTO;
@@ -8,7 +9,9 @@ import com.Happypaws.demo.service.AppointmentService;
 import com.Happypaws.demo.service.ClienteService;
 import com.Happypaws.demo.service.PetService;
 import com.Happypaws.demo.service.UserService;
+
 import jakarta.validation.Valid;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -27,10 +30,28 @@ import java.util.Map;
 @RequestMapping("/citas")
 public class AppointmentController {
 
-        private static final Map<String, List<String>> TIPOS_SERVICIO = Map.of(
-                        "Veterinaria", List.of("Control", "Primera vez", "Vacunación", "Consulta", "Desparasitación"),
-                        "Estilista", List.of("Baño", "Corte", "Baño + corte", "Corte de uñas")
-        );
+    // ============================================================
+    // CATÁLOGO DE SERVICIOS
+    // ============================================================
+
+    private static final Map<String, List<String>> TIPOS_SERVICIO = Map.of(
+            "Veterinaria",
+            List.of(
+                    "Control",
+                    "Primera vez",
+                    "Vacunación",
+                    "Consulta",
+                    "Desparasitación"
+            ),
+
+            "Estilista",
+            List.of(
+                    "Baño",
+                    "Corte",
+                    "Baño + corte",
+                    "Corte de uñas"
+            )
+    );
 
     private final AppointmentService appointmentService;
     private final PetService petService;
@@ -54,22 +75,28 @@ public class AppointmentController {
     // ============================================================
 
     @GetMapping
-    public String listar(Model model, Authentication auth) {
+    public String listar(
+            Model model,
+            Authentication auth) {
 
         boolean esCliente = tieneRol(auth, "ROLE_CLIENTE");
         boolean esVeterinario = tieneRol(auth, "ROLE_VETERINARIO");
         boolean esAdmin = tieneRol(auth, "ROLE_ADMIN");
-        model.addAttribute("isClientUser", esCliente && !esVeterinario && !esAdmin);
-        model.addAttribute("estados", EstadoCita.values());
+
+        model.addAttribute(
+                "isClientUser",
+                esCliente && !esVeterinario && !esAdmin
+        );
+
+        model.addAttribute(
+                "estados",
+                EstadoCita.values()
+        );
 
         /*
          * ADMIN y VETERINARIO:
-         * pueden ver TODAS las citas.
-         *
-         * CLIENTE:
-         * solamente sus propias citas.
+         * pueden ver todas las citas.
          */
-
         if (esAdmin || esVeterinario) {
 
             model.addAttribute(
@@ -77,6 +104,10 @@ public class AppointmentController {
                     appointmentService.listar()
             );
 
+        /*
+         * CLIENTE:
+         * solamente puede ver sus propias citas.
+         */
         } else if (esCliente) {
 
             Cliente cliente =
@@ -92,9 +123,11 @@ public class AppointmentController {
                     )
             );
 
+        /*
+         * Otros roles autorizados.
+         */
         } else {
 
-            // Otros roles autorizados
             model.addAttribute(
                     "citas",
                     appointmentService.listar()
@@ -109,14 +142,29 @@ public class AppointmentController {
     // ============================================================
 
     @GetMapping("/create")
-    public String create(Model model, Authentication auth) {
+    public String create(
+            Model model,
+            Authentication auth) {
 
+        /*
+         * Valores iniciales seguros.
+         *
+         * Esto evita que servicio y tipoServicio comiencen
+         * como null al cargar el formulario.
+         */
         AppointmentDTO dto = new AppointmentDTO();
 
-        boolean esCliente = tieneRol(auth, "ROLE_CLIENTE");
+        dto.setServicio("Veterinaria");
+        dto.setTipoServicio("Consulta");
 
-        if (esCliente && !tieneRol(auth, "ROLE_VETERINARIO")
-                && !tieneRol(auth, "ROLE_ADMIN")) {
+        boolean esCliente = tieneRol(auth, "ROLE_CLIENTE");
+        boolean esVeterinario = tieneRol(auth, "ROLE_VETERINARIO");
+        boolean esAdmin = tieneRol(auth, "ROLE_ADMIN");
+
+        /*
+         * CLIENTE PURO
+         */
+        if (esCliente && !esVeterinario && !esAdmin) {
 
             Cliente cliente =
                     clienteService.resolverOCrearClienteAutenticado(
@@ -124,7 +172,9 @@ public class AppointmentController {
                             auth.getName()
                     );
 
-            dto.setClienteId(cliente.getIdCliente());
+            dto.setClienteId(
+                    cliente.getIdCliente()
+            );
 
             model.addAttribute(
                     "clienteNombre",
@@ -133,9 +183,14 @@ public class AppointmentController {
 
             model.addAttribute(
                     "mascotas",
-                    petService.listarPorClienteId(cliente.getIdCliente())
+                    petService.listarPorClienteId(
+                            cliente.getIdCliente()
+                    )
             );
 
+        /*
+         * ADMIN / VETERINARIO / STAFF
+         */
         } else {
 
             model.addAttribute(
@@ -149,8 +204,18 @@ public class AppointmentController {
             );
         }
 
-        model.addAttribute("cita", dto);
-        cargarCatalogoServicios(model, dto);
+        model.addAttribute(
+                "cita",
+                dto
+        );
+
+        /*
+         * Cargar catálogo de servicios de forma segura.
+         */
+        cargarCatalogoServicios(
+                model,
+                dto
+        );
 
         model.addAttribute(
                 "veterinarios",
@@ -161,7 +226,7 @@ public class AppointmentController {
     }
 
     // ============================================================
-    // GUARDAR
+    // GUARDAR / ACTUALIZAR
     // ============================================================
 
     @PostMapping("/guardar")
@@ -176,32 +241,39 @@ public class AppointmentController {
         boolean esVeterinario = tieneRol(auth, "ROLE_VETERINARIO");
         boolean esAdmin = tieneRol(auth, "ROLE_ADMIN");
 
+        // ========================================================
+        // SEGURIDAD - ACTUALIZACIÓN DE CITA
+        // ========================================================
+
         /*
-         * SEGURIDAD (control de acceso a nivel de recurso):
-         * Si es una actualización (dto.getId() viene informado) y el
-         * usuario es CLIENTE puro, hay que verificar que la CITA que
-         * se va a sobrescribir ya le pertenecía. Más abajo solo se
-         * valida que la mascota elegida sea suya, pero eso no impide
-         * que un cliente envíe el id de la cita de OTRO cliente junto
-         * con una de sus propias mascotas y termine reasignando/
-         * modificando una cita ajena.
+         * Si un CLIENTE intenta actualizar una cita existente,
+         * verificamos que la cita realmente le pertenezca.
          */
-        if (esCliente && !esVeterinario && !esAdmin && dto.getId() != null) {
+        if (esCliente
+                && !esVeterinario
+                && !esAdmin
+                && dto.getId() != null) {
 
-            Appointment citaExistente = appointmentService.buscarPorId(dto.getId())
-                    .orElseThrow(() ->
-                            new IllegalArgumentException("Cita no encontrada")
+            Appointment citaExistente =
+                    appointmentService.buscarPorId(dto.getId())
+                            .orElseThrow(() ->
+                                    new IllegalArgumentException(
+                                            "Cita no encontrada"
+                                    )
+                            );
+
+            Cliente clienteActual =
+                    clienteService.resolverOCrearClienteAutenticado(
+                            auth.getName(),
+                            auth.getName()
                     );
-
-            Cliente clienteActual = clienteService.resolverOCrearClienteAutenticado(
-                    auth.getName(),
-                    auth.getName()
-            );
 
             if (citaExistente.getCliente() == null
                     || citaExistente.getCliente().getIdCliente() == null
                     || !clienteActual.getIdCliente().equals(
-                            citaExistente.getCliente().getIdCliente()
+                            citaExistente
+                                    .getCliente()
+                                    .getIdCliente()
                     )) {
 
                 throw new IllegalArgumentException(
@@ -212,11 +284,17 @@ public class AppointmentController {
 
         Cliente cliente = null;
 
+        // ========================================================
+        // CLIENTE AUTENTICADO
+        // ========================================================
+
         /*
-         * Si es CLIENTE puro, obligatoriamente usamos
-         * el cliente autenticado.
+         * Un CLIENTE puro no puede seleccionar otro cliente.
+         * Siempre utilizamos el cliente autenticado.
          */
-        if (esCliente && !esVeterinario && !esAdmin) {
+        if (esCliente
+                && !esVeterinario
+                && !esAdmin) {
 
             cliente =
                     clienteService.resolverOCrearClienteAutenticado(
@@ -224,19 +302,29 @@ public class AppointmentController {
                             auth.getName()
                     );
 
-            dto.setClienteId(cliente.getIdCliente());
+            dto.setClienteId(
+                    cliente.getIdCliente()
+            );
         }
 
-        // Una cita solo puede agendarse desde 15 minutos después de la hora actual.
-        // Se usa explícitamente la zona horaria de Colombia para que Render/servidores UTC
-        // no cambien la referencia de tiempo de la aplicación.
+        // ========================================================
+        // VALIDACIÓN DE FECHA
+        // ========================================================
+
+        /*
+         * La cita debe agendarse mínimo 15 minutos después
+         * de la hora actual de Colombia.
+         */
         if (dto.getFechaHora() != null) {
-            LocalDateTime fechaMinima = LocalDateTime
-                    .now(ZoneId.of("America/Bogota"))
-                    .truncatedTo(ChronoUnit.MINUTES)
-                    .plusMinutes(15);
+
+            LocalDateTime fechaMinima =
+                    LocalDateTime
+                            .now(ZoneId.of("America/Bogota"))
+                            .truncatedTo(ChronoUnit.MINUTES)
+                            .plusMinutes(15);
 
             if (dto.getFechaHora().isBefore(fechaMinima)) {
+
                 bindingResult.rejectValue(
                         "fechaHora",
                         "fechaHora.minima",
@@ -245,7 +333,18 @@ public class AppointmentController {
             }
         }
 
-        normalizarYValidarServicio(dto, bindingResult);
+        // ========================================================
+        // VALIDACIÓN DE SERVICIO
+        // ========================================================
+
+        normalizarYValidarServicio(
+                dto,
+                bindingResult
+        );
+
+        // ========================================================
+        // ERRORES DEL FORMULARIO
+        // ========================================================
 
         if (bindingResult.hasErrors()) {
 
@@ -280,49 +379,89 @@ public class AppointmentController {
                     "veterinarios",
                     userService.listarVeterinarios()
             );
-            cargarCatalogoServicios(model, dto);
+
+            /*
+             * IMPORTANTE:
+             * volver a cargar el catálogo utilizando los valores
+             * que el usuario envió.
+             */
+            cargarCatalogoServicios(
+                    model,
+                    dto
+            );
 
             return "views/citas/create";
         }
 
-        Appointment appointment = new Appointment();
+        // ========================================================
+        // CONSTRUIR ENTIDAD APPOINTMENT
+        // ========================================================
+
+        Appointment appointment =
+                new Appointment();
 
         if (dto.getId() != null) {
-            appointment.setIdCita(dto.getId());
+
+            appointment.setIdCita(
+                    dto.getId()
+            );
         }
 
-        appointment.setFechaHora(dto.getFechaHora());
-        appointment.setMotivo(dto.getMotivo());
-        appointment.setServicio(dto.getServicio());
-        appointment.setTipoServicio(dto.getTipoServicio());
+        appointment.setFechaHora(
+                dto.getFechaHora()
+        );
 
-        // Mascota
-        Appointment finalAppointment = appointment;
+        appointment.setMotivo(
+                dto.getMotivo()
+        );
+
+        appointment.setServicio(
+                dto.getServicio()
+        );
+
+        appointment.setTipoServicio(
+                dto.getTipoServicio()
+        );
+
+        // ========================================================
+        // MASCOTA
+        // ========================================================
 
         appointment.setMascota(
-                petService.buscarPorId(dto.getPetId())
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "Mascota no encontrada"
-                                )
+                petService.buscarPorId(
+                        dto.getPetId()
+                ).orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Mascota no encontrada"
                         )
+                )
         );
 
-        // Veterinario
+        // ========================================================
+        // VETERINARIO
+        // ========================================================
+
         appointment.setVeterinario(
-                userService.buscarPorId(dto.getVeterinarioId())
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "Veterinario no encontrado"
-                                )
+                userService.buscarPorId(
+                        dto.getVeterinarioId()
+                ).orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Veterinario no encontrado"
                         )
+                )
         );
+
+        // ========================================================
+        // CLIENTE
+        // ========================================================
 
         /*
-         * CLIENTE puro:
-         * solamente puede crear cita para sus mascotas.
+         * CLIENTE PURO:
+         * solamente puede crear una cita para una mascota propia.
          */
-        if (esCliente && !esVeterinario && !esAdmin) {
+        if (esCliente
+                && !esVeterinario
+                && !esAdmin) {
 
             cliente =
                     clienteService.resolverOCrearClienteAutenticado(
@@ -330,8 +469,11 @@ public class AppointmentController {
                             auth.getName()
                     );
 
-            if (appointment.getMascota().getCliente() == null ||
-                    !cliente.getIdCliente().equals(
+            if (appointment.getMascota().getCliente() == null
+                    || appointment.getMascota()
+                            .getCliente()
+                            .getIdCliente() == null
+                    || !cliente.getIdCliente().equals(
                             appointment.getMascota()
                                     .getCliente()
                                     .getIdCliente()
@@ -342,7 +484,9 @@ public class AppointmentController {
                 );
             }
 
-            appointment.setCliente(cliente);
+            appointment.setCliente(
+                    cliente
+            );
 
         } else {
 
@@ -351,23 +495,36 @@ public class AppointmentController {
              * pueden seleccionar el cliente.
              */
             appointment.setCliente(
-                    clienteService.buscarPorId(dto.getClienteId())
-                            .orElseThrow(() ->
-                                    new IllegalArgumentException(
-                                            "Cliente no encontrado"
-                                    )
+                    clienteService.buscarPorId(
+                            dto.getClienteId()
+                    ).orElseThrow(() ->
+                            new IllegalArgumentException(
+                                    "Cliente no encontrado"
                             )
+                    )
             );
         }
 
+        // ========================================================
+        // GUARDAR O ACTUALIZAR
+        // ========================================================
+
         if (appointment.getIdCita() == null) {
 
-            appointmentService.guardar(appointment);
+            appointmentService.guardar(
+                    appointment
+            );
 
         } else {
 
-            appointmentService.actualizar(appointment);
+            appointmentService.actualizar(
+                    appointment
+            );
         }
+
+        // ========================================================
+        // MENSAJE DE ÉXITO
+        // ========================================================
 
         redirectAttributes.addFlashAttribute(
                 "success",
@@ -395,15 +552,28 @@ public class AppointmentController {
                                 )
                         );
 
-        boolean esCliente = tieneRol(auth, "ROLE_CLIENTE");
-        boolean esVeterinario = tieneRol(auth, "ROLE_VETERINARIO");
-        boolean esAdmin = tieneRol(auth, "ROLE_ADMIN");
+        boolean esCliente = tieneRol(
+                auth,
+                "ROLE_CLIENTE"
+        );
 
-        /*
-         * CLIENTE puro solamente puede editar
-         * sus propias citas.
-         */
-        if (esCliente && !esVeterinario && !esAdmin) {
+        boolean esVeterinario = tieneRol(
+                auth,
+                "ROLE_VETERINARIO"
+        );
+
+        boolean esAdmin = tieneRol(
+                auth,
+                "ROLE_ADMIN"
+        );
+
+        // ========================================================
+        // SEGURIDAD DEL CLIENTE
+        // ========================================================
+
+        if (esCliente
+                && !esVeterinario
+                && !esAdmin) {
 
             Cliente cliente =
                     clienteService.resolverOCrearClienteAutenticado(
@@ -411,9 +581,12 @@ public class AppointmentController {
                             auth.getName()
                     );
 
-            if (appointment.getCliente() == null ||
-                    !cliente.getIdCliente().equals(
-                            appointment.getCliente().getIdCliente()
+            if (appointment.getCliente() == null
+                    || appointment.getCliente().getIdCliente() == null
+                    || !cliente.getIdCliente().equals(
+                            appointment
+                                    .getCliente()
+                                    .getIdCliente()
                     )) {
 
                 throw new IllegalArgumentException(
@@ -422,39 +595,104 @@ public class AppointmentController {
             }
         }
 
-        AppointmentDTO dto = new AppointmentDTO();
+        // ========================================================
+        // CREAR DTO
+        // ========================================================
 
-        dto.setId(appointment.getIdCita());
-        dto.setFechaHora(appointment.getFechaHora());
-        dto.setMotivo(appointment.getMotivo());
-        dto.setServicio(appointment.getServicio());
-        dto.setTipoServicio(appointment.getTipoServicio());
-                if (dto.getServicio() == null || dto.getServicio().isBlank()) {
-                        dto.setServicio("Veterinaria");
-                }
-                if (dto.getTipoServicio() == null || dto.getTipoServicio().isBlank()) {
-                        dto.setTipoServicio("Consulta");
-                }
-        dto.setPetId(appointment.getMascota().getIdMascota());
+        AppointmentDTO dto =
+                new AppointmentDTO();
 
-        if (appointment.getCliente() != null) {
-            dto.setClienteId(
-                    appointment.getCliente().getIdCliente()
-            );
-        }
+        dto.setId(
+                appointment.getIdCita()
+        );
 
-        if (appointment.getVeterinario() != null) {
-            dto.setVeterinarioId(
-                    appointment.getVeterinario().getIdUsuario()
-            );
-        }
+        dto.setFechaHora(
+                appointment.getFechaHora()
+        );
 
-        model.addAttribute("cita", dto);
+        dto.setMotivo(
+                appointment.getMotivo()
+        );
+
+        dto.setServicio(
+                appointment.getServicio()
+        );
+
+        dto.setTipoServicio(
+                appointment.getTipoServicio()
+        );
 
         /*
-         * CLIENTE puro
+         * Compatibilidad con citas antiguas que no tenían
+         * servicio/tipoServicio.
          */
-        if (esCliente && !esVeterinario && !esAdmin) {
+        if (dto.getServicio() == null
+                || dto.getServicio().isBlank()) {
+
+            dto.setServicio(
+                    "Veterinaria"
+            );
+        }
+
+        if (dto.getTipoServicio() == null
+                || dto.getTipoServicio().isBlank()) {
+
+            dto.setTipoServicio(
+                    "Consulta"
+            );
+        }
+
+        // ========================================================
+        // MASCOTA
+        // ========================================================
+
+        if (appointment.getMascota() != null) {
+
+            dto.setPetId(
+                    appointment
+                            .getMascota()
+                            .getIdMascota()
+            );
+        }
+
+        // ========================================================
+        // CLIENTE
+        // ========================================================
+
+        if (appointment.getCliente() != null) {
+
+            dto.setClienteId(
+                    appointment
+                            .getCliente()
+                            .getIdCliente()
+            );
+        }
+
+        // ========================================================
+        // VETERINARIO
+        // ========================================================
+
+        if (appointment.getVeterinario() != null) {
+
+            dto.setVeterinarioId(
+                    appointment
+                            .getVeterinario()
+                            .getIdUsuario()
+            );
+        }
+
+        model.addAttribute(
+                "cita",
+                dto
+        );
+
+        // ========================================================
+        // DATOS PARA CLIENTE
+        // ========================================================
+
+        if (esCliente
+                && !esVeterinario
+                && !esAdmin) {
 
             Cliente cliente =
                     clienteService.resolverOCrearClienteAutenticado(
@@ -476,9 +714,10 @@ public class AppointmentController {
 
         } else {
 
-            /*
-             * ADMIN / VETERINARIO
-             */
+            // ====================================================
+            // ADMIN / VETERINARIO / STAFF
+            // ====================================================
+
             model.addAttribute(
                     "mascotas",
                     petService.listar()
@@ -487,48 +726,192 @@ public class AppointmentController {
             model.addAttribute(
                     "clienteNombre",
                     appointment.getCliente() != null
-                            ? appointment.getCliente().getRazonSocial()
+                            ? appointment
+                                    .getCliente()
+                                    .getRazonSocial()
                             : "Cliente"
             );
         }
+
+        // ========================================================
+        // VETERINARIOS
+        // ========================================================
 
         model.addAttribute(
                 "veterinarios",
                 userService.listarVeterinarios()
         );
-        cargarCatalogoServicios(model, dto);
+
+        // ========================================================
+        // CATÁLOGO DE SERVICIOS
+        // ========================================================
+
+        cargarCatalogoServicios(
+                model,
+                dto
+        );
 
         return "views/citas/create";
     }
 
-        private void cargarCatalogoServicios(Model model, AppointmentDTO dto) {
-                model.addAttribute("servicios", TIPOS_SERVICIO.keySet());
-                model.addAttribute("tiposServicio", TIPOS_SERVICIO.getOrDefault(
-                                dto.getServicio(), List.of()));
-                model.addAttribute("tiposServicioPorServicio", TIPOS_SERVICIO);
+    // ============================================================
+    // CATÁLOGO DE SERVICIOS
+    // ============================================================
+
+    /**
+     * Carga el catálogo de servicios para el formulario.
+     *
+     * IMPORTANTE:
+     * TIPOS_SERVICIO es un Map.of(), que no admite búsquedas
+     * con claves null.
+     *
+     * Por eso nunca llamamos:
+     *
+     * TIPOS_SERVICIO.getOrDefault(null, ...)
+     *
+     * directamente.
+     */
+    private void cargarCatalogoServicios(
+            Model model,
+            AppointmentDTO dto) {
+
+        String servicio =
+                dto != null
+                        ? dto.getServicio()
+                        : null;
+
+        List<String> tiposServicio;
+
+        if (servicio == null
+                || servicio.isBlank()) {
+
+            tiposServicio = List.of();
+
+        } else {
+
+            tiposServicio =
+                    TIPOS_SERVICIO.getOrDefault(
+                            servicio,
+                            List.of()
+                    );
         }
 
-        private void normalizarYValidarServicio(AppointmentDTO dto, BindingResult bindingResult) {
-                if (dto.getId() != null && (dto.getServicio() == null || dto.getServicio().isBlank())) {
-                        dto.setServicio("Veterinaria");
-                }
-                if (dto.getId() != null && (dto.getTipoServicio() == null || dto.getTipoServicio().isBlank())) {
-                        dto.setTipoServicio("Consulta");
-                }
-                if (dto.getServicio() == null || dto.getServicio().isBlank()) {
-                        bindingResult.rejectValue("servicio", "servicio.requerido", "Selecciona un servicio");
-                        return;
-                }
-                List<String> tiposPermitidos = TIPOS_SERVICIO.get(dto.getServicio());
-                if (tiposPermitidos == null) {
-                        bindingResult.rejectValue("servicio", "servicio.invalido", "Selecciona un servicio válido");
-                } else if (dto.getTipoServicio() == null || !tiposPermitidos.contains(dto.getTipoServicio())) {
-                        bindingResult.rejectValue("tipoServicio", "tipoServicio.invalido", "Selecciona un tipo de servicio válido");
-                }
-        }
+        model.addAttribute(
+                "servicios",
+                TIPOS_SERVICIO.keySet()
+        );
+
+        model.addAttribute(
+                "tiposServicio",
+                tiposServicio
+        );
+
+        model.addAttribute(
+                "tiposServicioPorServicio",
+                TIPOS_SERVICIO
+        );
+    }
 
     // ============================================================
-    // VER
+    // NORMALIZAR Y VALIDAR SERVICIO
+    // ============================================================
+
+    private void normalizarYValidarServicio(
+            AppointmentDTO dto,
+            BindingResult bindingResult) {
+
+        if (dto == null) {
+            return;
+        }
+
+        // ========================================================
+        // LIMPIEZA DE DATOS
+        // ========================================================
+
+        if (dto.getServicio() != null) {
+
+            dto.setServicio(
+                    dto.getServicio().trim()
+            );
+        }
+
+        if (dto.getTipoServicio() != null) {
+
+            dto.setTipoServicio(
+                    dto.getTipoServicio().trim()
+            );
+        }
+
+        // ========================================================
+        // SERVICIO OBLIGATORIO
+        // ========================================================
+
+        if (dto.getServicio() == null
+                || dto.getServicio().isBlank()) {
+
+            bindingResult.rejectValue(
+                    "servicio",
+                    "servicio.requerido",
+                    "Selecciona un servicio"
+            );
+
+            return;
+        }
+
+        // ========================================================
+        // VALIDAR SERVICIO CONTRA EL CATÁLOGO
+        // ========================================================
+
+        List<String> tiposPermitidos =
+                TIPOS_SERVICIO.get(
+                        dto.getServicio()
+                );
+
+        if (tiposPermitidos == null) {
+
+            bindingResult.rejectValue(
+                    "servicio",
+                    "servicio.invalido",
+                    "Selecciona un servicio válido"
+            );
+
+            return;
+        }
+
+        // ========================================================
+        // TIPO DE SERVICIO OBLIGATORIO
+        // ========================================================
+
+        if (dto.getTipoServicio() == null
+                || dto.getTipoServicio().isBlank()) {
+
+            bindingResult.rejectValue(
+                    "tipoServicio",
+                    "tipoServicio.requerido",
+                    "Selecciona un tipo de servicio"
+            );
+
+            return;
+        }
+
+        // ========================================================
+        // VALIDAR TIPO DE SERVICIO
+        // ========================================================
+
+        if (!tiposPermitidos.contains(
+                dto.getTipoServicio()
+        )) {
+
+            bindingResult.rejectValue(
+                    "tipoServicio",
+                    "tipoServicio.invalido",
+                    "Selecciona un tipo de servicio válido"
+            );
+        }
+    }
+
+    // ============================================================
+    // VER CITA
     // ============================================================
 
     @GetMapping("/show/{id}")
@@ -545,14 +928,28 @@ public class AppointmentController {
                                 )
                         );
 
-        boolean esCliente = tieneRol(auth, "ROLE_CLIENTE");
-        boolean esVeterinario = tieneRol(auth, "ROLE_VETERINARIO");
-        boolean esAdmin = tieneRol(auth, "ROLE_ADMIN");
+        boolean esCliente = tieneRol(
+                auth,
+                "ROLE_CLIENTE"
+        );
 
-        /*
-         * CLIENTE puro solamente ve sus citas.
-         */
-        if (esCliente && !esVeterinario && !esAdmin) {
+        boolean esVeterinario = tieneRol(
+                auth,
+                "ROLE_VETERINARIO"
+        );
+
+        boolean esAdmin = tieneRol(
+                auth,
+                "ROLE_ADMIN"
+        );
+
+        // ========================================================
+        // SEGURIDAD DEL CLIENTE
+        // ========================================================
+
+        if (esCliente
+                && !esVeterinario
+                && !esAdmin) {
 
             Cliente cliente =
                     clienteService.resolverOCrearClienteAutenticado(
@@ -560,8 +957,9 @@ public class AppointmentController {
                             auth.getName()
                     );
 
-            if (cita.getCliente() == null ||
-                    !cliente.getIdCliente().equals(
+            if (cita.getCliente() == null
+                    || cita.getCliente().getIdCliente() == null
+                    || !cliente.getIdCliente().equals(
                             cita.getCliente().getIdCliente()
                     )) {
 
@@ -571,7 +969,10 @@ public class AppointmentController {
             }
         }
 
-        model.addAttribute("cita", cita);
+        model.addAttribute(
+                "cita",
+                cita
+        );
 
         return "views/citas/show";
     }
@@ -594,15 +995,28 @@ public class AppointmentController {
                                 )
                         );
 
-        boolean esCliente = tieneRol(auth, "ROLE_CLIENTE");
-        boolean esVeterinario = tieneRol(auth, "ROLE_VETERINARIO");
-        boolean esAdmin = tieneRol(auth, "ROLE_ADMIN");
+        boolean esCliente = tieneRol(
+                auth,
+                "ROLE_CLIENTE"
+        );
 
-        /*
-         * CLIENTE puro solamente puede eliminar
-         * sus propias citas.
-         */
-        if (esCliente && !esVeterinario && !esAdmin) {
+        boolean esVeterinario = tieneRol(
+                auth,
+                "ROLE_VETERINARIO"
+        );
+
+        boolean esAdmin = tieneRol(
+                auth,
+                "ROLE_ADMIN"
+        );
+
+        // ========================================================
+        // SEGURIDAD DEL CLIENTE
+        // ========================================================
+
+        if (esCliente
+                && !esVeterinario
+                && !esAdmin) {
 
             Cliente cliente =
                     clienteService.resolverOCrearClienteAutenticado(
@@ -610,8 +1024,9 @@ public class AppointmentController {
                             auth.getName()
                     );
 
-            if (cita.getCliente() == null ||
-                    !cliente.getIdCliente().equals(
+            if (cita.getCliente() == null
+                    || cita.getCliente().getIdCliente() == null
+                    || !cliente.getIdCliente().equals(
                             cita.getCliente().getIdCliente()
                     )) {
 
@@ -621,7 +1036,9 @@ public class AppointmentController {
             }
         }
 
-        appointmentService.eliminar(id);
+        appointmentService.eliminar(
+                id
+        );
 
         redirectAttributes.addFlashAttribute(
                 "success",
@@ -642,56 +1059,107 @@ public class AppointmentController {
             Authentication auth,
             RedirectAttributes redirectAttributes) {
 
-        Appointment cita = appointmentService.buscarPorId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cita no encontrada"));
+        Appointment cita =
+                appointmentService.buscarPorId(id)
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(
+                                        "Cita no encontrada"
+                                )
+                        );
 
-        boolean esCliente = tieneRol(auth, "ROLE_CLIENTE");
-        boolean esVeterinario = tieneRol(auth, "ROLE_VETERINARIO");
-        boolean esAdmin = tieneRol(auth, "ROLE_ADMIN");
+        boolean esCliente = tieneRol(
+                auth,
+                "ROLE_CLIENTE"
+        );
 
-        if (esCliente && !esVeterinario && !esAdmin) {
+        boolean esVeterinario = tieneRol(
+                auth,
+                "ROLE_VETERINARIO"
+        );
 
-            /*
-             * Un cliente puro solo puede cancelar su propia cita, no
-             * moverla a cualquier otro estado (confirmar, marcar
-             * "atendida", etc. son acciones del personal clínico).
-             */
-            Cliente cliente = clienteService.resolverOCrearClienteAutenticado(
-                    auth.getName(),
-                    auth.getName()
-            );
+        boolean esAdmin = tieneRol(
+                auth,
+                "ROLE_ADMIN"
+        );
 
-            boolean esSuCita = cita.getCliente() != null
-                    && cliente.getIdCliente().equals(cita.getCliente().getIdCliente());
+        // ========================================================
+        // SEGURIDAD DEL CLIENTE
+        // ========================================================
+
+        if (esCliente
+                && !esVeterinario
+                && !esAdmin) {
+
+            Cliente cliente =
+                    clienteService.resolverOCrearClienteAutenticado(
+                            auth.getName(),
+                            auth.getName()
+                    );
+
+            boolean esSuCita =
+                    cita.getCliente() != null
+                            && cita.getCliente().getIdCliente() != null
+                            && cliente.getIdCliente().equals(
+                                    cita.getCliente()
+                                            .getIdCliente()
+                            );
 
             if (!esSuCita) {
-                throw new IllegalArgumentException("No tienes permiso para modificar esta cita");
+
+                throw new IllegalArgumentException(
+                        "No tienes permiso para modificar esta cita"
+                );
             }
 
+            /*
+             * El cliente únicamente puede cancelar.
+             */
             if (nuevoEstado != EstadoCita.CANCELADA) {
-                throw new AccessDeniedException("Solo puedes cancelar tu cita");
+
+                throw new AccessDeniedException(
+                        "Solo puedes cancelar tu cita"
+                );
             }
         }
 
+        // ========================================================
+        // CAMBIAR ESTADO
+        // ========================================================
+
         try {
-            appointmentService.cambiarEstado(id, nuevoEstado);
-            redirectAttributes.addFlashAttribute("success", "Estado de la cita actualizado");
+
+            appointmentService.cambiarEstado(
+                    id,
+                    nuevoEstado
+            );
+
+            redirectAttributes.addFlashAttribute(
+                    "success",
+                    "Estado de la cita actualizado"
+            );
+
         } catch (IllegalArgumentException ex) {
-            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    ex.getMessage()
+            );
         }
 
         return "redirect:/citas";
     }
 
     // ============================================================
-    // MÉTODO AUXILIAR
+    // MÉTODO AUXILIAR - ROLES
     // ============================================================
 
     private boolean tieneRol(
             Authentication auth,
             String rol) {
 
-        if (auth == null) {
+        if (auth == null
+                || auth.getAuthorities() == null) {
+
             return false;
         }
 
@@ -699,9 +1167,12 @@ public class AppointmentController {
                 .stream()
                 .anyMatch(
                         authority ->
-                                rol.equals(
-                                        authority.getAuthority()
-                                )
+                                authority != null
+                                        && rol.equals(
+                                                authority
+                                                        .getAuthority()
+                                        )
                 );
     }
 }
+```
