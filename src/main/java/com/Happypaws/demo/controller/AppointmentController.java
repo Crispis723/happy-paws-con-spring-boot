@@ -1,4 +1,3 @@
-```java
 package com.Happypaws.demo.controller;
 
 import com.Happypaws.demo.dto.AppointmentDTO;
@@ -1175,4 +1174,4 @@ public class AppointmentController {
                 );
     }
 }
-```
+
