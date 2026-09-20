@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+    Fragmento reutilizable de paginación.
+
+    Parámetros:
+      - baseUrl:     ruta base del listado, ej. "/ventas" (sin query params).
+      - currentPage: página actual, 0-based (igual que Spring Data Pageable).
+      - totalPages:  total de páginas disponibles.
+      - totalItems:  total de registros (para el texto "X de Y resultados").
+      - pageSize:    tamaño de página actual.
+
+    No se muestra nada si totalPages <= 1 (no tiene sentido paginar una sola página).
+-->
+<nav th:fragment="nav(baseUrl, currentPage, totalPages, totalItems, pageSize)"
+     th:if="${totalPages > 1}"
+     aria-label="Paginación"
+     class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 mt-3">
+
+    <span class="text-muted small"
+          th:text="${'Página ' + (currentPage + 1) + ' de ' + totalPages + ' (' + totalItems + ' resultados)'}">
+        Página 1 de 1
+    </span>
+
+    <ul class="pagination pagination-sm mb-0">
+        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{${baseUrl}(page=${currentPage - 1}, size=${pageSize})}"
+               th:if="${currentPage > 0}">Anterior</a>
+            <span class="page-link" th:unless="${currentPage > 0}">Anterior</span>
+        </li>
+
+        <li class="page-item"
+            th:each="numeroPagina : ${#numbers.sequence(0, totalPages - 1)}"
+            th:classappend="${numeroPagina == currentPage} ? 'active'">
+            <a class="page-link"
+               th:href="@{${baseUrl}(page=${numeroPagina}, size=${pageSize})}"
+               th:text="${numeroPagina + 1}">1</a>
+        </li>
+
+        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{${baseUrl}(page=${currentPage + 1}, size=${pageSize})}"
+               th:if="${currentPage < totalPages - 1}">Siguiente</a>
+            <span class="page-link" th:unless="${currentPage < totalPages - 1}">Siguiente</span>
+        </li>
+    </ul>
+
+</nav>
+
+</body>
+</html>

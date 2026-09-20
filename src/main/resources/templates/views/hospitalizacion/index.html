@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospitalización - Happy Paws</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.min.css}">
+    <link rel="stylesheet" th:href="@{/css/happypaws-ui.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+<div th:replace="~{partials/session-guard :: guard}"></div>
+</head>
+<body>
+    <div th:insert="~{partials/header :: header}"></div>
+    <div class="page-shell">
+
+        <div class="hero-panel d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+            <div>
+                <span class="hero-kicker mb-2"><i class="bi bi-hospital"></i> Hospitalización</span>
+                <h1 class="display-6 fw-bold mb-1">Mascotas internadas</h1>
+                <p class="mb-0 opacity-75">Ingresos activos y su evolución en tiempo real</p>
+            </div>
+            <a th:href="@{/hospitalizacion/nueva}" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4">
+                <i class="bi bi-plus-lg me-1"></i> Nuevo ingreso
+            </a>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <ul class="nav nav-pills mb-3">
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${vista == 'activas'} ? 'active'" th:href="@{/hospitalizacion(vista='activas')}">Activas</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:classappend="${vista == 'historial'} ? 'active'" th:href="@{/hospitalizacion(vista='historial')}">Historial</a>
+            </li>
+        </ul>
+
+        <!-- ACTIVAS: tarjetas, una por mascota internada -->
+        <div th:if="${vista == 'activas'}" class="row g-3">
+            <div th:if="${#lists.isEmpty(activas)}" class="col-12">
+                <div class="surface-card p-4 text-center text-muted">No hay mascotas hospitalizadas en este momento</div>
+            </div>
+            <div class="col-md-6 col-lg-4" th:each="h : ${activas}">
+                <a th:href="@{/hospitalizacion/{id}(id=${h.id})}" class="text-decoration-none">
+                    <div class="surface-card p-4 h-100">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h3 class="h5 fw-bold mb-0 text-dark" th:text="${h.mascota.nombre}">Mascota</h3>
+                            <span class="badge rounded-pill px-3 py-2" th:style="'background-color:' + ${h.estado.colorHex} + ';color:#fff;'" th:text="${h.estado.etiqueta}">Estable</span>
+                        </div>
+                        <p class="text-muted small mb-1"><i class="bi bi-columns-gap me-1"></i> Jaula <strong th:text="${h.jaula}">A-01</strong></p>
+                        <p class="text-muted small mb-1"><i class="bi bi-calendar-event me-1"></i> Ingreso: <span th:text="${#temporals.format(h.fechaIngreso, 'dd/MM/yyyy HH:mm')}">--</span></p>
+                        <p class="text-muted small mb-0"><i class="bi bi-person-badge me-1"></i> <span th:text="${h.veterinarioResponsable != null ? h.veterinarioResponsable.name : 'Sin asignar'}">--</span></p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- HISTORIAL -->
+        <div th:if="${vista == 'historial'}" class="surface-card p-4">
+            <div class="table-responsive">
+                <table class="table app-table table-hover align-middle mb-0">
+                    <thead>
+                        <tr><th>Mascota</th><th>Jaula</th><th>Ingreso</th><th>Alta</th><th>Estado final</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(historial)}">
+                            <td colspan="6" class="text-center text-muted py-4">Sin hospitalizaciones cerradas todavía</td>
+                        </tr>
+                        <tr th:each="h : ${historial}">
+                            <td class="fw-semibold" th:text="${h.mascota.nombre}">--</td>
+                            <td th:text="${h.jaula}">--</td>
+                            <td th:text="${#temporals.format(h.fechaIngreso, 'dd/MM/yyyy HH:mm')}">--</td>
+                            <td th:text="${h.fechaAlta != null ? #temporals.format(h.fechaAlta, 'dd/MM/yyyy HH:mm') : '-'}">--</td>
+                            <td><span class="badge rounded-pill px-3 py-2" th:style="'background-color:' + ${h.estado.colorHex} + ';color:#fff;'" th:text="${h.estado.etiqueta}">--</span></td>
+                            <td><a th:href="@{/hospitalizacion/{id}(id=${h.id})}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <nav th:if="${totalPages > 1}" aria-label="Paginación" class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 mt-3">
+                <span class="text-muted small" th:text="${'Página ' + (currentPage + 1) + ' de ' + totalPages + ' (' + totalItems + ' resultados)'}">Página 1 de 1</span>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/hospitalizacion(vista='historial',page=${currentPage - 1})}" th:if="${currentPage > 0}">Anterior</a>
+                        <span class="page-link" th:unless="${currentPage > 0}">Anterior</span>
+                    </li>
+                    <li class="page-item" th:each="numeroPagina : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${numeroPagina == currentPage} ? 'active'">
+                        <a class="page-link" th:href="@{/hospitalizacion(vista='historial',page=${numeroPagina})}" th:text="${numeroPagina + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/hospitalizacion(vista='historial',page=${currentPage + 1})}" th:if="${currentPage < totalPages - 1}">Siguiente</a>
+                        <span class="page-link" th:unless="${currentPage < totalPages - 1}">Siguiente</span>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+    <div th:insert="~{partials/footer :: footer}"></div>
+</body>
+</html>

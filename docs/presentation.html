@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Presentación - Happy Paws</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;max-width:900px;margin:40px auto;color:#222}
+    h1,h2{color:#2b6cb0}
+    .slide{padding:28px;border-bottom:1px solid #eee;margin-bottom:18px}
+    .meta{color:#666;font-size:14px}
+    ul{line-height:1.5}
+    .screenshot{max-width:100%;border:1px solid #ddd;margin-top:10px}
+  </style>
+</head>
+<body>
+  <h1>Happy Paws — Resumen para presentación</h1>
+  <p class="meta">Proyecto: aplicación de gestión para clínica veterinaria — Spring Boot + Thymeleaf</p>
+
+  <div class="slide">
+    <h2>Objetivo</h2>
+    <p>Aplicación CRUD para manejo de clientes, mascotas, citas, productos y ventas, pensada como demo funcional.</p>
+  </div>
+
+  <div class="slide">
+    <h2>Arquitectura</h2>
+    <ul>
+      <li>Spring Boot (controladores, servicios, repositorios)</li>
+      <li>Thymeleaf para vistas server-side</li>
+      <li>Recursos estáticos: `src/main/resources/static`</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Puntos clave</h2>
+    <ul>
+      <li>Separación por módulos de vistas en `templates/views`</li>
+      <li>Componentes reutilizables en `templates/views/components`</li>
+      <li>Archivos estáticos centralizados en `static/assets`</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Recomendaciones de mejora</h2>
+    <ul>
+      <li>Consolidar partials (header/footer/modals) en `components`.</li>
+      <li>Mover imágenes por módulo: `static/assets/img/<modulo>/`.</li>
+      <li>Eliminar templates duplicadas o vacías y documentar rutas principales.</li>
+    </ul>
+  </div>
+
+  <div class="slide">
+    <h2>Cómo ejecutar (rápido)</h2>
+    <pre>mvn clean package
+./mvnw spring-boot:run</pre>
+  </div>
+
+  <div class="slide">
+    <h2>Capturas</h2>
+    <p>Incluye capturas importantes en `src/main/resources/static/assets/img` y menciona rutas en la presentación.</p>
+  </div>
+
+  <footer style="margin-top:32px;color:#888;font-size:13px">Generado automáticamente — editar en `docs/presentation.html`</footer>
+</body>
+</html>

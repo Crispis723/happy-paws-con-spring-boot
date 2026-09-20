@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Ficha de ' + ${mascota.nombre} + ' - Happy Paws'">Ficha de mascota</title>
+    <link rel="stylesheet" th:href="@{/css/adminlte.min.css}">
+    <link rel="stylesheet" th:href="@{/css/happypaws-ui.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+
+<div th:replace="~{partials/session-guard :: guard}"></div>
+
+</head>
+<body>
+    <div th:insert="~{partials/header :: header}"></div>
+    <div class="page-shell">
+
+        <div class="hero-panel d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <img th:if="${mascota.foto != null}" th:src="@{/uploads/mascotas/{f}(f=${mascota.foto})}"
+                     alt="Foto de la mascota" style="width:72px;height:72px;border-radius:20px;object-fit:cover;border:3px solid rgba(255,255,255,.5);">
+                <div th:if="${mascota.foto == null}" style="width:72px;height:72px;border-radius:20px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:1.8rem;">
+                    <i class="bi bi-heart-fill"></i>
+                </div>
+                <div>
+                    <span class="hero-kicker mb-2"><i class="bi bi-file-medical"></i> Ficha clínica</span>
+                    <h1 class="display-6 fw-bold mb-1" th:text="${mascota.nombre} + ' — ' + ${mascota.raza != null and !#strings.isEmpty(mascota.raza) ? mascota.raza : mascota.especie}">Mascota</h1>
+                    <p class="mb-0 opacity-75" th:text="${mascota.clienteNombre}">Propietario</p>
+                </div>
+            </div>
+            <div class="d-flex flex-column flex-sm-row gap-2">
+                <a th:href="@{/mascotas}" class="btn btn-outline-light btn-lg rounded-pill fw-semibold px-4"><i class="bi bi-arrow-left me-1"></i> Regresar</a>
+                <a th:if="${canManageAllPets}" th:href="@{/mascotas/edit/{id}(id=${mascota.id})}" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4"><i class="bi bi-pencil me-1"></i> Editar</a>
+                <a th:href="@{/historial/mascota/{id}(id=${mascota.id})}" class="btn btn-light btn-lg rounded-pill fw-semibold text-info px-4"><i class="bi bi-journal-medical me-1"></i> Historial completo</a>
+            </div>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <div class="row g-4">
+            <!-- DATOS BÁSICOS -->
+            <div class="col-lg-6">
+                <div class="surface-card p-4 h-100">
+                    <h2 class="h5 fw-bold mb-3"><i class="bi bi-card-checklist me-1"></i> Datos básicos</h2>
+                    <dl class="row mb-0">
+                        <dt class="col-5 text-muted">Especie</dt><dd class="col-7" th:text="${mascota.especie}">--</dd>
+                        <dt class="col-5 text-muted">Raza</dt><dd class="col-7" th:text="${mascota.raza ?: '-'}">--</dd>
+                        <dt class="col-5 text-muted">Sexo</dt><dd class="col-7" th:text="${mascota.sexo ?: '-'}">--</dd>
+                        <dt class="col-5 text-muted">Fecha de nacimiento</dt><dd class="col-7" th:text="${mascota.fechaNacimiento ?: 'No registrada'}">--</dd>
+                        <dt class="col-5 text-muted">Edad</dt><dd class="col-7" th:text="${mascota.edadCalculada != null ? mascota.edadCalculada + ' años' : 'No registrada'}">--</dd>
+                        <dt class="col-5 text-muted">Color</dt><dd class="col-7" th:text="${mascota.color ?: '-'}">--</dd>
+                        <dt class="col-5 text-muted">Peso actual</dt><dd class="col-7" th:text="${mascota.pesoActual != null ? mascota.pesoActual + ' kg' : 'No registrado'}">--</dd>
+                        <dt class="col-5 text-muted">Microchip</dt><dd class="col-7" th:text="${mascota.chip ?: 'Sin chip registrado'}">--</dd>
+                        <dt class="col-5 text-muted">Propietario</dt><dd class="col-7" th:text="${mascota.clienteNombre}">--</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- DATOS MÉDICOS -->
+            <div class="col-lg-6">
+                <div class="surface-card p-4 h-100">
+                    <h2 class="h5 fw-bold mb-3"><i class="bi bi-heart-pulse me-1"></i> Datos médicos</h2>
+                    <dl class="row mb-0">
+                        <dt class="col-5 text-muted">Esterilizado/a</dt>
+                        <dd class="col-7">
+                            <span th:class="${mascota.esterilizado} ? 'role-badge role-badge--success' : 'role-badge role-badge--danger'"
+                                  th:text="${mascota.esterilizado} ? 'Sí' : 'No'">--</span>
+                        </dd>
+                        <dt class="col-5 text-muted">Alergias</dt><dd class="col-7" th:text="${mascota.alergias ?: 'Ninguna registrada'}">--</dd>
+                        <dt class="col-5 text-muted">Enfermedades conocidas</dt><dd class="col-7" th:text="${mascota.enfermedadesConocidas ?: 'Ninguna registrada'}">--</dd>
+                        <dt class="col-5 text-muted">Medicamentos actuales</dt><dd class="col-7" th:text="${mascota.medicamentosActuales ?: 'Ninguno registrado'}">--</dd>
+                        <dt class="col-5 text-muted">Antecedentes</dt><dd class="col-7" th:text="${mascota.antecedentes ?: '-'}">--</dd>
+                        <dt class="col-5 text-muted">Observaciones</dt><dd class="col-7" th:text="${mascota.observaciones ?: '-'}">--</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- VACUNAS -->
+        <div class="surface-card p-4 mt-4">
+            <h2 class="h5 fw-bold mb-3"><i class="bi bi-shield-plus me-1"></i> Vacunas</h2>
+            <div class="table-responsive">
+                <table class="table app-table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Vacuna</th><th>Fecha</th><th>Próxima dosis</th><th>Lote</th><th>Veterinario</th>
+                            <th th:if="${canManageAllPets}">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(vacunas)}">
+                            <td th:colspan="${canManageAllPets} ? 6 : 5" class="text-center text-muted py-3">Aún no hay vacunas registradas</td>
+                        </tr>
+                        <tr th:each="v : ${vacunas}">
+                            <td class="fw-semibold" th:text="${v.nombre}">--</td>
+                            <td th:text="${v.fecha}">--</td>
+                            <td th:text="${v.proximaDosis ?: '-'}">--</td>
+                            <td th:text="${v.lote ?: '-'}">--</td>
+                            <td th:text="${v.veterinario ?: '-'}">--</td>
+                            <td th:if="${canManageAllPets}">
+                                <a th:href="@{/mascotas/{petId}/vacunas/{id}/eliminar(petId=${mascota.id},id=${v.id})}"
+                                   class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este registro de vacuna?');" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <form th:if="${canManageAllPets}" th:action="@{/mascotas/{petId}/vacunas/guardar(petId=${mascota.id})}" method="post" class="row g-2 mt-3 pt-3 border-top">
+                <div class="col-md-3">
+                    <input type="text" class="form-control" name="nombre" placeholder="Vacuna (ej. Rabia)" required>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" class="form-control" name="fecha" required>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" class="form-control" name="proximaDosis" placeholder="Próxima dosis">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="lote" placeholder="Lote">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="veterinario" placeholder="Veterinario">
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-plus-lg"></i></button>
+                </div>
+            </form>
+        </div>
+
+        <!-- DESPARASITACIÓN -->
+        <div class="surface-card p-4 mt-4">
+            <h2 class="h5 fw-bold mb-3"><i class="bi bi-bug me-1"></i> Desparasitación</h2>
+            <div class="table-responsive">
+                <table class="table app-table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Producto</th><th>Fecha</th><th>Próxima</th><th>Dosis</th>
+                            <th th:if="${canManageAllPets}">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(desparasitaciones)}">
+                            <td th:colspan="${canManageAllPets} ? 5 : 4" class="text-center text-muted py-3">Aún no hay desparasitaciones registradas</td>
+                        </tr>
+                        <tr th:each="d : ${desparasitaciones}">
+                            <td class="fw-semibold" th:text="${d.producto}">--</td>
+                            <td th:text="${d.fecha}">--</td>
+                            <td th:text="${d.proximaFecha ?: '-'}">--</td>
+                            <td th:text="${d.dosis ?: '-'}">--</td>
+                            <td th:if="${canManageAllPets}">
+                                <a th:href="@{/mascotas/{petId}/desparasitaciones/{id}/eliminar(petId=${mascota.id},id=${d.id})}"
+                                   class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este registro?');" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <form th:if="${canManageAllPets}" th:action="@{/mascotas/{petId}/desparasitaciones/guardar(petId=${mascota.id})}" method="post" class="row g-2 mt-3 pt-3 border-top">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="producto" placeholder="Producto" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="date" class="form-control" name="fecha" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="date" class="form-control" name="proximaFecha" placeholder="Próxima">
+                </div>
+                <div class="col-md-1">
+                    <input type="text" class="form-control" name="dosis" placeholder="Dosis">
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-plus-lg"></i></button>
+                </div>
+            </form>
+        </div>
+
+        <!-- HISTORIAL RECIENTE -->
+        <div class="surface-card p-4 mt-4 mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h2 class="h5 fw-bold mb-0"><i class="bi bi-journal-medical me-1"></i> Últimas consultas</h2>
+                <a th:href="@{/historial/mascota/{id}(id=${mascota.id})}" class="btn btn-sm btn-outline-info">Ver historial completo</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table app-table table-hover align-middle mb-0">
+                    <thead>
+                        <tr><th>Fecha</th><th>Título</th><th>Diagnóstico</th><th>Próximo control</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(historialReciente)}">
+                            <td colspan="4" class="text-center text-muted py-3">Sin registros clínicos todavía</td>
+                        </tr>
+                        <tr th:each="h : ${historialReciente}">
+                            <td th:text="${h.fechaRegistro}">--</td>
+                            <td class="fw-semibold" th:text="${h.titulo}">--</td>
+                            <td th:text="${h.diagnostico ?: '-'}">--</td>
+                            <td th:text="${h.proximoControl ?: '-'}">--</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <a th:href="@{/citas/create}" class="btn btn-primary btn-lg rounded-pill"><i class="bi bi-calendar-plus me-1"></i> Pedir cita para esta mascota</a>
+        </div>
+    </div>
+    <div th:insert="~{partials/footer :: footer}"></div>
+</body>
+</html>

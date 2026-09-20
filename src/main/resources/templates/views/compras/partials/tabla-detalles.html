@@ -1,0 +1,48 @@
+<div class="table-responsive rounded-4 border bg-white shadow-sm overflow-hidden">
+    <table class="table table-bordered table-sm align-middle mb-0" id="tablaDetalles">
+        <thead class="table-light text-center">
+            <tr>
+                <th>Acción</th>
+                <th>#</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot class="table-light">
+            <tr>
+                <td colspan="5" class="text-end fw-semibold">OP. Gravada</td>
+                <td>
+                    <input type="text" readonly class="form-control form-control-sm text-end" id="op_gravada" name="op_gravada" value="0.00">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-end fw-semibold">OP. Exonerada</td>
+                <td>
+                    <input type="text" readonly class="form-control form-control-sm text-end" id="op_exonerada" name="op_exonerada" value="0.00">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-end fw-semibold">OP. Inafecta</td>
+                <td>
+                    <input type="text" readonly class="form-control form-control-sm text-end" id="op_inafecta" name="op_inafecta" value="0.00">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-end fw-semibold">Impuesto</td>
+                <td>
+                    <input type="text" readonly class="form-control form-control-sm text-end" id="impuesto" name="impuesto" value="0.00">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-end fw-bold">Total</td>
+                <td>
+                    <input type="text" readonly class="form-control form-control-sm text-end fw-bold" id="total" name="total" value="0.00" data-error-field="detalles">
+                    <div class="invalid-feedback"></div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

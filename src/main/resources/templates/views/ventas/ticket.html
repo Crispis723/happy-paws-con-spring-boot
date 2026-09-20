@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante de venta</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 11px; margin: 0; padding: 0; background: #fff; color: #111; }
+        .ticket { width: 280px; margin: 0 auto; padding: 16px 14px; }
+        .center { text-align: center; }
+        .bold { font-weight: 700; }
+        .line { border-top: 1px dashed #000; margin: 8px 0; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 2px 0; vertical-align: top; }
+        .totales td { padding: 3px 0; }
+    </style>
+</head>
+<body>
+    <div class="ticket">
+        <div class="center">
+            <h3 class="bold" th:text="${empresa.razonSocial}">Happy Paws</h3>
+            <p th:text="${empresa.direccion}">Dirección</p>
+            <p th:text="'RUC: ' + ${empresa.ruc}">RUC</p>
+            <p class="bold">VENTA REGISTRADA</p>
+            <p class="bold" th:text="${venta.numero}">V00001</p>
+        </div>
+        <div class="line"></div>
+        <p><strong>Cliente:</strong> <span th:text="${venta.cliente != null ? venta.cliente.razonSocial : '-'}">-</span></p>
+        <p><strong>Documento:</strong> <span th:text="${venta.cliente != null ? venta.cliente.documentoTipoCodigo : '-'}">-</span> <span th:text="${venta.cliente != null ? venta.cliente.numeroDocumento : '-'}">-</span></p>
+        <p><strong>Dirección:</strong> <span th:text="${venta.cliente != null ? venta.cliente.direccion : '-'}">-</span></p>
+        <p><strong>Fecha:</strong> <span th:text="${venta.fecha}">-</span></p>
+        <div class="line"></div>
+        <table th:if="${venta.detalles != null and !venta.detalles.isEmpty()}">
+            <tr class="bold">
+                <td style="width: 46%;">Producto</td>
+                <td style="width: 12%; text-align: center;">Cant.</td>
+                <td style="width: 20%; text-align: right;">P.Unit.</td>
+                <td style="width: 22%; text-align: right;">Subtotal</td>
+            </tr>
+            <tr><td colspan="4" style="border-top: 1px solid #000; padding: 1px 0;"></td></tr>
+            <tr th:each="d : ${venta.detalles}">
+                <td th:text="${d.producto.nombre}">Producto</td>
+                <td style="text-align: center;" th:text="${d.cantidad}">1</td>
+                <td style="text-align: right;" th:text="${#numbers.formatDecimal(d.precioUnitario, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+                <td style="text-align: right;" th:text="${#numbers.formatDecimal(d.subtotal, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+            </tr>
+        </table>
+        <div class="line" th:if="${venta.detalles != null and !venta.detalles.isEmpty()}"></div>
+        <table>
+            <tr class="bold">
+                <td style="width: 70%;">Concepto</td>
+                <td style="width: 30%; text-align: right;">Valor</td>
+            </tr>
+            <tr><td colspan="4" style="border-top: 1px solid #000; padding: 1px 0;"></td></tr>
+            <tr>
+                <td>Forma de pago</td>
+                <td style="text-align: right; text-transform: capitalize;" th:text="${venta.formaPago}">-</td>
+            </tr>
+            <tr>
+                <td>Estado</td>
+                <td style="text-align: right; text-transform: capitalize;" th:text="${venta.estado}">-</td>
+            </tr>
+        </table>
+        <table class="totales">
+            <tr><td>Subtotal:</td><td style="text-align: right;" th:text="'S/ ' + ${#numbers.formatDecimal(venta.subtotal, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</td></tr>
+            <tr><td>IGV:</td><td style="text-align: right;" th:text="'S/ ' + ${#numbers.formatDecimal(venta.igv, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</td></tr>
+            <tr class="bold"><td>TOTAL:</td><td style="text-align: right;" th:text="'S/ ' + ${#numbers.formatDecimal(venta.total, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</td></tr>
+        </table>
+        <div class="line"></div>
+        <div class="center">
+            <p>¡Gracias por su compra!</p>
+        </div>
+    </div>
+</body>
+</html>

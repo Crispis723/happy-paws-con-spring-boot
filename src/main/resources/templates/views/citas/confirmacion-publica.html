@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo} + ' - Happy Paws'">Happy Paws</title>
+    <link rel="shortcut icon" th:href="@{/assets/favicon.ico}" type="image/x-icon">
+    <link rel="stylesheet" th:href="@{/bootstrap-icons-1.13.1/bootstrap-icons.min.css}">
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: radial-gradient(circle at top left, rgba(138,223,215,.25), transparent 26%),
+                        radial-gradient(circle at top right, rgba(88,184,199,.18), transparent 24%),
+                        linear-gradient(180deg, #f8fdfd 0%, #eef8f7 100%);
+            padding: 1.5rem;
+        }
+        .card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 24px;
+            box-shadow: 0 16px 36px rgba(71, 150, 164, 0.15);
+            max-width: 480px;
+            width: 100%;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        .icono {
+            font-size: 3.2rem;
+            margin-bottom: 1rem;
+        }
+        .icono.exito { color: #2ecc71; }
+        .icono.error { color: #e74c3c; }
+        h1 { font-size: 1.5rem; margin-bottom: 0.75rem; color: #2c3e50; }
+        p { color: #555; line-height: 1.6; }
+        a.volver {
+            display: inline-block;
+            margin-top: 1.5rem;
+            padding: 10px 26px;
+            border-radius: 999px;
+            background: #58b8c7;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div th:if="${exito}" class="icono exito"><i class="bi bi-check-circle-fill"></i></div>
+        <div th:unless="${exito}" class="icono error"><i class="bi bi-x-circle-fill"></i></div>
+
+        <h1 th:text="${titulo}">Título</h1>
+        <p th:text="${mensaje}">Mensaje</p>
+
+        <a th:href="@{/login}" class="volver">Ir a Happy Paws</a>
+    </div>
+</body>
+</html>
